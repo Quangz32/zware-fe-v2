@@ -1,0 +1,138 @@
+a {
+  text-decoration: none;
+}
+
+li {
+  list-style: none;
+}
+
+h1 {
+  font-weight: 600;
+  font-size: 1.5rem;
+}
+
+.wrapper {
+  display: flex;
+}
+
+#sidebar {
+  width: 260px; /* Always expanded */
+  min-width: 260px; /* Always expanded */
+  height: 100vh;
+  position: fixed;
+  z-index: 1000;
+  background-color: #0e2238;
+  display: flex;
+  flex-direction: column;
+  border: none;
+}
+
+.toggle-btn {
+  display: none; /* Remove the toggle button */
+}
+
+.logo-container {
+  display: flex;
+  justify-content: center; /* Center the logo horizontally */
+  align-items: center;
+  height: 70px; /* Adjust as needed */
+}
+
+.sidebar-logo a {
+  color: #fff;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.sidebar-nav {
+  padding: 0.25rem 0;
+  flex: 1 1 auto;
+}
+
+a.sidebar-link {
+  padding: 0.625rem 1.625rem;
+  color: #fff;
+  display: block;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  border-left: 3px solid transparent;
+}
+
+.sidebar-link i {
+  font-size: 1.1rem;
+  margin-right: 0.75rem;
+}
+
+a.sidebar-link:hover {
+  background-color: rgba(255, 255, 255, 0.075);
+  border-left: 3px solid #3b7ddd;
+}
+
+.sidebar-item {
+  position: relative;
+}
+
+.has-dropdown .sidebar-dropdown {
+  display: none;
+}
+
+.has-dropdown:hover .sidebar-dropdown {
+  display: block;
+}
+
+.sidebar-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-footer a {
+  color: #fff;
+  display: flex;
+  align-items: center;
+}
+
+.sidebar-footer i {
+  margin-right: 0.75rem;
+}
+
+.profile {
+  text-align: center;
+  margin: 5px 0 0;
+}
+
+.profile img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-bottom: 0.5rem;
+}
+
+.profile span {
+  color: #fff;
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.role {
+  text-align: center;
+  color: #fff;
+  padding: 10px 0;
+}
+
+.role-box {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 20px;
+  background-color: #495057;
+  font-size: 14px;
+  margin: 0 auto;
+}
+
+.sidebar-dropdown {
+  padding-left: 1.625rem;
+}
+
+.sidebar-dropdown a {
+  padding: 0.5rem 0;
+  display: block;
+}

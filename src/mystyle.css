@@ -1,0 +1,20 @@
+.my-cursor-pointer {
+  cursor: pointer !important;
+}
+
+/* for ALERT */
+.alert-container {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 25%; /* Adjust width to 1/4 of the screen */
+  transition: opacity 0.5s ease-in-out; /* Smooth fade transition */
+}
+
+.fade-in {
+  opacity: 1;
+}
+
+.fade-out {
+  opacity: 0;
+}
