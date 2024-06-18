@@ -4,6 +4,11 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import "./Sidebar.css";
 import { Link } from "react-router-dom";
 
+//Handle LOGOUT
+function handleLogout() {
+  localStorage.removeItem("token");
+}
+
 const Sidebar = () => {
   return (
     <aside id="sidebar" className="expand">
@@ -81,7 +86,7 @@ const Sidebar = () => {
         </li>
       </ul>
       <div className="sidebar-footer">
-        <Link to="/login" className="sidebar-link">
+        <Link to="/login" className="sidebar-link" onClick={handleLogout}>
           <i className="bi bi-box-arrow-right"></i>
           <span>Logout</span>
         </Link>

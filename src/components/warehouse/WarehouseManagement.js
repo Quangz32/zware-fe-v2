@@ -1,19 +1,30 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
+import MyAxios from "../../util/MyAxios";
 import "../../mystyle.css";
 
 const WarehouseManagement = () => {
-  const [warehouses, setWarehouses] = useState([
-    { id: 1, name: "Warehouse A", address: "123 Main St" },
-    { id: 2, name: "Warehouse B", address: "456 Oak Ave" },
-  ]);
+  //useState HOOKS for data
+  const [warehouses, setWarehouses] = useState([]);
+  const [zones, setZones] = useState([]);
 
-  const [zones, setZones] = useState([
-    { id: 1, warehouseId: 1, name: "Zone 1" },
-    { id: 2, warehouseId: 1, name: "Zone 2" },
-    { id: 3, warehouseId: 2, name: "Zone 1" },
-  ]);
+  //Fetch warehouses and zones from DB
+  function fetchData() {
+    MyAxios.get("warehouses").then((res) => {
+      setWarehouses(res.data);
+    });
 
+    MyAxios.get("zones").then((res) => {
+      setZones(res.data);
+    });
+  }
+
+  //useEffect HOOK
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  //other useState HOOK
   const [showWarehouseModal, setShowWarehouseModal] = useState(false);
   const [showZoneModal, setShowZoneModal] = useState(false);
 
@@ -109,7 +120,7 @@ const WarehouseManagement = () => {
           <input
             type="text"
             className="form-control"
-            placeholder="Type something"
+            placeholder="Search warehouse"
             aria-label="Search"
             aria-describedby="basic-addon1"
           />
@@ -144,7 +155,7 @@ const WarehouseManagement = () => {
               <table className="table">
                 <tbody>
                   {zones
-                    .filter((zone) => zone.warehouseId === warehouse.id)
+                    .filter((zone) => zone.warehouse_id === warehouse.id)
                     .map((zone) => (
                       <tr key={zone.id} className="row">
                         <td className="col">{zone.name}</td>
@@ -184,7 +195,9 @@ const WarehouseManagement = () => {
         <Modal.Body>
           <Form>
             <Form.Group>
-              <Form.Label>Warehouse Name</Form.Label>
+              <Form.Label>
+                <strong>Warehouse Name</strong>
+              </Form.Label>
               <Form.Control
                 type="text"
                 value={warehouseForm.name}
@@ -194,8 +207,10 @@ const WarehouseManagement = () => {
                 required
               />
             </Form.Group>
-            <Form.Group>
-              <Form.Label>Warehouse Address</Form.Label>
+            <Form.Group className="mt-3">
+              <Form.Label>
+                <strong>Warehouse Address</strong>
+              </Form.Label>
               <Form.Control
                 type="text"
                 value={warehouseForm.address}

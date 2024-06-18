@@ -3,13 +3,6 @@ import MyAlert from "../share/MyAlert";
 import MyAxios from "../../util/MyAxios";
 import { useNavigate } from "react-router-dom";
 
-//Style
-const containerStyle = {
-  width: "400px",
-  textAlign: "center",
-  margin: "0px auto",
-};
-
 //#Style
 
 export default function Login() {
@@ -37,21 +30,26 @@ export default function Login() {
 
     await MyAxios.post("/auth/login", formData)
       .then((res) => {
-        // console.log(res.data);
-        if (res.data.status === "success") {
-          setAlertMessage("Login success");
+        console.log(res);
+        if (res.status === 200) {
+          //save jwt to local storage
+          console.log(res.data);
+          localStorage.setItem("token", res.data.data);
+
+          //display message
+          setAlertMessage(res.data.message);
           setAlertVariant("success");
           triggerAlert();
 
+          //go to /home
           setTimeout(function () {
             navigate("/home");
-          }, 500);
+          }, 1000);
         }
       })
       .catch((e) => {
-        // console.log(e);
-        if (e.response.data.status === "fail") {
-          setAlertMessage("Email or password is invalid");
+        if (e.response.status === 400) {
+          setAlertMessage(e.response.data.message);
           setAlertVariant("warning");
           triggerAlert();
         }
@@ -59,8 +57,9 @@ export default function Login() {
   }
 
   return (
-    <div style={containerStyle}>
-      <div className="card">
+    <div className="d-flex flex-column align-items-center">
+      <h4 className="mb-3">Welcome to Warehouse Management System</h4>
+      <div className="card text-center" style={{ width: "400px" }}>
         <article className="card-body">
           {/* header */}
           <h4 className="card-title text-center mb-4 mt-1">Sign in</h4>

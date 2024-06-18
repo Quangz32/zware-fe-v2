@@ -10,7 +10,7 @@ const instance = axios.create({
 
 // Tạo một hàm để cập nhật header Authorization
 function updateAuthorizationHeader(config) {
-  const token = localStorage.getItem("jwt-token");
+  const token = localStorage.getItem("token");
   if (token) {
     config.headers["Authorization"] = "Bearer " + token;
   } else {
