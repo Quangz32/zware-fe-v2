@@ -11,7 +11,11 @@ const WarehouseManagement = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
 
-  const [warehouseForm, setWarehouseForm] = useState({ name: "", address: "" });
+  const [warehouseForm, setWarehouseForm] = useState({
+    id: 0,
+    name: "",
+    address: "",
+  });
   const [showWarehouseModal, setShowWarehouseModal] = useState(false);
   const [warehouseModalMode, setWarehouseModalMode] = useState(""); //only "edit" or "add"
 
@@ -19,31 +23,55 @@ const WarehouseManagement = () => {
     setShowWarehouseModal(false);
   }
 
-  function handleOpenWarehouseModal(modeString) {
+  function handleOpenWarehouseModal(modeString, WarehouseFormData) {
     setWarehouseModalMode(modeString);
-    setWarehouseForm({ name: "", address: "" });
+    setWarehouseForm(WarehouseFormData);
     setShowWarehouseModal(true);
   }
 
   function handleSubmit() {
-    MyAxios.post("warehouses", warehouseForm)
-      .then((res) => {
-        //display message
-        setAlertMessage(res.data.message);
-        setAlertVariant("success");
-        triggerAlert();
+    if (warehouseModalMode === "add") {
+      //CALL POST
+      MyAxios.post("warehouses", warehouseForm)
+        .then((res) => {
+          //display message
+          setAlertMessage(res.data.message);
+          setAlertVariant("success");
+          triggerAlert();
 
-        // window.location.reload();
-        setUpdateTrigger((prev) => !prev);
-      })
-      .catch((e) => {
-        console.log(e);
+          // window.location.reload();
+          setUpdateTrigger((prev) => !prev);
+        })
+        .catch((e) => {
+          console.log(e);
 
-        //display message
-        setAlertMessage(e.response.data.message);
-        setAlertVariant("warning");
-        triggerAlert();
-      });
+          //display message
+          setAlertMessage(e.response.data.message);
+          setAlertVariant("warning");
+          triggerAlert();
+        });
+    } else {
+      //CALL PUT
+      MyAxios.put(`warehouses/${warehouseForm.id}`, warehouseForm)
+        .then((res) => {
+          //display message
+          setAlertMessage(res.data.message);
+          setAlertVariant("success");
+          triggerAlert();
+
+          // window.location.reload();
+          setUpdateTrigger((prev) => !prev);
+        })
+        .catch((e) => {
+          console.log(e);
+
+          //display message
+          setAlertMessage(e.response.data.message);
+          setAlertVariant("warning");
+          triggerAlert();
+        });
+    }
+
     handleCloseWarehouseModal();
   }
 
@@ -62,7 +90,9 @@ const WarehouseManagement = () => {
         <Button
           variant="primary"
           className="mb-3 me-3"
-          onClick={() => handleOpenWarehouseModal("add")}
+          onClick={() =>
+            handleOpenWarehouseModal("add", { id: 0, name: "", address: "" })
+          }
         >
           <i className="bi bi-plus-circle me-1"></i>
           New Warehouse
@@ -91,6 +121,8 @@ const WarehouseManagement = () => {
       <WarehouseList
         searchTerm={searchTerm}
         updateTrigger={updateTrigger}
+        handleOpenWarehouseModal={handleOpenWarehouseModal}
+        setWarehouseForm={setWarehouseForm}
       ></WarehouseList>
 
       {/* Modal: Add/Edit Warehouse */}

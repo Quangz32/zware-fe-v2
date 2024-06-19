@@ -52,7 +52,13 @@ export default function WarehouseList(props) {
               <Button variant="primary" size="sm" className="me-2">
                 Add Zone
               </Button>
-              <Button variant="secondary" size="sm">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() =>
+                  props.handleOpenWarehouseModal("edit", warehouse)
+                }
+              >
                 Edit
               </Button>
             </div>
