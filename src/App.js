@@ -6,6 +6,7 @@ import Sidebar from "./components/sidebar/Sidebar";
 import WarehouseManagement from "./components/warehouse/WarehouseManagement";
 import TestComponent from "./components/TestComponent";
 import Login from "./components/login/Login";
+import ProductManagement from "./components/product/ProductManagement";
 
 function AppContent() {
   const location = useLocation();
@@ -30,6 +31,8 @@ function AppContent() {
 
             <Route path="home" element={<Home />} />
             <Route path="warehouses" element={<WarehouseManagement />} />
+            <Route path="products" element={<ProductManagement />} />
+
             <Route path="test" element={<TestComponent />} />
           </Routes>
         </Container>

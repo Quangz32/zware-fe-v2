@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Button, Form } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import MyAxios from "../../util/MyAxios";
 import "../../mystyle.css";
+import DeleteWarehouse from "./DeleteWarehouse";
 
 export default function WarehouseList(props) {
-  //useState HOOKS for data
   const [warehouses, setWarehouses] = useState([]);
 
   // Fetch warehouses and zones from DB
@@ -29,19 +29,25 @@ export default function WarehouseList(props) {
     }
   }
 
-  //useEffect HOOK
   useEffect(() => {
     fetchData();
-  }, [props.updateTrigger]);
+  }, [props.updateTrigger, warehouses]);
 
-  //Filt Warehouse befor render
   const filteredWarehouses = warehouses.filter((warehouse) =>
     warehouse.name.toLowerCase().includes(props.searchTerm.toLowerCase())
   );
 
+  const [showDeleteWarehouse, setShowDeleteWarehouse] = useState(false);
+  const [selectedWarehouse, setSelectedWarehouse] = useState(null);
+
+  const handleDeleteClick = (warehouse) => {
+    setSelectedWarehouse(warehouse);
+    setShowDeleteWarehouse(true);
+    fetchData();
+  };
+
   return (
     <>
-      {/* Warehouse List */}
       <div id="warehouseList">
         {filteredWarehouses.length === 0 && <h3>No warehouses found</h3>}
         {filteredWarehouses.map((warehouse) => (
@@ -61,13 +67,20 @@ export default function WarehouseList(props) {
               >
                 Edit
               </Button>
+              <Button
+                variant="danger"
+                size="sm"
+                className="ms-2"
+                onClick={() => handleDeleteClick(warehouse)}
+              >
+                Delete
+              </Button>
             </div>
             <div className="card-body">
               <h6 className="card-subtitle mb-2 text-muted">Zones:</h6>
               <table className="table">
                 <tbody>
                   {warehouse.zones &&
-                    // .filter((zone) => zone.warehouse_id === warehouse.id)
                     warehouse.zones.map((zone) => (
                       <tr key={zone.id} className="row">
                         <td className="col">{zone.name}</td>
@@ -91,6 +104,13 @@ export default function WarehouseList(props) {
           </div>
         ))}
       </div>
+      {selectedWarehouse && (
+        <DeleteWarehouse
+          warehouse={selectedWarehouse}
+          show={showDeleteWarehouse}
+          setShow={setShowDeleteWarehouse}
+        />
+      )}
     </>
   );
 }
