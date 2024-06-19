@@ -3,7 +3,7 @@ import { Alert } from "react-bootstrap";
 
 //Style
 const alertStyle = {
-  position: "absolute",
+  position: "fixed",
   top: "50px",
   right: "50px",
   width: "25%" /* Adjust width to 1/4 of the screen */,

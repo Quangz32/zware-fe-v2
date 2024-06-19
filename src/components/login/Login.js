@@ -48,7 +48,7 @@ export default function Login() {
         }
       })
       .catch((e) => {
-        if (e.response.status === 400) {
+        if (e.response.status !== 200) {
           setAlertMessage(e.response.data.message);
           setAlertVariant("warning");
           triggerAlert();

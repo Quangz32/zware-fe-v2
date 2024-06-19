@@ -1,101 +1,59 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import MyAxios from "../../util/MyAxios";
 import "../../mystyle.css";
+import WarehouseList from "./WarehouseList";
+import MyAlert from "../share/MyAlert";
 
 const WarehouseManagement = () => {
-  //useState HOOKS for data
-  const [warehouses, setWarehouses] = useState([]);
-  const [zones, setZones] = useState([]);
+  //change this value to re-render Warehouse List
+  const [updateTrigger, setUpdateTrigger] = useState(true);
 
-  //Fetch warehouses and zones from DB
-  function fetchData() {
-    MyAxios.get("warehouses").then((res) => {
-      setWarehouses(res.data);
-    });
-
-    MyAxios.get("zones").then((res) => {
-      setZones(res.data);
-    });
-  }
-
-  //useEffect HOOK
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  //other useState HOOK
-  const [showWarehouseModal, setShowWarehouseModal] = useState(false);
-  const [showZoneModal, setShowZoneModal] = useState(false);
-
-  const [currentWarehouse, setCurrentWarehouse] = useState(null);
-  const [currentZone, setCurrentZone] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const [warehouseForm, setWarehouseForm] = useState({ name: "", address: "" });
-  const [zoneForm, setZoneForm] = useState({ warehouseId: "", name: "" });
+  const [showWarehouseModal, setShowWarehouseModal] = useState(false);
+  const [warehouseModalMode, setWarehouseModalMode] = useState(""); //only "edit" or "add"
 
-  const handleShowWarehouseModal = (warehouse = null) => {
-    setCurrentWarehouse(warehouse);
-    setWarehouseForm(
-      warehouse
-        ? { name: warehouse.name, address: warehouse.address }
-        : { name: "", address: "" }
-    );
+  function handleCloseWarehouseModal() {
+    setShowWarehouseModal(false);
+  }
+
+  function handleOpenWarehouseModal(modeString) {
+    setWarehouseModalMode(modeString);
+    setWarehouseForm({ name: "", address: "" });
     setShowWarehouseModal(true);
-  };
-  const handleCloseWarehouseModal = () => setShowWarehouseModal(false);
+  }
 
-  const handleShowZoneModal = (zone = null, warehouseId = null) => {
-    setCurrentZone(zone);
-    setZoneForm(
-      zone
-        ? { name: zone.name, warehouseId: zone.warehouseId }
-        : { name: "", warehouseId }
-    );
-    setShowZoneModal(true);
-  };
-  const handleCloseZoneModal = () => setShowZoneModal(false);
+  function handleSubmit() {
+    MyAxios.post("warehouses", warehouseForm)
+      .then((res) => {
+        //display message
+        setAlertMessage(res.data.message);
+        setAlertVariant("success");
+        triggerAlert();
 
-  const handleSaveWarehouse = () => {
-    if (currentWarehouse) {
-      const updatedWarehouses = warehouses.map((warehouse) =>
-        warehouse.id === currentWarehouse.id
-          ? { ...warehouse, ...warehouseForm }
-          : warehouse
-      );
-      setWarehouses(updatedWarehouses);
-    } else {
-      const newId = warehouses.length
-        ? warehouses[warehouses.length - 1].id + 1
-        : 1;
-      setWarehouses([...warehouses, { id: newId, ...warehouseForm }]);
-    }
+        // window.location.reload();
+        setUpdateTrigger((prev) => !prev);
+      })
+      .catch((e) => {
+        console.log(e);
+
+        //display message
+        setAlertMessage(e.response.data.message);
+        setAlertVariant("warning");
+        triggerAlert();
+      });
     handleCloseWarehouseModal();
-  };
-
-  const handleSaveZone = () => {
-    if (currentZone) {
-      const updatedZones = zones.map((zone) =>
-        zone.id === currentZone.id ? { ...zone, name: zoneForm.name } : zone
-      );
-      setZones(updatedZones);
-    } else {
-      const newId = zones.length ? zones[zones.length - 1].id + 1 : 1;
-      setZones([...zones, { id: newId, ...zoneForm }]);
-    }
-    handleCloseZoneModal();
-  };
-
-  const handleDeleteZone = (zoneId) => {
-    setZones(zones.filter((zone) => zone.id !== zoneId));
-  };
+  }
 
   //ALERT
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertVariant, setAlertVariant] = useState("");
   const [showAlert, setShowAlert] = useState(false);
   const triggerAlert = () => {
     setShowAlert(true);
   };
-  //#ALERT
 
   return (
     <div className="container">
@@ -104,7 +62,7 @@ const WarehouseManagement = () => {
         <Button
           variant="primary"
           className="mb-3 me-3"
-          onClick={() => handleShowWarehouseModal()}
+          onClick={() => handleOpenWarehouseModal("add")}
         >
           <i className="bi bi-plus-circle me-1"></i>
           New Warehouse
@@ -123,73 +81,25 @@ const WarehouseManagement = () => {
             placeholder="Search warehouse"
             aria-label="Search"
             aria-describedby="basic-addon1"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </span>
       </div>
 
       {/* Warehouse List */}
-      <div id="warehouseList">
-        {warehouses.map((warehouse) => (
-          <div className="card mb-3" key={warehouse.id}>
-            <div className="card-header">
-              <h5 className="card-title">{warehouse.name}</h5>
-              <p className="card-text">{warehouse.address}</p>
-              <Button
-                variant="primary"
-                size="sm"
-                className="me-2"
-                onClick={() => handleShowZoneModal(null, warehouse.id)}
-              >
-                Add Zone
-              </Button>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => handleShowWarehouseModal(warehouse)}
-              >
-                Edit
-              </Button>
-            </div>
-            <div className="card-body">
-              <h6 className="card-subtitle mb-2 text-muted">Zones:</h6>
-              <table className="table">
-                <tbody>
-                  {zones
-                    .filter((zone) => zone.warehouse_id === warehouse.id)
-                    .map((zone) => (
-                      <tr key={zone.id} className="row">
-                        <td className="col">{zone.name}</td>
-                        <td className="col">
-                          <Button
-                            variant="outline-primary"
-                            className="me-2"
-                            size="sm"
-                            onClick={() => handleShowZoneModal(zone)}
-                          >
-                            Edit
-                          </Button>
-                          <Button
-                            variant="outline-danger"
-                            size="sm"
-                            onClick={() => handleDeleteZone(zone.id)}
-                          >
-                            Delete
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        ))}
-      </div>
+      <WarehouseList
+        searchTerm={searchTerm}
+        updateTrigger={updateTrigger}
+      ></WarehouseList>
 
       {/* Modal: Add/Edit Warehouse */}
       <Modal show={showWarehouseModal} onHide={handleCloseWarehouseModal}>
         <Modal.Header closeButton>
           <Modal.Title>
-            {currentWarehouse ? "Edit Warehouse" : "Add New Warehouse"}
+            {warehouseModalMode === "edit"
+              ? "Edit Warehouse"
+              : "Add New Warehouse"}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -229,41 +139,21 @@ const WarehouseManagement = () => {
           <Button variant="secondary" onClick={handleCloseWarehouseModal}>
             Close
           </Button>
-          <Button variant="primary" onClick={handleSaveWarehouse}>
-            {currentWarehouse ? "Update Warehouse" : "Save Warehouse"}
+          <Button variant="primary" onClick={handleSubmit}>
+            {warehouseModalMode === "edit"
+              ? "Update Warehouse"
+              : "Save Warehouse"}
           </Button>
         </Modal.Footer>
       </Modal>
 
-      {/* Add/Edit Zone Modal */}
-      <Modal show={showZoneModal} onHide={handleCloseZoneModal}>
-        <Modal.Header closeButton>
-          <Modal.Title>{currentZone ? "Edit Zone" : "Add Zone"}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group>
-              <Form.Label>Zone Name</Form.Label>
-              <Form.Control
-                type="text"
-                value={zoneForm.name}
-                onChange={(e) =>
-                  setZoneForm({ ...zoneForm, name: e.target.value })
-                }
-                required
-              />
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseZoneModal}>
-            Close
-          </Button>
-          <Button variant="primary" onClick={handleSaveZone}>
-            {currentZone ? "Update Zone" : "Save Zone"}
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      {/* ALERT */}
+      <MyAlert
+        message={alertMessage}
+        variant={alertVariant}
+        show={showAlert}
+        setShow={setShowAlert}
+      />
     </div>
   );
 };
