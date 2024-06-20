@@ -4,31 +4,27 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import MyAlert from "./share/MyAlert";
 import ProductCard from "./product/ProductCard";
 import ConfirmModal from "./share/ConfirmModal";
+import ZoneForm from "./warehouse/ZoneForm";
 
 const TestComponent = () => {
   const [showModal, setShowModal] = useState(false);
-
-  const handleShow = () => setShowModal(true);
-  const handleClose = () => setShowModal(false);
-  const handleConfirm = () => {
-    console.log("Confirmed!");
-    setShowModal(false);
+  const zone = {
+    id: 1,
+    name: "Shit",
+    warehouse_id: 8,
   };
-
   return (
-    <div className="App">
-      <Button variant="danger" onClick={handleShow}>
-        Delete Item
+    <>
+      <Button variant="outline-primary" onClick={() => setShowModal(true)}>
+        Edit
       </Button>
-
-      <ConfirmModal
+      <ZoneForm
+        mode="add"
+        zone={zone}
         show={showModal}
-        handleClose={handleClose}
-        handleConfirm={handleConfirm}
-        title="Confirm Deletion"
-        body="Are you sure you want to delete this item?"
+        setShow={setShowModal}
       />
-    </div>
+    </>
   );
 };
 

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "react-bootstrap";
 import MyAxios from "../../util/MyAxios";
-import "../../mystyle.css";
 import DeleteWarehouse from "./DeleteWarehouse";
+import WarehouseForm from "./WarehouseForm";
 
-export default function WarehouseList(props) {
+export default function WarehouseList({ searchTerm }) {
   const [warehouses, setWarehouses] = useState([]);
 
   // Fetch warehouses and zones from DB
@@ -31,20 +31,39 @@ export default function WarehouseList(props) {
 
   useEffect(() => {
     fetchData();
-  }, [props.updateTrigger, warehouses]);
+  }, []);
 
-  const filteredWarehouses = warehouses.filter((warehouse) =>
-    warehouse.name.toLowerCase().includes(props.searchTerm.toLowerCase())
-  );
+  //Warehouse Form (Modal)
+  const defaultWarehouse = {
+    id: 0,
+    name: "",
+    address: "",
+  };
+  const [warehouseModalMode, setWarehouseModalMode] = useState(""); //"edit" or "add"
+  const [showWarehouseModal, setShowWarehouseModal] = useState(false);
+  const [warehouseModalWarehouse, setWarehouseModalWarehouse] =
+    useState(defaultWarehouse);
 
+  const handleEditWarehouse = (warehouse) => {
+    setWarehouseModalMode("edit");
+    setWarehouseModalWarehouse(warehouse);
+    setShowWarehouseModal(true);
+  };
+
+  //DELETE Warehouse (Confirm)
   const [showDeleteWarehouse, setShowDeleteWarehouse] = useState(false);
-  const [selectedWarehouse, setSelectedWarehouse] = useState(null);
+  const [warehouseToDelete, setWarehouseToDelete] = useState(null);
 
-  const handleDeleteClick = (warehouse) => {
-    setSelectedWarehouse(warehouse);
+  const handleDeleteWarehouse = (warehouse) => {
+    setWarehouseToDelete(warehouse);
     setShowDeleteWarehouse(true);
     fetchData();
   };
+
+  //Filt warehouse by Props: searchTerm
+  const filteredWarehouses = warehouses.filter((warehouse) =>
+    warehouse.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <>
@@ -53,17 +72,25 @@ export default function WarehouseList(props) {
         {filteredWarehouses.map((warehouse) => (
           <div className="card mb-3" key={warehouse.id}>
             <div className="card-header">
-              <h5 className="card-title">{warehouse.name}</h5>
-              <p className="card-text">{warehouse.address}</p>
+              <div className="d-flex mb-1">
+                <div className="d-flex align-items-center me-4">
+                  <i className="bi bi-buildings fs-3"></i>
+                </div>
+                <div>
+                  <h5 className="card-title mb-0">{warehouse.name}</h5>
+                  <small className="card-text">{warehouse.address}</small>
+                </div>
+              </div>
+
               <Button variant="primary" size="sm" className="me-2">
                 Add Zone
               </Button>
               <Button
                 variant="secondary"
                 size="sm"
-                onClick={() =>
-                  props.handleOpenWarehouseModal("edit", warehouse)
-                }
+                onClick={() => {
+                  handleEditWarehouse(warehouse);
+                }}
               >
                 Edit
               </Button>
@@ -71,7 +98,9 @@ export default function WarehouseList(props) {
                 variant="danger"
                 size="sm"
                 className="ms-2"
-                onClick={() => handleDeleteClick(warehouse)}
+                onClick={() => {
+                  handleDeleteWarehouse(warehouse);
+                }}
               >
                 Delete
               </Button>
@@ -104,9 +133,18 @@ export default function WarehouseList(props) {
           </div>
         ))}
       </div>
-      {selectedWarehouse && (
+
+      {/* Warehouse Form (Modal) */}
+      <WarehouseForm
+        mode={warehouseModalMode}
+        warehouse={warehouseModalWarehouse}
+        show={showWarehouseModal}
+        setShow={setShowWarehouseModal}
+      ></WarehouseForm>
+
+      {warehouseToDelete && (
         <DeleteWarehouse
-          warehouse={selectedWarehouse}
+          warehouse={warehouseToDelete}
           show={showDeleteWarehouse}
           setShow={setShowDeleteWarehouse}
         />

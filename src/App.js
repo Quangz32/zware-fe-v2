@@ -7,6 +7,7 @@ import WarehouseManagement from "./components/warehouse/WarehouseManagement";
 import TestComponent from "./components/TestComponent";
 import Login from "./components/login/Login";
 import ProductManagement from "./components/product/ProductManagement";
+import TestComponent2 from "./components/TestComponent2";
 
 function AppContent() {
   const location = useLocation();
@@ -34,6 +35,7 @@ function AppContent() {
             <Route path="products" element={<ProductManagement />} />
 
             <Route path="test" element={<TestComponent />} />
+            <Route path="test2" element={<TestComponent2 />} />
           </Routes>
         </Container>
       </div>

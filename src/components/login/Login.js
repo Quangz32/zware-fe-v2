@@ -16,8 +16,8 @@ export default function Login() {
 
   //FORM DATA
   const [formData, setFormData] = useState({
-    email: "",
-    password: "",
+    email: "admin@gmail.com",
+    password: "123456",
   });
 
   //Navigate
@@ -41,10 +41,10 @@ export default function Login() {
           setAlertVariant("success");
           triggerAlert();
 
-          //go to /home
+          //go to /home (after 666ms)
           setTimeout(function () {
             navigate("/home");
-          }, 1000);
+          }, 666);
         }
       })
       .catch((e) => {

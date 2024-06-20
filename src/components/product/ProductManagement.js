@@ -3,16 +3,15 @@ import ProductCard from "./ProductCard";
 
 export default function ProductManagement() {
   const products = [
-    { name: "Đào", supplier: "Phở", measureUnit: "Piano" },
-    { name: "Đào", supplier: "Phở", measureUnit: "Piano" },
-    { name: "Đào", supplier: "Phở", measureUnit: "Piano" },
-    { name: "Đào", supplier: "Phở", measureUnit: "Piano" },
-    { name: "Đào", supplier: "Phở", measureUnit: "Piano" },
-    { name: "Đào", supplier: "Phở", measureUnit: "Piano" },
-    { name: "Đào", supplier: "Phở", measureUnit: "Piano" },
-    { name: "Đào", supplier: "Phở", measureUnit: "Piano" },
-    { name: "Đào", supplier: "Phở", measureUnit: "Piano" },
-    { name: "Đào", supplier: "Phở", measureUnit: "Piano" },
+    { name: "Mai", category: "Đào", supplier: "Phở", measureUnit: "Piano" },
+    { name: "Mai", category: "Đào", supplier: "Phở", measureUnit: "Piano" },
+    { name: "Mai", category: "Đào", supplier: "Phở", measureUnit: "Piano" },
+    { name: "Mai", category: "Đào", supplier: "Phở", measureUnit: "Piano" },
+    { name: "Mai", category: "Đào", supplier: "Phở", measureUnit: "Piano" },
+    { name: "Mai", category: "Đào", supplier: "Phở", measureUnit: "Piano" },
+    { name: "Mai", category: "Đào", supplier: "Phở", measureUnit: "Piano" },
+    { name: "Mai", category: "Đào", supplier: "Phở", measureUnit: "Piano" },
+    { name: "Mai", category: "Đào", supplier: "Phở", measureUnit: "Piano" },
   ];
   return (
     <div className="row">
