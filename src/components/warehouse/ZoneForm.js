@@ -5,6 +5,8 @@ import MyAlert from "../share/MyAlert";
 
 //props: mode (edit or add), zone {name and warehouse_id}, show, setShow
 export default function ZoneForm({ mode, zone, show, setShow }) {
+  console.log("ZONE FORM RENDER");
+  console.log({ mode, zone, show });
   // MyAlert state and functions
   const [alertMessage, setAlertMessage] = useState("");
   const [alertVariant, setAlertVariant] = useState("");
@@ -13,28 +15,21 @@ export default function ZoneForm({ mode, zone, show, setShow }) {
     setShowAlert(true);
   };
 
-  const [zoneForm, setZoneForm] = useState({
-    id: 0,
-    name: "",
-    warehouse_id: zone.warehouse_id,
-  });
-
-  useEffect(() => {
-    if (mode === "edit") {
-      setZoneForm(zone);
-    }
-  }, [mode, zone]);
+  //Zone FORM
+  const initZone = { id: 0, name: "", warehouse_id: 0 };
+  const [zoneForm, setZoneForm] = useState(initZone);
 
   const handleCloseZoneModal = () => {
     setShow(false);
   };
 
   const handleSumit = () => {
-    if (mode === "add") {
+    if (mode === "edit") {
+      handlePut();
+    } else {
       handlePost();
     }
-    // Xử lý logic lưu dữ liệu zoneForm
-    // Sau khi lưu xong, đóng modal
+
     setShow(false);
   };
 
@@ -56,6 +51,28 @@ export default function ZoneForm({ mode, zone, show, setShow }) {
         }
       });
   };
+  const handlePut = async () => {
+    await MyAxios.put(`zones/${zoneForm.id}`, zoneForm)
+      .then((res) => {
+        if (res.status === 200) {
+          setAlertMessage(res.data.message);
+          setAlertVariant("success");
+          triggerAlert();
+        }
+      })
+      .catch((e) => {
+        console.log(e);
+        if (e.response.status !== 200) {
+          setAlertMessage(e.response.data.message);
+          setAlertVariant("warning");
+          triggerAlert();
+        }
+      });
+  };
+
+  useEffect(() => {
+    setZoneForm(zone);
+  }, [zone]);
 
   return (
     <>

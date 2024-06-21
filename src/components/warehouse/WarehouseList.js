@@ -3,6 +3,7 @@ import { Button } from "react-bootstrap";
 import MyAxios from "../../util/MyAxios";
 import DeleteWarehouse from "./DeleteWarehouse";
 import WarehouseForm from "./WarehouseForm";
+import ZoneList from "./ZoneList";
 
 export default function WarehouseList({ searchTerm, render }) {
   // console.log("Render in List");
@@ -15,18 +16,18 @@ export default function WarehouseList({ searchTerm, render }) {
       const response = await MyAxios.get("warehouses");
       const tempData = response.data.data;
 
-      const fetchZonePromises = tempData.map((warehouse) =>
-        MyAxios.get(`warehouses/${warehouse.id}/zones`)
-      );
+      // const fetchZonePromises = tempData.map((warehouse) =>
+      //   MyAxios.get(`warehouses/${warehouse.id}/zones`)
+      // );
 
-      const zoneResponses = await Promise.all(fetchZonePromises);
-      const updatedWarehouses = tempData.map((warehouse, index) => ({
-        ...warehouse,
-        zones: zoneResponses[index].data.data,
-      }));
+      // const zoneResponses = await Promise.all(fetchZonePromises);
+      // const updatedWarehouses = tempData.map((warehouse, index) => ({
+      //   ...warehouse,
+      //   zones: zoneResponses[index].data.data,
+      // }));
 
-      console.log(updatedWarehouses);
-      setWarehouses(updatedWarehouses);
+      // console.log(updatedWarehouses);
+      setWarehouses(tempData);
     } catch (error) {
       console.log(error);
     }
@@ -100,9 +101,6 @@ export default function WarehouseList({ searchTerm, render }) {
                 </div>
               </div>
 
-              <Button variant="primary" size="sm" className="me-2">
-                Add Zone
-              </Button>
               <Button
                 variant="secondary"
                 size="sm"
@@ -124,29 +122,7 @@ export default function WarehouseList({ searchTerm, render }) {
               </Button>
             </div>
             <div className="card-body">
-              <h6 className="card-subtitle mb-2 text-muted">Zones:</h6>
-              <table className="table">
-                <tbody>
-                  {warehouse.zones &&
-                    warehouse.zones.map((zone) => (
-                      <tr key={zone.id} className="row">
-                        <td className="col">{zone.name}</td>
-                        <td className="col">
-                          <Button
-                            variant="outline-primary"
-                            className="me-2"
-                            size="sm"
-                          >
-                            Edit
-                          </Button>
-                          <Button variant="outline-danger" size="sm">
-                            Delete
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
+              <ZoneList warehouse={warehouse}></ZoneList>
             </div>
           </div>
         ))}

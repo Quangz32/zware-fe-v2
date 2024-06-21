@@ -26,13 +26,7 @@ export default function WarehouseForm({ mode, warehouse, show, setShow }) {
   const [warehouseForm, setWarehouseForm] = useState(defaultWarehouseForm);
 
   useEffect(() => {
-    //only 3 field: id, name, address
-    const warehouseRequestData = {
-      id: warehouse.id,
-      name: warehouse.name,
-      address: warehouse.address,
-    };
-    setWarehouseForm(warehouseRequestData);
+    setWarehouseForm(warehouse);
   }, [warehouse]);
 
   const callPost = async () => {
@@ -43,9 +37,6 @@ export default function WarehouseForm({ mode, warehouse, show, setShow }) {
         setAlertMessage(res.data.message);
         setAlertVariant("success");
         triggerAlert();
-
-        // window.location.reload();
-        //   setUpdateTrigger((prev) => !prev);
       })
       .catch((e) => {
         console.log(e);

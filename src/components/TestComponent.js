@@ -11,7 +11,7 @@ const TestComponent = () => {
   const zone = {
     id: 1,
     name: "Shit",
-    warehouse_id: 8,
+    warehouse_id: 4,
   };
   return (
     <>
