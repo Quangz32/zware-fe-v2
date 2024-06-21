@@ -30,13 +30,14 @@ export default function ZoneList({ warehouse }) {
       try {
         const response = await MyAxios.get(`warehouses/${warehouse.id}/zones`);
         setZones(response.data.data);
+        console.log(response.data.data);
       } catch (error) {
         console.log(error);
       }
     }
 
     fetchData();
-  }, [warehouse]);
+  }, [warehouse, showZoneModal]);
 
   return (
     <>

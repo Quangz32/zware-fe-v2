@@ -5,8 +5,6 @@ import MyAlert from "../share/MyAlert";
 
 //props: mode (edit or add), zone {name and warehouse_id}, show, setShow
 export default function ZoneForm({ mode, zone, show, setShow }) {
-  console.log("ZONE FORM RENDER");
-  console.log({ mode, zone, show });
   // MyAlert state and functions
   const [alertMessage, setAlertMessage] = useState("");
   const [alertVariant, setAlertVariant] = useState("");
@@ -23,11 +21,11 @@ export default function ZoneForm({ mode, zone, show, setShow }) {
     setShow(false);
   };
 
-  const handleSumit = () => {
+  const handleSumit = async () => {
     if (mode === "edit") {
-      handlePut();
+      await handlePut();
     } else {
-      handlePost();
+      await handlePost();
     }
 
     setShow(false);
