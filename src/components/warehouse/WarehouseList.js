@@ -4,7 +4,9 @@ import MyAxios from "../../util/MyAxios";
 import DeleteWarehouse from "./DeleteWarehouse";
 import WarehouseForm from "./WarehouseForm";
 
-export default function WarehouseList({ searchTerm }) {
+export default function WarehouseList({ searchTerm, render }) {
+  // console.log("Render in List");
+  // console.log(render);
   const [warehouses, setWarehouses] = useState([]);
 
   // Fetch warehouses and zones from DB
@@ -23,15 +25,12 @@ export default function WarehouseList({ searchTerm }) {
         zones: zoneResponses[index].data.data,
       }));
 
+      console.log(updatedWarehouses);
       setWarehouses(updatedWarehouses);
     } catch (error) {
       console.log(error);
     }
   }
-
-  useEffect(() => {
-    fetchData();
-  }, []);
 
   //Warehouse Form (Modal)
   const defaultWarehouse = {
@@ -57,7 +56,7 @@ export default function WarehouseList({ searchTerm }) {
   const handleDeleteWarehouse = (warehouse) => {
     setWarehouseToDelete(warehouse);
     setShowDeleteWarehouse(true);
-    fetchData();
+    // fetchData();
   };
 
   //Filt warehouse by Props: searchTerm
@@ -65,9 +64,25 @@ export default function WarehouseList({ searchTerm }) {
     warehouse.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  //Re-render when update render of WarehouseManagement
+  useEffect(() => {
+    fetchData();
+  }, [render]);
+
+  //Rerender when delete warehouse
+  useEffect(() => {
+    if (showDeleteWarehouse === false) fetchData();
+  }, [showDeleteWarehouse]);
+
+  //Rerender when edit warehouse
+  useEffect(() => {
+    if (showWarehouseModal === false) fetchData();
+  }, [showWarehouseModal]);
+
   return (
     <>
       <div id="warehouseList">
+        {/* {render ? "T" : "F"} */}
         {filteredWarehouses.length === 0 && <h3>No warehouses found</h3>}
         {filteredWarehouses.map((warehouse) => (
           <div className="card mb-3" key={warehouse.id}>
@@ -78,7 +93,10 @@ export default function WarehouseList({ searchTerm }) {
                 </div>
                 <div>
                   <h5 className="card-title mb-0">{warehouse.name}</h5>
-                  <small className="card-text">{warehouse.address}</small>
+                  <small className="card-text">
+                    {"Address: "}
+                    {warehouse.address}
+                  </small>
                 </div>
               </div>
 

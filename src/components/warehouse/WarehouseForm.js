@@ -26,51 +26,64 @@ export default function WarehouseForm({ mode, warehouse, show, setShow }) {
   const [warehouseForm, setWarehouseForm] = useState(defaultWarehouseForm);
 
   useEffect(() => {
-    setWarehouseForm(warehouse);
+    //only 3 field: id, name, address
+    const warehouseRequestData = {
+      id: warehouse.id,
+      name: warehouse.name,
+      address: warehouse.address,
+    };
+    setWarehouseForm(warehouseRequestData);
   }, [warehouse]);
 
-  const handleSubmit = () => {
+  const callPost = async () => {
+    //CALL POST
+    await MyAxios.post("warehouses", warehouseForm)
+      .then((res) => {
+        //display message
+        setAlertMessage(res.data.message);
+        setAlertVariant("success");
+        triggerAlert();
+
+        // window.location.reload();
+        //   setUpdateTrigger((prev) => !prev);
+      })
+      .catch((e) => {
+        console.log(e);
+
+        //display message
+        setAlertMessage(e.response.data.message);
+        setAlertVariant("warning");
+        triggerAlert();
+      });
+  };
+
+  const callPut = async () => {
+    //CALL PUT
+    await MyAxios.put(`warehouses/${warehouseForm.id}`, warehouseForm)
+      .then((res) => {
+        //display message
+        setAlertMessage(res.data.message);
+        setAlertVariant("success");
+        triggerAlert();
+
+        // window.location.reload();
+        //   setUpdateTrigger((prev) => !prev);
+      })
+      .catch((e) => {
+        console.log(e);
+
+        //display message
+        setAlertMessage(e.response.data.message);
+        setAlertVariant("warning");
+        triggerAlert();
+      });
+  };
+
+  const handleSubmit = async () => {
     if (mode === "add") {
-      //CALL POST
-      MyAxios.post("warehouses", warehouseForm)
-        .then((res) => {
-          //display message
-          setAlertMessage(res.data.message);
-          setAlertVariant("success");
-          triggerAlert();
-
-          // window.location.reload();
-          //   setUpdateTrigger((prev) => !prev);
-        })
-        .catch((e) => {
-          console.log(e);
-
-          //display message
-          setAlertMessage(e.response.data.message);
-          setAlertVariant("warning");
-          triggerAlert();
-        });
+      await callPost();
     } else {
-      //CALL PUT
-      console.log(warehouseForm);
-      MyAxios.put(`warehouses/${warehouseForm.id}`, warehouseForm)
-        .then((res) => {
-          //display message
-          setAlertMessage(res.data.message);
-          setAlertVariant("success");
-          triggerAlert();
-
-          // window.location.reload();
-          //   setUpdateTrigger((prev) => !prev);
-        })
-        .catch((e) => {
-          console.log(e);
-
-          //display message
-          setAlertMessage(e.response.data.message);
-          setAlertVariant("warning");
-          triggerAlert();
-        });
+      await callPut();
     }
     handleCloseModal();
   };

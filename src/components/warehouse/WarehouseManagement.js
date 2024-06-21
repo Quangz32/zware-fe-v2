@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "react-bootstrap";
 import "../../mystyle.css";
 import WarehouseList from "./WarehouseList";
 import WarehouseForm from "./WarehouseForm";
 
 const WarehouseManagement = () => {
+  const [listRender, setListRender] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
   // Warehouse Form (Modal)
@@ -25,8 +26,15 @@ const WarehouseManagement = () => {
     setShowWarehouseModal(true);
   };
 
+  //Rerender WarehouseList when close Add Warehouse
+  useEffect(() => {
+    if (showWarehouseModal === false) setListRender((p) => !p);
+  }, [showWarehouseModal]);
+
   return (
     <div className="container">
+      {/* {"ShowWarehouseModal: "}
+      {showWarehouseModal ? "T" : "F"} */}
       {/* Add and Search */}
       <div className="d-flex">
         <Button
@@ -58,7 +66,7 @@ const WarehouseManagement = () => {
       </div>
 
       {/* Warehouse List (Table) */}
-      <WarehouseList searchTerm={searchTerm} />
+      <WarehouseList searchTerm={searchTerm} render={listRender} />
 
       {/* Warehouse Form (Modal) */}
       <WarehouseForm

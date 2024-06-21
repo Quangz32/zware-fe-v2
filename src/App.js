@@ -16,7 +16,7 @@ function AppContent() {
   //main content style
   const contentStyle = !isLoginPage
     ? {
-        marginLeft: "260px",
+        marginLeft: "256px",
       }
     : {};
 
