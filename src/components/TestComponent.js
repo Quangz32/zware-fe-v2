@@ -1,31 +1,16 @@
 import React, { useState } from "react";
-import { Button } from "react-bootstrap";
-import "bootstrap/dist/css/bootstrap.min.css";
-import MyAlert from "./share/MyAlert";
-import ProductCard from "./product/ProductCard";
-import ConfirmModal from "./share/ConfirmModal";
-import ZoneForm from "./warehouse/ZoneForm";
+import DeleteZone from "./warehouse/DeleteZone";
 
-const TestComponent = () => {
-  const [showModal, setShowModal] = useState(false);
-  const zone = {
-    id: 1,
-    name: "Shit",
-    warehouse_id: 4,
-  };
+export default function TestComponent() {
+  const zoneToDelete = { id: 2, name: "Zone Atse", warehouse_id: 1 };
+  const [show, setShow] = useState(true);
   return (
     <>
-      <Button variant="outline-primary" onClick={() => setShowModal(true)}>
-        Edit
-      </Button>
-      <ZoneForm
-        mode="add"
-        zone={zone}
-        show={showModal}
-        setShow={setShowModal}
-      />
+      <DeleteZone
+        zone={zoneToDelete}
+        show={show}
+        setShow={setShow}
+      ></DeleteZone>
     </>
   );
-};
-
-export default TestComponent;
+}

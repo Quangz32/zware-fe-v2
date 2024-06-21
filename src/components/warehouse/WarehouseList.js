@@ -57,7 +57,6 @@ export default function WarehouseList({ searchTerm, render }) {
   const handleDeleteWarehouse = (warehouse) => {
     setWarehouseToDelete(warehouse);
     setShowDeleteWarehouse(true);
-    // fetchData();
   };
 
   //Filt warehouse by Props: searchTerm

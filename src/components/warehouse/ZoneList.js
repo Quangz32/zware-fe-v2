@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Button } from "react-bootstrap";
 import MyAxios from "../../util/MyAxios";
 import ZoneForm from "./ZoneForm";
+import DeleteZone from "./DeleteZone";
 
 export default function ZoneList({ warehouse }) {
   const [zones, setZones] = useState([]);
@@ -24,6 +25,15 @@ export default function ZoneList({ warehouse }) {
     setShowZoneModal(true);
   };
 
+  //DELETE Warehouse (Confirm)
+  const [showDeleteZone, setShowDeleteZone] = useState(false);
+  const [zoneToDelete, setZoneToDelete] = useState(null);
+
+  const handleDeleteZoneClick = (zone) => {
+    setZoneToDelete(zone);
+    setShowDeleteZone(true);
+  };
+
   useEffect(() => {
     // Fetch zones from DB
     async function fetchData() {
@@ -37,7 +47,7 @@ export default function ZoneList({ warehouse }) {
     }
 
     fetchData();
-  }, [warehouse, showZoneModal]);
+  }, [warehouse, showZoneModal, showDeleteZone]);
 
   return (
     <>
@@ -69,7 +79,11 @@ export default function ZoneList({ warehouse }) {
                   >
                     Edit
                   </Button>
-                  <Button variant="outline-danger" size="sm">
+                  <Button
+                    variant="outline-danger"
+                    size="sm"
+                    onClick={() => handleDeleteZoneClick(zone)}
+                  >
                     Delete
                   </Button>
                 </td>
@@ -83,6 +97,14 @@ export default function ZoneList({ warehouse }) {
         show={showZoneModal}
         setShow={setShowZoneModal}
       />
+
+      {zoneToDelete && (
+        <DeleteZone
+          zone={zoneToDelete}
+          show={showDeleteZone}
+          setShow={setShowDeleteZone}
+        />
+      )}
     </>
   );
 }
