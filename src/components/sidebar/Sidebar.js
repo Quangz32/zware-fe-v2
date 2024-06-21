@@ -4,12 +4,15 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import "./Sidebar.css";
 import { Link } from "react-router-dom";
 
-//Handle LOGOUT
-function handleLogout() {
-  localStorage.removeItem("token");
-}
-
 const Sidebar = () => {
+  //Handle LOGOUT
+  function handleLogout() {
+    localStorage.removeItem("token");
+    localStorage.removeItem("loggingUser");
+  }
+
+  const loggingUser = JSON.parse(localStorage.getItem("loggingUser"));
+
   return (
     <aside id="sidebar" className="expand">
       <div className="d-flex logo-container">
@@ -19,10 +22,10 @@ const Sidebar = () => {
       </div>
       <div className="profile">
         <img src="avt1.png" alt="avatar" />
-        <span>Duong Long</span>
+        <span>{loggingUser.name}</span>
       </div>
       <div className="role">
-        <span className="role-box">Admin</span>
+        <span className="role-box">{loggingUser.role}</span>
       </div>
       <ul className="sidebar-nav">
         <li className="sidebar-item">

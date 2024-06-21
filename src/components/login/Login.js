@@ -23,6 +23,21 @@ export default function Login() {
   //Navigate
   const navigate = useNavigate();
 
+  //Function to save user data to LocalStorage
+  const saveUserToLocalStrorage = async () => {
+    await MyAxios.get("users/me")
+      .then((res) => {
+        const userData = res.data.data;
+        localStorage.setItem("loggingUser", JSON.stringify(userData));
+
+        const userLocalStorage = localStorage.getItem("loggingUser");
+        console.log(JSON.parse(userLocalStorage));
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  };
+
   //HANDLE Submit
   async function handleSubmit(event) {
     event.preventDefault();
@@ -40,6 +55,9 @@ export default function Login() {
           setAlertMessage(res.data.message);
           setAlertVariant("success");
           triggerAlert();
+
+          //Save user data to local storage
+          saveUserToLocalStrorage();
 
           //go to /home (after 666ms)
           setTimeout(function () {
