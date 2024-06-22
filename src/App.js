@@ -24,7 +24,7 @@ function AppContent() {
     <>
       <div>{!isLoginPage && <Sidebar />}</div>
 
-      <div style={contentStyle} className="pt-5">
+      <div style={contentStyle} className="pt-5 bg-light">
         <Container>
           <Routes>
             <Route path="users" element={<User />} />

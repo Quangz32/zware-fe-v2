@@ -46,7 +46,7 @@ const WarehouseManagement = () => {
           New Warehouse
         </Button>
 
-        <span className="input-group mb-3 w-25">
+        <span className="input-group mb-3" style={{ width: "30%" }}>
           <span
             className="input-group-text my-cursor-pointer"
             id="basic-addon1"

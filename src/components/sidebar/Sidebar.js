@@ -46,12 +46,14 @@ const Sidebar = () => {
             <span>Manager</span>
           </Link>
         </li>
-        <li className="sidebar-item">
-          <Link to="/warehouses" className="sidebar-link">
-            <i className="bi bi-house-gear"></i>
-            <span>Warehouse</span>
-          </Link>
-        </li>
+        {loggingUser.role === "admin" && (
+          <li className="sidebar-item">
+            <Link to="/warehouses" className="sidebar-link">
+              <i className="bi bi-house-gear"></i>
+              <span>Warehouse</span>
+            </Link>
+          </li>
+        )}
         <li className="sidebar-item">
           <Link to="/products" className="sidebar-link">
             <i className="bi bi-boxes"></i>
