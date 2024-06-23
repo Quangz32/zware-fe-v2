@@ -3,33 +3,13 @@ import ProductImage from "./productExample.jpeg";
 import MyAxios from "../../util/MyAxios";
 
 export default function ProductCard(props) {
-  // console.log("HEllo catd");
   const infoStyle = {
     color: "#666",
     padding: "0px 0px",
     // fontSize: "12px"
   };
 
-  //It will add category_name attribute
   const [product, setProduct] = useState(props.product);
-
-  useEffect(() => {
-    const setCategoryName = async () => {
-      await MyAxios.get(`categories/${props.product.category_id}`)
-        .then((res) => {
-          const categoryName = res.data.data.name;
-          setProduct((prevProduct) => ({
-            ...prevProduct,
-            category_name: categoryName,
-          }));
-        })
-        .catch((e) => {
-          console.log(e);
-        });
-    };
-
-    setCategoryName();
-  }, [props]);
 
   return (
     product && (

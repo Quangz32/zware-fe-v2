@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import ProductCard from "./ProductCard";
 import MyAxios from "../../util/MyAxios";
 import {
@@ -9,90 +9,145 @@ import {
   Container,
   Button,
 } from "react-bootstrap";
-import WarehouseList from "../warehouse/WarehouseList";
 
-//props contain: searchTerm,
 export default function ProductList() {
   const [productList, setProductList] = useState([]);
+  const [filtedProductList, setFiltedProductList] = useState([]);
 
-  const [filter, setFilter] = useState({ name: "", category: "Furniture" });
-  const handleFilter = () => {
-    console.log("hanelFil");
-    console.log(productList);
-    const filtedProducts = productList.filter((p) => {
-      console.log(p.category);
+  const [filter, setFilter] = useState({ name: "", category: "all" });
+
+  const handleFilter = useCallback(() => {
+    const tempFiltedProducts = productList.filter((p) => {
       return (
         p.name.toLowerCase().includes(filter.name.toLowerCase()) &&
-        (filter.category === "all" || p.category === filter.category)
+        (filter.category === "all" || p.category_name === filter.category)
       );
     });
-    setProductList(filtedProducts);
+    setFiltedProductList(tempFiltedProducts);
+  }, [filter, productList]);
+
+  const handleClearFilter = () => {
+    setFilter({ name: "", category: "all" });
   };
 
+  const [categories, setCategories] = useState([]);
+
+  //fetch Products data
   useEffect(() => {
     const fetchData = async () => {
+      // console.log("RUN fetch data");
       try {
         const response = await MyAxios.get("products");
-        setProductList(response.data.data);
+        const productsFromApi = response.data.data;
+
+        const fetchCategoryPromises = productsFromApi.map((p) =>
+          MyAxios.get(`categories/${p.category_id}`)
+        );
+
+        const categoryResponses = await Promise.all(fetchCategoryPromises);
+
+        const updatedProducts = productsFromApi.map((product, index) => ({
+          ...product,
+          category_name: categoryResponses[index].data.data.name,
+        }));
+
+        setProductList(updatedProducts);
       } catch (error) {
         console.log(error);
       }
     };
 
     fetchData();
+    // handleFilter();
   }, []);
 
-  // useEffect(() => {
-  //   handleFilter();
-  //   // console.log(productList);
-  // }, []);
+  //fetch Categories Data
+  useEffect(() => {
+    const fetchCategories = async () => {
+      await MyAxios.get("categories")
+        .then((res) => {
+          setCategories(res.data.data);
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    };
 
-  //   console.log(productList);
+    fetchCategories();
+  }, []);
 
-  // handleFilter();
-  console.log(productList);
-  console.log(filter);
+  //Filt product befor render
+  useEffect(() => {
+    handleFilter();
+  }, [handleFilter]);
 
   return (
-    <Container>
+    <Container className="">
       {/* Product Filter */}
-      <div
-        className="p-3 mb-4 rounded-3 con"
-        style={{ backgroundColor: "#eee" }}
+
+      <Form
+        className=" d-flex  align-items-center p-2 mb-3 rounded-2 "
+        style={{ backgroundColor: "#ddd" }}
       >
-        <h4>Product filter</h4>
-        <Form className="row">
+        <i className="bi bi-funnel fs-4 mx-3"></i>
+        <div className="row">
           <InputGroup className="col">
             <InputGroup.Text>{" Name "}</InputGroup.Text>
-            <Form.Control placeholder="" />
+            <Form.Control
+              value={filter.name}
+              onChange={(e) => {
+                setFilter((filter) => ({
+                  ...filter,
+                  name: e.target.value,
+                }));
+              }}
+            />
           </InputGroup>
           <InputGroup className="col">
             <InputGroup.Text>Category</InputGroup.Text>
-            <Form.Select>
-              <option>All</option>
-              <option value="1">One</option>
-              <option value="2">Two</option>
-              <option value="3">Three</option>
+            <Form.Select
+              value={filter.category}
+              onChange={(e) => {
+                setFilter((filter) => ({
+                  ...filter,
+                  category: e.target.value,
+                }));
+              }}
+            >
+              <option value="all">All</option>
+              {categories &&
+                categories.map((category) => (
+                  <option value={category.name} key={category.id}>
+                    {category.name}
+                  </option>
+                ))}
             </Form.Select>
           </InputGroup>
-          <div className="col d-flex align-items-center">
-            <Button className="py-0 mx-2" onClick={handleFilter}>
-              <i className="bi bi-search  fs-5"></i>
-            </Button>
-            <Button variant="danger py-0 mx-2">
-              <i className="bi bi-trash fs-5"></i>
-            </Button>
-          </div>
-        </Form>
-      </div>
+        </div>
+        <div className="d-flex align-items-center">
+          <Button
+            variant="danger"
+            className="py-0 ms-3"
+            onClick={handleClearFilter}
+          >
+            <i className="bi bi-trash fs-5"></i>
+          </Button>
+          <div className="vr ms-2 me-2"></div>
+        </div>
+      </Form>
 
-      {productList.length === 0 && (
+      {filtedProductList.length === 0 && (
         <Alert style={{ maxWidth: "500px" }}>There are no product here</Alert>
       )}
 
+      <Button variant="success" className="d-flex align-items-center mb-3">
+        <i className="bi bi-plus-square fs-6 me-3"></i>
+        Add product
+      </Button>
+
       <Row>
-        {productList.length > 0 &&
-          productList.map((product) => (
+        {filtedProductList.length > 0 &&
+          filtedProductList.map((product) => (
             <ProductCard product={product} key={product.id}></ProductCard>
           ))}
       </Row>
