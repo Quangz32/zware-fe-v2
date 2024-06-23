@@ -10,7 +10,9 @@ import {
   FormControl,
 } from "react-bootstrap";
 
+//Props contains: show, setShow, mode, categories, product(for edit)
 export default function ProductForm(props) {
+  //   console.log(props.product);
   const handleCloseModal = () => {
     props.setShow(false);
   };
@@ -24,12 +26,14 @@ export default function ProductForm(props) {
   const [formData, setFormData] = useState(emptyFormData);
 
   useEffect(() => {
-    if (props.add === "edit") {
+    if (props.mode === "edit") {
       setFormData(props.product);
+    } else {
+      setFormData(emptyFormData);
     }
   }, [props]);
 
-  console.log(formData);
+  //   console.log(formData);
   return (
     <>
       <Modal show={props.show} onHide={handleCloseModal}>

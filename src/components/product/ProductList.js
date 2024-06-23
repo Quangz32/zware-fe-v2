@@ -28,6 +28,8 @@ export default function ProductList() {
 
   //FORM
   const [showProductForm, setShowProductForm] = useState(false);
+  const [productFormMode, setProductFormMode] = useState("add");
+  const [productFormData, setProductFormData] = useState({});
 
   //fetch Products data
   useEffect(() => {
@@ -142,6 +144,7 @@ export default function ProductList() {
         variant="success"
         className="d-flex align-items-center mb-3"
         onClick={() => {
+          setProductFormMode("add");
           setShowProductForm(true);
         }}
       >
@@ -152,15 +155,22 @@ export default function ProductList() {
       <Row>
         {filtedProductList.length > 0 &&
           filtedProductList.map((product) => (
-            <ProductCard product={product} key={product.id}></ProductCard>
+            <ProductCard
+              key={product.id}
+              product={product}
+              setShowForm={setShowProductForm}
+              setFormMode={setProductFormMode}
+              setFormData={setProductFormData}
+            ></ProductCard>
           ))}
       </Row>
 
       <ProductForm
         show={showProductForm}
         setShow={setShowProductForm}
-        mode={"add"}
+        mode={productFormMode}
         categories={categories}
+        product={productFormData}
       ></ProductForm>
     </>
   );

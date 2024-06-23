@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import ProductImage from "./productExample.jpeg";
 import MyAxios from "../../util/MyAxios";
 
+//Props contains: product, setShowForm, setFormMode, setFormData
 export default function ProductCard(props) {
   const infoStyle = {
     color: "#666",
@@ -9,7 +10,8 @@ export default function ProductCard(props) {
     // fontSize: "12px"
   };
 
-  const [product, setProduct] = useState(props.product ? props.product : {});
+  // const [product, setProduct] = useState(props.product);
+  const product = props.product;
 
   return (
     product && (
@@ -35,7 +37,16 @@ export default function ProductCard(props) {
               </div>
               {/* Options */}
               <div className="text-center">
-                <button className="btn btn-warning btn-sm mx-1">Edit</button>
+                <button
+                  className="btn btn-warning btn-sm mx-1"
+                  onClick={() => {
+                    props.setFormMode("edit");
+                    props.setFormData(product);
+                    props.setShowForm(true);
+                  }}
+                >
+                  Edit
+                </button>
                 <button className="btn btn-danger btn-sm mx-1">Delete</button>
               </div>
             </div>
