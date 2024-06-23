@@ -16,17 +16,6 @@ export default function WarehouseList({ searchTerm, render }) {
       const response = await MyAxios.get("warehouses");
       const tempData = response.data.data;
 
-      // const fetchZonePromises = tempData.map((warehouse) =>
-      //   MyAxios.get(`warehouses/${warehouse.id}/zones`)
-      // );
-
-      // const zoneResponses = await Promise.all(fetchZonePromises);
-      // const updatedWarehouses = tempData.map((warehouse, index) => ({
-      //   ...warehouse,
-      //   zones: zoneResponses[index].data.data,
-      // }));
-
-      // console.log(updatedWarehouses);
       setWarehouses(tempData);
     } catch (error) {
       console.log(error);

@@ -10,33 +10,87 @@ import {
   FormControl,
 } from "react-bootstrap";
 
+import MyAxios from "../../util/MyAxios";
+import MyAlert from "../share/MyAlert";
+
 //Props contains: show, setShow, mode, categories, product(for edit)
 export default function ProductForm(props) {
-  //   console.log(props.product);
-  const handleCloseModal = () => {
-    props.setShow(false);
+  // MyAlert
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertVariant, setAlertVariant] = useState("");
+  const [showAlert, setShowAlert] = useState(false);
+
+  const handleSubmit = async () => {
+    const handlePost = async () => {
+      //CALL POST
+      await MyAxios.post("products", formData)
+        .then((res) => {
+          //display message
+          setAlertMessage(res.data.message);
+          setAlertVariant("success");
+          setShowAlert(true); //show Alert
+        })
+        .catch((e) => {
+          console.log(e);
+
+          //display message
+          setAlertMessage(e.response.data.message);
+          setAlertVariant("warning");
+          setShowAlert(true); //show Alert
+        });
+    };
+
+    const handlePut = async () => {
+      //CALL POST
+      await MyAxios.put(`products/${formData.id}`, formData)
+        .then((res) => {
+          //display message
+          setAlertMessage(res.data.message);
+          setAlertVariant("success");
+          setShowAlert(true); //show Alert
+        })
+        .catch((e) => {
+          console.log(e);
+
+          //display message
+          setAlertMessage(e.response.data.message);
+          setAlertVariant("warning");
+          setShowAlert(true); //show Alert
+        });
+    };
+
+    if (props.mode === "edit") {
+      await handlePut();
+    } else {
+      await handlePost();
+    }
+
+    props.setShow(false); //Close Modal
   };
 
-  const emptyFormData = {
-    name: "",
-    category_id: 0,
-    supplier: "",
-    measure_unit: "",
-  };
-  const [formData, setFormData] = useState(emptyFormData);
+  const [formData, setFormData] = useState({});
 
   useEffect(() => {
     if (props.mode === "edit") {
       setFormData(props.product);
     } else {
-      setFormData(emptyFormData);
+      setFormData({
+        name: "",
+        category_id: props.categories[0] ? props.categories[0].id : 0,
+        supplier: "",
+        measure_unit: "",
+      });
     }
   }, [props]);
 
-  //   console.log(formData);
   return (
     <>
-      <Modal show={props.show} onHide={handleCloseModal}>
+      <Modal
+        show={props.show}
+        onHide={() => {
+          props.setShow(false); //Close Modal
+        }}
+      >
         <Modal.Header>
           <Modal.Title>
             {props.mode === "edit" ? "Edit product" : "Add new product"}
@@ -59,28 +113,30 @@ export default function ProductForm(props) {
                   ></FormControl>
                 </FormGroup>
               </Col>
-              <Col>
-                <FormGroup>
-                  <FormLabel>
-                    <strong>Category</strong>
-                  </FormLabel>
-                  <Form.Select
-                    value={formData.category_id}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        category_id: Number(e.target.value),
-                      })
-                    }
-                  >
-                    {props.categories.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name}
-                      </option>
-                    ))}
-                  </Form.Select>
-                </FormGroup>
-              </Col>
+              {props.categories.length > 0 && (
+                <Col>
+                  <FormGroup>
+                    <FormLabel>
+                      <strong>Category</strong>
+                    </FormLabel>
+                    <Form.Select
+                      value={formData.category_id}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          category_id: e.target.value,
+                        })
+                      }
+                    >
+                      {props.categories.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </Form.Select>
+                  </FormGroup>
+                </Col>
+              )}
             </Row>
             <Row className="mb-3">
               <Col>
@@ -126,14 +182,27 @@ export default function ProductForm(props) {
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseModal}>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              props.setShow(false); //Close Modal
+            }}
+          >
             Close
           </Button>
-          <Button variant="primary">
+          <Button variant="primary" onClick={handleSubmit}>
             {props.mode === "edit" ? "Update Product" : "Save Product"}
           </Button>
         </Modal.Footer>
       </Modal>
+
+      {/* ALERT */}
+      <MyAlert
+        message={alertMessage}
+        variant={alertVariant}
+        show={showAlert}
+        setShow={setShowAlert}
+      />
     </>
   );
 }

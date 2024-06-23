@@ -6,9 +6,8 @@ import ProductForm from "./ProductForm";
 
 export default function ProductList() {
   const [productList, setProductList] = useState([]);
-  const [filtedProductList, setFiltedProductList] = useState([]);
-
   const [filter, setFilter] = useState({ name: "", category: "all" });
+  const [filtedProductList, setFiltedProductList] = useState([]);
 
   const handleFilter = useCallback(() => {
     const tempFiltedProducts = productList.filter((p) => {
@@ -20,16 +19,28 @@ export default function ProductList() {
     setFiltedProductList(tempFiltedProducts);
   }, [filter, productList]);
 
-  const handleClearFilter = () => {
-    setFilter({ name: "", category: "all" });
-  };
-
   const [categories, setCategories] = useState([]);
 
   //FORM
   const [showProductForm, setShowProductForm] = useState(false);
   const [productFormMode, setProductFormMode] = useState("add");
   const [productFormData, setProductFormData] = useState({});
+
+  //fetch Categories Data
+  useEffect(() => {
+    const fetchCategories = async () => {
+      await MyAxios.get("categories")
+        .then((res) => {
+          setCategories(res.data.data);
+          // console.log(res.data.data);
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    };
+
+    fetchCategories();
+  }, []);
 
   //fetch Products data
   useEffect(() => {
@@ -57,30 +68,13 @@ export default function ProductList() {
     };
 
     fetchData();
-    // handleFilter();
-  }, []);
+  }, [showProductForm]);
 
-  //fetch Categories Data
-  useEffect(() => {
-    const fetchCategories = async () => {
-      await MyAxios.get("categories")
-        .then((res) => {
-          setCategories(res.data.data);
-        })
-        .catch((e) => {
-          console.log(e);
-        });
-    };
-
-    fetchCategories();
-  }, []);
-
-  //Filt product befor render
+  // //Filt product befor render
   useEffect(() => {
     handleFilter();
   }, [handleFilter]);
 
-  // console.log(filtedProductList);
   return (
     <>
       {/* Product Filter */}
@@ -128,7 +122,9 @@ export default function ProductList() {
           <Button
             variant="danger"
             className="py-0 ms-3"
-            onClick={handleClearFilter}
+            onClick={() => {
+              setFilter({ name: "", category: "all" });
+            }}
           >
             <i className="bi bi-trash fs-5"></i>
           </Button>
