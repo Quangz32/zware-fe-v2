@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import ProductImage from "./productExample.jpeg";
 import MyAxios from "../../util/MyAxios";
 
@@ -9,7 +9,7 @@ export default function ProductCard(props) {
     // fontSize: "12px"
   };
 
-  const [product, setProduct] = useState(props.product);
+  const [product, setProduct] = useState(props.product ? props.product : {});
 
   return (
     product && (

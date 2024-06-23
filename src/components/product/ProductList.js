@@ -1,14 +1,8 @@
 import React, { useCallback, useEffect, useState } from "react";
 import ProductCard from "./ProductCard";
 import MyAxios from "../../util/MyAxios";
-import {
-  Alert,
-  Form,
-  Row,
-  InputGroup,
-  Container,
-  Button,
-} from "react-bootstrap";
+import { Alert, Form, Row, InputGroup, Button } from "react-bootstrap";
+import ProductForm from "./ProductForm";
 
 export default function ProductList() {
   const [productList, setProductList] = useState([]);
@@ -31,6 +25,9 @@ export default function ProductList() {
   };
 
   const [categories, setCategories] = useState([]);
+
+  //FORM
+  const [showProductForm, setShowProductForm] = useState(false);
 
   //fetch Products data
   useEffect(() => {
@@ -81,12 +78,13 @@ export default function ProductList() {
     handleFilter();
   }, [handleFilter]);
 
+  // console.log(filtedProductList);
   return (
-    <Container className="">
+    <>
       {/* Product Filter */}
 
       <Form
-        className=" d-flex  align-items-center p-2 mb-3 rounded-2 "
+        className=" d-flex  align-items-center p-2 mb-3 rounded-2"
         style={{ backgroundColor: "#ddd" }}
       >
         <i className="bi bi-funnel fs-4 mx-3"></i>
@@ -104,7 +102,7 @@ export default function ProductList() {
             />
           </InputGroup>
           <InputGroup className="col">
-            <InputGroup.Text>Category</InputGroup.Text>
+            <InputGroup.Text>{"Category"}</InputGroup.Text>
             <Form.Select
               value={filter.category}
               onChange={(e) => {
@@ -140,7 +138,13 @@ export default function ProductList() {
         <Alert style={{ maxWidth: "500px" }}>There are no product here</Alert>
       )}
 
-      <Button variant="success" className="d-flex align-items-center mb-3">
+      <Button
+        variant="success"
+        className="d-flex align-items-center mb-3"
+        onClick={() => {
+          setShowProductForm(true);
+        }}
+      >
         <i className="bi bi-plus-square fs-6 me-3"></i>
         Add product
       </Button>
@@ -151,6 +155,13 @@ export default function ProductList() {
             <ProductCard product={product} key={product.id}></ProductCard>
           ))}
       </Row>
-    </Container>
+
+      <ProductForm
+        show={showProductForm}
+        setShow={setShowProductForm}
+        mode={"add"}
+        categories={categories}
+      ></ProductForm>
+    </>
   );
 }
