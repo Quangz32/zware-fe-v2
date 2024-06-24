@@ -12,7 +12,6 @@ export default function ProductCard(props) {
     // fontSize: "12px"
   };
 
-  // const [product, setProduct] = useState(props.product);
   const product = props.product;
 
   const [imageData, setImageData] = useState("");
@@ -30,43 +29,18 @@ export default function ProductCard(props) {
         .then((res) => {
           if (res.status === 200) {
             const base64Image = btoa(
-              new Uint8Array(res.data).reduce(
-                (data, byte) => data + String.fromCharCode(byte),
-                ""
-              )
+              new Uint8Array(res.data).reduce((data, byte) => data + String.fromCharCode(byte), "")
             );
             setImageData(`data:image/jpeg;base64, ${base64Image}`);
           }
         })
         .catch((e) => {
-          console.log(e);
+          // console.log(e);
         });
-      // try {
-      //   const response = await axios.get(
-      //     `http://localhost:2000/api/products/${product.id}/image`,
-      //     {
-      //       headers: {
-      //         Authorization: `Bearer ${localStorage.getItem("token")}`,
-      //       },
-      //       responseType: "arraybuffer", // Yêu cầu phản hồi dưới dạng mảng byte (arraybuffer)
-      //     }
-      //   );
-
-      //   const base64Image = btoa(
-      //     new Uint8Array(response.data).reduce(
-      //       (data, byte) => data + String.fromCharCode(byte),
-      //       ""
-      //     )
-      //   );
-
-      //   setImageData(`data:image/jpeg;base64, ${base64Image}`);
-      // } catch (error) {
-      //   console.log(error);
-      // }
     };
 
     fetchData();
-  }, []);
+  }, [props]);
 
   return (
     product && (
@@ -75,7 +49,7 @@ export default function ProductCard(props) {
           <div className="card">
             <img
               src={imageData !== "" ? imageData : defaultProductImage}
-              height={"140"}
+              height={"160"}
               alt="Product"
             ></img>
             <div className="card-body">

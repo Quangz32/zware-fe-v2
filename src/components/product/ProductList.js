@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import ProductCard from "./ProductCard";
 import MyAxios from "../../util/MyAxios";
-import { Alert, Form, Row, InputGroup, Button } from "react-bootstrap";
+import { Alert, Form, Row, InputGroup, Button, Container } from "react-bootstrap";
 import ProductForm from "./ProductForm";
 import DeleteProduct from "./ProductDelete";
 
@@ -81,7 +81,7 @@ export default function ProductList() {
   }, [handleFilter]);
 
   return (
-    <>
+    <Container>
       {/* Product Filter */}
 
       <Form
@@ -183,6 +183,6 @@ export default function ProductList() {
         setShow={setShowDeleteProduct}
         product={productToDelete}
       ></DeleteProduct>
-    </>
+    </Container>
   );
 }

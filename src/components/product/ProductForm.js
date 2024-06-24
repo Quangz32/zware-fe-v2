@@ -1,16 +1,8 @@
 import React, { useEffect, useState } from "react";
-import {
-  Modal,
-  Button,
-  Row,
-  Col,
-  Form,
-  FormGroup,
-  FormLabel,
-  FormControl,
-} from "react-bootstrap";
+import { Modal, Button, Row, Col, Form, FormGroup, FormLabel, FormControl } from "react-bootstrap";
 
 import MyAxios from "../../util/MyAxios";
+import axios from "axios"; //for image upload
 import MyAlert from "../share/MyAlert";
 
 //Props contains: show, setShow, mode, categories, product(for edit)
@@ -21,10 +13,13 @@ export default function ProductForm(props) {
   const [showAlert, setShowAlert] = useState(false);
 
   const handleSubmit = async () => {
+    let newProduct = {};
+
     const handlePost = async () => {
       //CALL POST
       await MyAxios.post("products", formData)
         .then((res) => {
+          newProduct = res.data.data;
           //display message
           setAlertMessage(res.data.message);
           setAlertVariant("success");
@@ -44,6 +39,7 @@ export default function ProductForm(props) {
       //CALL POST
       await MyAxios.put(`products/${formData.id}`, formData)
         .then((res) => {
+          newProduct = res.data.data;
           //display message
           setAlertMessage(res.data.message);
           setAlertVariant("success");
@@ -59,11 +55,31 @@ export default function ProductForm(props) {
         });
     };
 
+    const handleUploadImage = async () => {
+      const imageFile = document.getElementById("uploaded-image-prd481").files[0];
+      if (!imageFile) return;
+
+      const formData = new FormData();
+      formData.append("image", imageFile);
+
+      const response = await axios.post(
+        `http://localhost:2000/api/products/${newProduct.id}/image`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+    };
+
     if (props.mode === "edit") {
       await handlePut();
     } else {
       await handlePost();
     }
+    await handleUploadImage();
 
     props.setShow(false); //Close Modal
   };
@@ -92,9 +108,7 @@ export default function ProductForm(props) {
         }}
       >
         <Modal.Header>
-          <Modal.Title>
-            {props.mode === "edit" ? "Edit product" : "Add new product"}
-          </Modal.Title>
+          <Modal.Title>{props.mode === "edit" ? "Edit product" : "Add new product"}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
@@ -107,9 +121,7 @@ export default function ProductForm(props) {
                   <FormControl
                     type="text"
                     value={formData.name}
-                    onChange={(e) =>
-                      setFormData({ ...formData, name: e.target.value })
-                    }
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   ></FormControl>
                 </FormGroup>
               </Col>
@@ -147,9 +159,7 @@ export default function ProductForm(props) {
                   <FormControl
                     type="text"
                     value={formData.supplier}
-                    onChange={(e) =>
-                      setFormData({ ...formData, supplier: e.target.value })
-                    }
+                    onChange={(e) => setFormData({ ...formData, supplier: e.target.value })}
                   ></FormControl>
                 </FormGroup>
               </Col>
@@ -176,7 +186,7 @@ export default function ProductForm(props) {
                 <Form.Label>
                   <strong>Image</strong>
                 </Form.Label>
-                <Form.Control type="file"></Form.Control>
+                <Form.Control type="file" id="uploaded-image-prd481"></Form.Control>
               </FormGroup>
             </Row>
           </Form>
