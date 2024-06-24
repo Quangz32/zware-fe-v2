@@ -4,10 +4,11 @@ import User from "./components/user/User";
 import Home from "./components/home/Home";
 import Sidebar from "./components/sidebar/Sidebar";
 import WarehouseManagement from "./components/warehouse/WarehouseManagement";
-import TestComponent from "./components/TestComponent";
 import Login from "./components/login/Login";
 import ProductManagement from "./components/product/ProductManagement";
-import TestComponent2 from "./components/TestComponent2";
+import TestComponent from "./components/test/TestComponent";
+import TestComponent2 from "./components/test/TestComponent2";
+import Category from "./components/category/Category";
 
 function AppContent() {
   const location = useLocation();
@@ -33,7 +34,7 @@ function AppContent() {
             <Route path="home" element={<Home />} />
             <Route path="warehouses" element={<WarehouseManagement />} />
             <Route path="products" element={<ProductManagement />} />
-
+            <Route path="categories" element={<Category />} />
             <Route path="test" element={<TestComponent />} />
             <Route path="test2" element={<TestComponent2 />} />
           </Routes>

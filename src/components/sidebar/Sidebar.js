@@ -61,7 +61,7 @@ const Sidebar = () => {
           </Link>
         </li>
         <li className="sidebar-item">
-          <Link to="/category" className="sidebar-link">
+          <Link to="/categories" className="sidebar-link">
             <i className="bi bi-box-seam-fill"></i>
             <span>Category</span>
           </Link>

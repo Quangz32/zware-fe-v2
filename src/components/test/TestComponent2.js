@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import WarehouseForm from "./warehouse/WarehouseForm";
+import WarehouseForm from "../warehouse/WarehouseForm";
 import { Button } from "react-bootstrap";
 
 export default function TestComponent2() {
@@ -14,12 +14,7 @@ export default function TestComponent2() {
       <Button variant="outline-primary" onClick={() => setShowModal(true)}>
         Edit
       </Button>
-      <WarehouseForm
-        mode="add"
-        warehouse={warehouse}
-        show={showModal}
-        setShow={setShowModal}
-      />
+      <WarehouseForm mode="add" warehouse={warehouse} show={showModal} setShow={setShowModal} />
     </div>
   );
 }
