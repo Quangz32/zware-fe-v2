@@ -3,6 +3,7 @@ import ProductCard from "./ProductCard";
 import MyAxios from "../../util/MyAxios";
 import { Alert, Form, Row, InputGroup, Button } from "react-bootstrap";
 import ProductForm from "./ProductForm";
+import DeleteProduct from "./ProductDelete";
 
 export default function ProductList() {
   const [productList, setProductList] = useState([]);
@@ -25,6 +26,10 @@ export default function ProductList() {
   const [showProductForm, setShowProductForm] = useState(false);
   const [productFormMode, setProductFormMode] = useState("add");
   const [productFormData, setProductFormData] = useState({});
+
+  //DELETE
+  const [showDeleteProduct, setShowDeleteProduct] = useState(false);
+  const [productToDelete, setProductToDelete] = useState({});
 
   //fetch Categories Data
   useEffect(() => {
@@ -68,7 +73,7 @@ export default function ProductList() {
     };
 
     fetchData();
-  }, [showProductForm]);
+  }, [showProductForm, showDeleteProduct]);
 
   // //Filt product befor render
   useEffect(() => {
@@ -154,9 +159,13 @@ export default function ProductList() {
             <ProductCard
               key={product.id}
               product={product}
+              //props for FORM
               setShowForm={setShowProductForm}
               setFormMode={setProductFormMode}
               setFormData={setProductFormData}
+              // props for DELETE
+              setShowDeleteProduct={setShowDeleteProduct}
+              setProductToDelete={setProductToDelete}
             ></ProductCard>
           ))}
       </Row>
@@ -168,6 +177,12 @@ export default function ProductList() {
         categories={categories}
         product={productFormData}
       ></ProductForm>
+
+      <DeleteProduct
+        show={showDeleteProduct}
+        setShow={setShowDeleteProduct}
+        product={productToDelete}
+      ></DeleteProduct>
     </>
   );
 }

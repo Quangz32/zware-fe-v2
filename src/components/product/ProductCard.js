@@ -47,7 +47,15 @@ export default function ProductCard(props) {
                 >
                   Edit
                 </button>
-                <button className="btn btn-danger btn-sm mx-1">Delete</button>
+                <button
+                  className="btn btn-danger btn-sm mx-1"
+                  onClick={() => {
+                    props.setShowDeleteProduct(true);
+                    props.setProductToDelete(product);
+                  }}
+                >
+                  Delete
+                </button>
               </div>
             </div>
           </div>
