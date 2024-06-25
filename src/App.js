@@ -8,6 +8,8 @@ import TestComponent from "./components/TestComponent";
 import Login from "./components/login/Login";
 import ProductManagement from "./components/product/ProductManagement";
 import TestComponent2 from "./components/TestComponent2";
+import InboundTransactions from "./components/inbound/InboundTransactions";
+import Category from "./components/category/Category";
 
 function AppContent() {
   const location = useLocation();
@@ -33,6 +35,10 @@ function AppContent() {
             <Route path="home" element={<Home />} />
             <Route path="warehouses" element={<WarehouseManagement />} />
             <Route path="products" element={<ProductManagement />} />
+
+            <Route path="category" element={<Category />} />
+            <Route path="inbound" element={<InboundTransactions />} />
+       
 
             <Route path="test" element={<TestComponent />} />
             <Route path="test2" element={<TestComponent2 />} />

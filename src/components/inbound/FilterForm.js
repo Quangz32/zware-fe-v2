@@ -7,25 +7,25 @@ const FilterForm = ({ applyFilters, resetFilters }) => {
       <Row>
         <Col md={3}>
           <Form.Group controlId="startDate">
-            <Form.Label>Start</Form.Label>
+            <Form.Label><strong>Start</strong></Form.Label>
             <Form.Control type="date" placeholder="Start Date" />
           </Form.Group>
         </Col>
         <Col md={3}>
           <Form.Group controlId="endDate">
-            <Form.Label>End</Form.Label>
+            <Form.Label><strong>End</strong></Form.Label>
             <Form.Control type="date" placeholder="End Date" />
           </Form.Group>
         </Col>
         <Col md={2}>
           <Form.Group controlId="productNameFilter">
-            <Form.Label>Product Name</Form.Label>
+            <Form.Label><strong>Product Name</strong></Form.Label>
             <Form.Control type="text" placeholder="Product Name" />
           </Form.Group>
         </Col>
         <Col md={2}>
           <Form.Group controlId="statusFilter">
-            <Form.Label>Status</Form.Label>
+            <Form.Label><strong>Status</strong></Form.Label>
             <Form.Control as="select">
               <option value="">Status</option>
               <option value="completed">Completed</option>
@@ -35,7 +35,7 @@ const FilterForm = ({ applyFilters, resetFilters }) => {
         </Col>
         <Col md={2}>
           <Form.Group controlId="sourceFilter">
-            <Form.Label>Source</Form.Label>
+            <Form.Label><strong>Source</strong></Form.Label>
             <Form.Control type="text" placeholder="Source" />
           </Form.Group>
         </Col>

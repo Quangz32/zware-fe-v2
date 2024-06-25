@@ -6,9 +6,10 @@ const AddTransactionModal = ({ show, handleClose, handleSave }) => {
   const [error, setError] = useState("");
   const [source, setSource] = useState("");
   const [warehouse, setWarehouse] = useState("");
+  const [externalSource, setExternalSource] = useState("");
 
   const addItemRow = () => {
-    setItems([...items, { id: items.length + 1, name: "",  expire_date: "", supplier: "",  quantity: 0, zone: "" }]);
+    setItems([...items, { id: items.length + 1, name: "", expire_date: "", supplier: "", quantity: 0, zone: "" }]);
   };
 
   const removeItemRow = (index) => {
@@ -32,10 +33,8 @@ const AddTransactionModal = ({ show, handleClose, handleSave }) => {
 
     const newTransaction = {
       date: e.target.elements.newTransactionDate.value,
-      status: e.target.elements.newTransactionStatus.value,
-      source: source === "Internal" ? `Warehouse ${warehouse}` : source,
-      maker_id: e.target.elements.newTransactionMakerID.value,
-      external_source: e.target.elements.newTransactionExternalSource?.value || "",
+      status: "Pending", // Hardcoded to Pending
+      source: source === "Internal" ? `Warehouse ${warehouse}` : externalSource,
       items: items
     };
 
@@ -45,8 +44,6 @@ const AddTransactionModal = ({ show, handleClose, handleSave }) => {
     setItems([]);
     setError("");
   };
-
-  
 
   return (
     <Modal show={show} onHide={handleClose} size="xl">
@@ -62,17 +59,7 @@ const AddTransactionModal = ({ show, handleClose, handleSave }) => {
                 <Form.Control type="date" required id="newTransactionDate" />
               </Form.Group>
             </Col>
-            <Col md={6}>
-              <Form.Group>
-                <Form.Label>Status</Form.Label>
-                
-                <Form.Control as="select" required id="newTransactionStatus" >
-                  <option value="Completed">Pending</option>
-                  <option value="Pending">Completed</option>
-                </Form.Control>
-                
-              </Form.Group>
-            </Col>
+            
           </Row>
           <Row>
             <Col md={6}>
@@ -114,15 +101,17 @@ const AddTransactionModal = ({ show, handleClose, handleSave }) => {
               <Col md={6}>
                 <Form.Group>
                   <Form.Label>External Source</Form.Label>
-                  <Form.Control type="text" id="newTransactionExternalSource" required />
+                  <Form.Control 
+                    type="text" 
+                    id="newTransactionExternalSource" 
+                    value={externalSource}
+                    onChange={(e) => setExternalSource(e.target.value)}
+                    required 
+                  />
                 </Form.Group>
               </Col>
             )}
           </Row>
-          <Form.Group controlId="newTransactionMakerID">
-            <Form.Label>Maker ID</Form.Label>
-            <Form.Control type="text" required />
-          </Form.Group>
           <Form.Group>
             <Form.Label>Product Items</Form.Label>
             <div style={{ overflowX: 'auto' }}>
@@ -130,10 +119,7 @@ const AddTransactionModal = ({ show, handleClose, handleSave }) => {
                 <thead>
                   <tr>
                     <th>Product Name</th>
-                    {/* <th>Category</th> */}
                     <th>Expire Date</th>
-                    <th>Supplier</th>
-                    {/* <th>Measure Unit</th> */}
                     <th>Quantity</th>
                     <th>Zone</th>
                     <th></th>
@@ -142,13 +128,25 @@ const AddTransactionModal = ({ show, handleClose, handleSave }) => {
                 <tbody>
                   {items.map((item, index) => (
                     <tr key={index}>
-                      <td><Form.Control type="text" value={item.name} onChange={(e) => handleChange(index, 'name', e.target.value)} required /></td>
-                      {/* <td><Form.Control type="text" value={item.category} onChange={(e) => handleChange(index, 'category', e.target.value)} required /></td> */}
+                      <td>
+                        <Form.Control as="select" value={item.name} onChange={(e) => handleChange(index, 'name', e.target.value)} required>
+                          <option value="">Select Product</option>
+                          <option value="Product A">Product A</option>
+                          <option value="Product B">Product B</option>
+                          <option value="Product C">Product C</option>
+                        </Form.Control>
+                      </td>
                       <td><Form.Control type="date" value={item.expire_date} onChange={(e) => handleChange(index, 'expire_date', e.target.value)} required /></td>
-                      <td><Form.Control type="text" value={item.supplier} onChange={(e) => handleChange(index, 'supplier', e.target.value)} required /></td>
-                      {/* <td><Form.Control type="text" value={item.measure_unit} onChange={(e) => handleChange(index, 'measure_unit', e.target.value)} required /></td> */}
+                      {/* <td><Form.Control type="text" value={item.supplier} onChange={(e) => handleChange(index, 'supplier', e.target.value)} required /></td> */}
                       <td><Form.Control type="number" value={item.quantity} onChange={(e) => handleChange(index, 'quantity', e.target.value)} required /></td>
-                      <td><Form.Control type="text" value={item.zone} onChange={(e) => handleChange(index, 'zone', e.target.value)} required /></td>
+                      <td>
+                        <Form.Control as="select" value={item.zone} onChange={(e) => handleChange(index, 'zone', e.target.value)} required>
+                          <option value="">Select Zone</option>
+                          <option value="Zone A">Zone A</option>
+                          <option value="Zone B">Zone B</option>
+                          <option value="Zone C">Zone C</option>
+                        </Form.Control>
+                      </td>
                       <td><Button variant="danger" onClick={() => removeItemRow(index)}>Remove</Button></td>
                     </tr>
                   ))}

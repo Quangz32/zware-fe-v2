@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Container, Button } from 'react-bootstrap';
+import { Container, Button, Alert } from 'react-bootstrap';
 import FilterForm from "./FilterForm";
 import TransactionTabs from "./TransactionTabs";
 import AddTransactionModal from "./AddTransactionModal";
@@ -9,21 +9,28 @@ const InboundTransactions = () => {
   const [showModal, setShowModal] = useState(false);
 
   const handleSave = (transaction) => {
-    // Generate a unique id for the new transaction
     const newTransaction = { ...transaction, id: transactions.length + 1 };
-    // Update transactions state with the new transaction
     setTransactions([...transactions, newTransaction]);
   };
-  
+
   const handleShow = () => setShowModal(true);
   const handleClose = () => setShowModal(false);
+
+  const handleStatusChange = (transactionId, newStatus) => {
+    const updatedTransactions = transactions.map(transaction =>
+      transaction.id === transactionId ? { ...transaction, status: newStatus } : transaction
+    );
+    setTransactions(updatedTransactions);
+  };
 
   return (
     <Container>
       <h1>Inbound Transactions</h1>
-      <Button variant="primary" onClick={handleShow}>Add New Inbound Transaction</Button>
+      <Button className='mb-3' variant="primary" onClick={handleShow}>Add New Inbound Transaction</Button>
+      <Alert variant="info" >
       <FilterForm applyFilters={() => {}} resetFilters={() => {}} />
-      <TransactionTabs transactions={transactions} />
+      </Alert>
+      <TransactionTabs transactions={transactions} handleStatusChange={handleStatusChange} />
       <AddTransactionModal show={showModal} handleClose={handleClose} handleSave={handleSave} />
     </Container>
   );
