@@ -12,7 +12,6 @@ import {
 } from "react-bootstrap";
 import MyAxios from "../../util/MyAxios";
 import MyAlert from "../share/MyAlert";
-// import "./Category.css";
 
 const Category = () => {
   /* STYLE */
@@ -56,16 +55,8 @@ const Category = () => {
     MyAxios.get("/categories")
       .then((response) => {
         setCategories(response.data.data);
-        setAlertMessage(response.data.message);
-        setAlertVariant("success");
-        triggerAlert();
       })
       .catch((error) => {
-        setAlertMessage(
-          error.response?.data?.message || "There was an error fetching the categories!"
-        );
-        setAlertVariant("danger");
-        triggerAlert();
         console.error("There was an error fetching the categories!", error);
       });
   };

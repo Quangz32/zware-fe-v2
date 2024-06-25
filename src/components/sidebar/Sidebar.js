@@ -41,7 +41,7 @@ const Sidebar = () => {
           </Link>
         </li>
         <li className="sidebar-item">
-          <Link to="/users" className="sidebar-link">
+          <Link to="/managers" className="sidebar-link">
             <i className="bi bi-person-vcard"></i>
             <span>Manager</span>
           </Link>
