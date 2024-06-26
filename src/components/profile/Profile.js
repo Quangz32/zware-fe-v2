@@ -17,6 +17,8 @@ const Profile = () => {
     avatar: '',
     warehouse_id: ''
   });
+  const [initialProfile, setInitialProfile] = useState(null);
+  const [warehouseName, setWarehouseName] = useState('');
   const [avatarFile, setAvatarFile] = useState(null);
 
   useEffect(() => {
@@ -32,12 +34,29 @@ const Profile = () => {
           profileData.date_of_birth = profileData.date_of_birth.slice(0, 10); // Extract YYYY-MM-DD from the string
         }
         setProfile(profileData);
+        setInitialProfile(profileData); // Store initial profile data
+
+        if (profileData.warehouse_id) {
+          fetchWarehouseName(profileData.warehouse_id);
+        }
       })
       .catch(error => {
         console.error('Error fetching profile:', error);
-        setAlertMessage(error.response.data.message );
+        setAlertMessage(error.response.data.message);
         setAlertVariant("danger");
         triggerAlert();
+      });
+  };
+
+  const fetchWarehouseName = (warehouseId) => {
+    MyAxios.get(`warehouses/${warehouseId}`)
+      .then(response => {
+        const warehouseData = response.data.data;
+        setWarehouseName(warehouseData.name); // Assuming the warehouse data contains a 'name' field
+      })
+      .catch(error => {
+        console.error('Error fetching warehouse name:', error);
+        setWarehouseName('Unknown');
       });
   };
 
@@ -67,6 +86,15 @@ const Profile = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      let modifiedData = {};
+
+      // Compare current profile with initial profile and create modifiedData object
+      for (const key in profile) {
+        if (profile[key] !== initialProfile[key]) {
+          modifiedData[key] = profile[key];
+        }
+      }
+
       if (avatarFile) {
         const formData = new FormData();
         formData.append('file', avatarFile);
@@ -83,16 +111,22 @@ const Profile = () => {
         });
       }
 
-      // Update the profile
-      await MyAxios.put(`/users/${profile.id}`, profile)
-        .then(response => {
-          setAlertMessage(response.data.message);
-          setAlertVariant("success");
-          triggerAlert();
-        });
+      // Update the profile with modified data
+      if (Object.keys(modifiedData).length > 0) {
+        await MyAxios.put(`/users/${profile.id}`, modifiedData)
+          .then(response => {
+            setAlertMessage(response.data.message);
+            setAlertVariant("success");
+            triggerAlert();
+          });
+      } else {
+        setAlertMessage("No changes to save.");
+        setAlertVariant("info");
+        triggerAlert();
+      }
     } catch (error) {
       console.error('Error updating profile:', error);
-      setAlertMessage(error.response.data.message );
+      setAlertMessage(error.response.data.message);
       setAlertVariant("danger");
       triggerAlert();
     }
@@ -210,14 +244,14 @@ const Profile = () => {
                     <div className="row mt-3">
                       {profile.role !== 'admin' && (
                         <div className="col-md-6">
-                          <label className="labels">Warehouse ID</label>
+                          <label className="labels">Warehouse Name</label>
                           <input
                             type="text"
                             className="form-control"
                             placeholder="warehouse_id"
                             name="warehouse_id"
-                            value={profile.warehouse_id}
-                            onChange={handleChange}
+                            value={warehouseName}
+                            readOnly
                           />
                         </div>
                       )}
