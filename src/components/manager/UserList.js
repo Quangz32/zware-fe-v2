@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Alert, Button, Table } from "react-bootstrap";
 import MyAxios from "../../util/MyAxios";
-import ManagerRow from "./ManagerRow";
+import UserRow from "./UserRow";
 
-export default function ManagerList() {
+export default function UserList() {
   const [managerList, setManagerList] = useState([]);
 
   useEffect(() => {
@@ -43,7 +43,7 @@ export default function ManagerList() {
         </thead>
         <tbody>
           {managerList?.map((manager) => (
-            <ManagerRow key={manager.id} user={manager} />
+            <UserRow key={manager.id} user={manager} />
           ))}
         </tbody>
       </Table>

@@ -7,8 +7,8 @@ import Login from "./components/login/Login";
 import TestComponent from "./components/test/TestComponent";
 import TestComponent2 from "./components/test/TestComponent2";
 import Category from "./components/category/Category";
-import ManagerList from "./components/manager/ManagerList";
 import ProductList from "./components/product/ProductList";
+import UserList from "./components/manager/UserList";
 
 function AppContent() {
   const location = useLocation();
@@ -33,7 +33,7 @@ function AppContent() {
             <Route path="warehouses" element={<WarehouseManagement />} />
             <Route path="products" element={<ProductList />} />
             <Route path="categories" element={<Category />} />
-            <Route path="managers" element={<ManagerList />} />
+            <Route path="managers" element={<UserList />} />
 
             <Route path="test" element={<TestComponent />} />
             <Route path="test2" element={<TestComponent2 />} />
