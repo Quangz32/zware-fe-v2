@@ -10,6 +10,7 @@ import ProductManagement from "./components/product/ProductManagement";
 import InboundTransactions from "./components/inbound/InboundTransactions";
 import Category from "./components/category/Category";
 import Profile from "./components/profile/Profile";
+import OutboundTransactions from "./components/outbound/OutboundTransactions";
 
 function AppContent() {
   const location = useLocation();
@@ -37,7 +38,8 @@ function AppContent() {
             <Route path="products" element={<ProductManagement />} />
 
             <Route path="inbound" element={<InboundTransactions />} />
-            <Route path="category" element={<Category />} />
+            <Route path="outbound" element={<OutboundTransactions />} />
+            <Route path="categories" element={<Category />} />
             <Route path="profile" element={<Profile />} />
 
             

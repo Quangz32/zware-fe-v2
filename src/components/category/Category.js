@@ -1,4 +1,3 @@
-// Category.js;
 import React, { useState, useEffect } from "react";
 import {
   Container,
@@ -31,6 +30,7 @@ const Category = () => {
   const [alertVariant, setAlertVariant] = useState("");
   const [showAlert, setShowAlert] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [initialLoad, setInitialLoad] = useState(true);
 
   const triggerAlert = () => {
     setShowAlert(true);
@@ -56,9 +56,12 @@ const Category = () => {
     MyAxios.get("/categories")
       .then((response) => {
         setCategories(response.data.data);
-        setAlertMessage(response.data.message);
-        setAlertVariant("success");
-        triggerAlert();
+        if (!initialLoad) {
+          setAlertMessage(response.data.message);
+          setAlertVariant("success");
+          triggerAlert();
+        }
+        setInitialLoad(false); // Set initial load to false after first fetch
       })
       .catch((error) => {
         setAlertMessage(
