@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from "react";
 import defaultAvatar from "./defaultAvatar.jpg";
 import axios from "axios";
+import MyAxios from "../../util/MyAxios";
 
-//props contains: manager
+//props contains: user
 export default function ManagerRow(props) {
   const [avatar, setAvatar] = useState("");
   //Get image data
   useEffect(() => {
     const fetchData = async () => {
       await axios
-        .get(`http://localhost:2000/api/users/${props.manager.id}/avatars`, {
+        .get(`http://localhost:2000/api/users/${props.user.id}/avatars`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
@@ -30,23 +31,38 @@ export default function ManagerRow(props) {
 
     fetchData();
   }, [props]);
+
+  const [warehouse, setWarehouse] = useState({});
+  //Get warehouse this user manage
+  useEffect(() => {
+    const fetchWarehouse = async () => {
+      await MyAxios.get(`users/${props.user.id}/warehouse`)
+        .then((res) => {
+          if (res.status === 200) {
+            // console.log(res);
+            setWarehouse(res.data.data);
+          }
+        })
+        .catch((e) => {
+          // console.log(e);
+        });
+    };
+
+    fetchWarehouse();
+  }, [props]);
   return (
     <tr>
-      <td>{props.manager.id}</td>
+      <td>{props.user.id}</td>
       <td className="d-flex justify-content-center">
-        <img
-          src={avatar || defaultAvatar}
-          className="rounded-circle"
-          height={36}
-          alt="props.manager avt"
-        />
+        <img src={avatar || defaultAvatar} className="rounded-circle" height={36} alt=" avt" />
       </td>
-      <td>{props.manager.email}</td>
-      <td>{props.manager.name}</td>
-      <td>{props.manager.role}</td>
-      <td>{props.manager.date_of_birth?.slice(0, 10)}</td>
-      <td>{props.manager.phone}</td>
-      <td>{props.manager.gender}</td>
+      <td>{props.user.email}</td>
+      <td>{props.user.name}</td>
+      <td>{props.user.role}</td>
+      <td>{warehouse.name}</td>
+      <td>{props.user.date_of_birth?.slice(0, 10)}</td>
+      <td>{props.user.phone}</td>
+      <td>{props.user.gender}</td>
       <td>
         <button className="btn btn-warning btn-sm mx-1">
           <i className="bi bi-pencil-square"></i>

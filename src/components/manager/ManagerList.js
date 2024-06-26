@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Alert, Button, Table } from "react-bootstrap";
 import MyAxios from "../../util/MyAxios";
 import ManagerRow from "./ManagerRow";
-import axios from "axios";
 
 export default function ManagerList() {
   const [managerList, setManagerList] = useState([]);
@@ -35,6 +34,7 @@ export default function ManagerList() {
             <th>Email</th>
             <th>Name</th>
             <th>Role</th>
+            <th>Warehouse</th>
             <th>{window.innerWidth < 1200 ? "DOB" : "Date of Birth"}</th>
             <th>Phone</th>
             <th>Gender</th>
@@ -43,7 +43,7 @@ export default function ManagerList() {
         </thead>
         <tbody>
           {managerList?.map((manager) => (
-            <ManagerRow key={manager.id} manager={manager} />
+            <ManagerRow key={manager.id} user={manager} />
           ))}
         </tbody>
       </Table>
