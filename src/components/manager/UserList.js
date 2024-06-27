@@ -3,6 +3,7 @@ import { Alert, Button, Form, Table, Row, Col } from "react-bootstrap";
 import MyAxios from "../../util/MyAxios";
 import UserRow from "./UserRow";
 import UserForm from "./UserForm";
+import UserDelete from "./UserDelete";
 
 export default function UserList() {
   const [userList, setUserList] = useState([]);
@@ -12,6 +13,9 @@ export default function UserList() {
   const [showUserForm, setShowUserForm] = useState(false);
   const [userFormMode, setUserFormMode] = useState("");
   const [userFormUser, setUserFormUser] = useState({});
+
+  const [showUserDelete, setShowUserDelete] = useState(false);
+  const [userToDelete, setUserToDelete] = useState({});
 
   useEffect(() => {
     const fetchManager = async () => {
@@ -24,8 +28,8 @@ export default function UserList() {
         .catch();
     };
 
-    if (!showUserForm) fetchManager();
-  }, [showUserForm]);
+    if (!showUserForm || !showUserDelete) fetchManager();
+  }, [showUserForm, showUserDelete]);
 
   useEffect(() => {
     const fetchManager = async () => {
@@ -98,6 +102,8 @@ export default function UserList() {
               setUserFormMode={setUserFormMode}
               setUserFormUser={setUserFormUser}
               setShowUserForm={setShowUserForm}
+              setShowUserDelete={setShowUserDelete}
+              setUserToDelete={setUserToDelete}
             />
           ))}
         </tbody>
@@ -110,6 +116,12 @@ export default function UserList() {
         user={userFormUser}
         warehouseList={warehouseList}
       ></UserForm>
+
+      <UserDelete
+        show={showUserDelete}
+        setShow={setShowUserDelete}
+        user={userToDelete}
+      ></UserDelete>
     </div>
   );
 }

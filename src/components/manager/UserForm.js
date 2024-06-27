@@ -135,12 +135,13 @@ export default function ProductForm(props) {
     };
 
     if (props.mode === "edit") {
+      console.log(formData);
       await handlePut();
     } else {
       await handlePost();
     }
 
-    if (Object.keys(newUserInfo).length > 0) {
+    if (newUserInfo && Object.keys(newUserInfo).length > 0) {
       await handleUploadImage();
     }
 
@@ -165,6 +166,7 @@ export default function ProductForm(props) {
                 <FormGroup>
                   <FormLabel>Email</FormLabel>
                   <FormControl
+                    // disabled={props.mode === "edit"}
                     type="text"
                     value={formData.email}
                     isInvalid={!!formErrors.email}
