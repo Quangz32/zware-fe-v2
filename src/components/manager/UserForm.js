@@ -166,7 +166,7 @@ export default function ProductForm(props) {
                 <FormGroup>
                   <FormLabel>Email</FormLabel>
                   <FormControl
-                    // disabled={props.mode === "edit"}
+                    disabled={props.mode === "edit"}
                     type="text"
                     value={formData.email}
                     isInvalid={!!formErrors.email}
