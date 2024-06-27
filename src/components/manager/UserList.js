@@ -9,8 +9,14 @@ export default function UserList() {
   const [warehouseList, setWarehouseList] = useState([]);
   const [showMore, setShowMore] = useState(false);
 
+  const [showUserForm, setShowUserForm] = useState(false);
+  const [userFormMode, setUserFormMode] = useState("");
+  const [userFormUser, setUserFormUser] = useState({});
+
   useEffect(() => {
     const fetchManager = async () => {
+      console.log("hello");
+
       await MyAxios.get("users")
         .then((res) => {
           setUserList(res.data.data);
@@ -18,8 +24,8 @@ export default function UserList() {
         .catch();
     };
 
-    fetchManager();
-  }, []);
+    if (!showUserForm) fetchManager();
+  }, [showUserForm]);
 
   useEffect(() => {
     const fetchManager = async () => {
@@ -33,11 +39,6 @@ export default function UserList() {
     fetchManager();
   }, []);
 
-  const [showUserForm, setShowUserForm] = useState(false);
-  const [userFormMode, setUserFormMode] = useState("");
-  const [userFormUser, setUserFormUser] = useState({});
-
-  console.log(showMore);
   return (
     <div>
       <Alert className="text-center">
@@ -89,7 +90,15 @@ export default function UserList() {
         </thead>
         <tbody>
           {userList?.map((user) => (
-            <UserRow key={user.id} user={user} warehouseList={warehouseList} showMore={showMore} />
+            <UserRow
+              key={user.id}
+              user={user}
+              warehouseList={warehouseList}
+              showMore={showMore}
+              setUserFormMode={setUserFormMode}
+              setUserFormUser={setUserFormUser}
+              setShowUserForm={setShowUserForm}
+            />
           ))}
         </tbody>
       </Table>

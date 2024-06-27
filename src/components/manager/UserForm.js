@@ -16,7 +16,6 @@ import axios from "axios"; //for image upload
 
 // Props contains: show, setShow, mode, user(for edit), warehouseList
 export default function ProductForm(props) {
-  console.log(props?.warehouseList);
   // MyAlert
   const [alertMessage, setAlertMessage] = useState("");
   const [alertVariant, setAlertVariant] = useState("");
@@ -135,18 +134,16 @@ export default function ProductForm(props) {
       });
     };
 
-    // if (props.mode === "edit") {
-    //   await handlePut();
-    // } else {
-    //   await handlePost();
-    // }
+    if (props.mode === "edit") {
+      await handlePut();
+    } else {
+      await handlePost();
+    }
 
-    // if (Object.keys(newUserInfo).length > 0) {
-    //   await handleUploadImage();
-    // }
+    if (Object.keys(newUserInfo).length > 0) {
+      await handleUploadImage();
+    }
 
-    await handlePost();
-    await handleUploadImage();
     props.setShow(false); // Close Modal
   };
 
@@ -294,28 +291,30 @@ export default function ProductForm(props) {
             </Row>
             {formData.role === "manager" && (
               <Row className="mb-3">
-                <FormLabel>Warehouse to manage</FormLabel>
-                <FormSelect
-                  value={formData.warehouse_id}
-                  isInvalid={!!formErrors.warehouse_id}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      warehouse_id: e.target.value,
-                    })
-                  }
-                >
-                  <option value="">Select Warehouse</option>
-                  {warehouseList &&
-                    warehouseList.map((warehouse) => (
-                      <option key={warehouse.id} value={warehouse.id}>
-                        {warehouse.name}
-                      </option>
-                    ))}
-                </FormSelect>
-                <Form.Control.Feedback type="invalid">
-                  {formErrors.warehouse_id}
-                </Form.Control.Feedback>
+                <Col>
+                  <FormLabel>Warehouse to manage</FormLabel>
+                  <FormSelect
+                    value={formData.warehouse_id}
+                    isInvalid={!!formErrors.warehouse_id}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        warehouse_id: e.target.value,
+                      })
+                    }
+                  >
+                    <option value="">Select Warehouse</option>
+                    {warehouseList &&
+                      warehouseList.map((warehouse) => (
+                        <option key={warehouse.id} value={warehouse.id}>
+                          {warehouse.name}
+                        </option>
+                      ))}
+                  </FormSelect>
+                  <Form.Control.Feedback type="invalid">
+                    {formErrors.warehouse_id}
+                  </Form.Control.Feedback>
+                </Col>
               </Row>
             )}
             <Row className="mb-3">
@@ -333,12 +332,9 @@ export default function ProductForm(props) {
                 />
               </FormGroup>
             </Row>
-            <Button type="submit" variant="primary">
-              Submit
-            </Button>
           </Form>
         </Modal.Body>
-        <Modal.Footer>
+        <Modal.Footer className="d-flex">
           <Button
             variant="secondary"
             onClick={() => {
@@ -347,6 +343,9 @@ export default function ProductForm(props) {
             }}
           >
             Close
+          </Button>
+          <Button type="submit" variant="primary" onClick={handleSubmit}>
+            {props.mode === "edit" ? "Edit user" : "Save user"}
           </Button>
         </Modal.Footer>
       </Modal>

@@ -3,7 +3,7 @@ import defaultAvatar from "./defaultAvatar.jpg";
 import axios from "axios";
 import MyAxios from "../../util/MyAxios";
 
-//props contains: user, warehouseList, showMore
+//props contains: user, warehouseList, showMore, setShowUserForm,setUserFormMode, setUserFormUser
 export default function ManagerRow(props) {
   const [avatar, setAvatar] = useState("");
 
@@ -56,7 +56,6 @@ export default function ManagerRow(props) {
       <td>{warehouse.name}</td>
       {props.showMore && (
         <>
-          {" "}
           <td>{props.user.date_of_birth?.slice(0, 10)}</td>
           <td>{props.user.phone}</td>
           <td>{props.user.gender}</td>
@@ -64,7 +63,14 @@ export default function ManagerRow(props) {
       )}
 
       <td>
-        <button className="btn btn-warning btn-sm mx-1">
+        <button
+          className="btn btn-warning btn-sm mx-1"
+          onClick={() => {
+            props.setUserFormMode("edit");
+            props.setUserFormUser(props.user);
+            props.setShowUserForm(true);
+          }}
+        >
           <i className="bi bi-pencil-square"></i>
         </button>
         <button className="btn btn-danger btn-sm mx-1">
