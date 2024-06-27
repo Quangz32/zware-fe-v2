@@ -5,13 +5,28 @@ import UserRow from "./UserRow";
 import UserForm from "./UserForm";
 
 export default function UserList() {
-  const [managerList, setManagerList] = useState([]);
+  const [userList, setUserList] = useState([]);
+  const [warehouseList, setWarehouseList] = useState([]);
 
   useEffect(() => {
     const fetchManager = async () => {
-      await MyAxios.get("users").then((res) => {
-        setManagerList(res.data.data);
-      });
+      await MyAxios.get("users")
+        .then((res) => {
+          setUserList(res.data.data);
+        })
+        .catch();
+    };
+
+    fetchManager();
+  }, []);
+
+  useEffect(() => {
+    const fetchManager = async () => {
+      await MyAxios.get("warehouses")
+        .then((res) => {
+          setWarehouseList(res.data.data);
+        })
+        .catch();
     };
 
     fetchManager();
@@ -55,8 +70,8 @@ export default function UserList() {
           </tr>
         </thead>
         <tbody>
-          {managerList?.map((manager) => (
-            <UserRow key={manager.id} user={manager} />
+          {userList?.map((user) => (
+            <UserRow key={user.id} user={user} warehouseList={warehouseList} />
           ))}
         </tbody>
       </Table>
@@ -66,6 +81,7 @@ export default function UserList() {
         setShow={setShowUserForm}
         mode={userFormMode}
         user={userFormUser}
+        warehouseList={warehouseList}
       ></UserForm>
     </div>
   );

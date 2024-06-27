@@ -3,9 +3,10 @@ import defaultAvatar from "./defaultAvatar.jpg";
 import axios from "axios";
 import MyAxios from "../../util/MyAxios";
 
-//props contains: user
+//props contains: user, warehouseList
 export default function ManagerRow(props) {
   const [avatar, setAvatar] = useState("");
+
   //Get image data
   useEffect(() => {
     const fetchData = async () => {
@@ -35,26 +36,19 @@ export default function ManagerRow(props) {
   const [warehouse, setWarehouse] = useState({});
   //Get warehouse this user manage
   useEffect(() => {
-    const fetchWarehouse = async () => {
-      await MyAxios.get(`users/${props.user.id}/warehouse`)
-        .then((res) => {
-          if (res.status === 200) {
-            // console.log(res);
-            setWarehouse(res.data.data);
-          }
-        })
-        .catch((e) => {
-          // console.log(e);
-        });
-    };
-
-    fetchWarehouse();
+    const filtedWarehouseList = props.warehouseList.filter(
+      (warehouse) => warehouse.id === props.user.warehouse_id
+    );
+    if (filtedWarehouseList.length > 0) {
+      setWarehouse(filtedWarehouseList[0]);
+    }
   }, [props]);
+
   return (
     <tr>
       <td>{props.user.id}</td>
-      <td className="d-flex justify-content-center">
-        <img src={avatar || defaultAvatar} className="rounded-circle" height={36} alt=" avt" />
+      <td className="d-flex justify-content-center p-1">
+        <img src={avatar || defaultAvatar} className="rounded-circle" height={40} alt=" avt" />
       </td>
       <td>{props.user.email}</td>
       <td>{props.user.name}</td>

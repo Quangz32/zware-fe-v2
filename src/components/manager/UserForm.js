@@ -11,112 +11,30 @@ import {
   FormSelect,
 } from "react-bootstrap";
 import MyAlert from "../share/MyAlert";
-
 import MyAxios from "../../util/MyAxios";
 import axios from "axios"; //for image upload
 
-//Props contains: show, setShow, mode, user(for edit)
+// Props contains: show, setShow, mode, user(for edit), warehouseList
 export default function ProductForm(props) {
+  console.log(props?.warehouseList);
   // MyAlert
   const [alertMessage, setAlertMessage] = useState("");
   const [alertVariant, setAlertVariant] = useState("");
   const [showAlert, setShowAlert] = useState(false);
 
-  // const handleSubmit = async () => {
-  //   let newUserInfo = {};
-
-  //   const handlePost = async () => {
-  //     //CALL POST
-  //     await MyAxios.post("products", formData)
-  //       .then((res) => {
-  //         newProduct = res.data.data;
-  //         //display message
-  //         setAlertMessage(res.data.message);
-  //         setAlertVariant("success");
-  //         setShowAlert(true); //show Alert
-  //       })
-  //       .catch((e) => {
-  //         console.log(e);
-
-  //         //display message
-  //         setAlertMessage(e.response.data.message);
-  //         setAlertVariant("warning");
-  //         setShowAlert(true); //show Alert
-  //       });
-  //   };
-
-  //   const handlePut = async () => {
-  //     //CALL POST
-  //     await MyAxios.put(`products/${formData.id}`, formData)
-  //       .then((res) => {
-  //         newProduct = res.data.data;
-  //         //display message
-  //         setAlertMessage(res.data.message);
-  //         setAlertVariant("success");
-  //         setShowAlert(true); //show Alert
-  //       })
-  //       .catch((e) => {
-  //         console.log(e);
-
-  //         //display message
-  //         setAlertMessage(e.response.data.message);
-  //         setAlertVariant("warning");
-  //         setShowAlert(true); //show Alert
-  //       });
-  //   };
-
-  //   const handleUploadImage = async () => {
-  //     const imageFile = document.getElementById("uploaded-image-usr113").files[0];
-  //     if (!imageFile) return;
-
-  //     const formData = new FormData();
-  //     formData.append("image", imageFile);
-
-  //     const response = await axios.post(
-  //       `http://localhost:2000/api/products/${newProduct.id}/image`,
-  //       formData,
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${localStorage.getItem("token")}`,
-  //           "Content-Type": "multipart/form-data",
-  //         },
-  //       }
-  //     );
-  //   };
-
-  //   if (props.mode === "edit") {
-  //     await handlePut();
-  //   } else {
-  //     await handlePost();
-  //   }
-
-  //   //if Object is not empty
-  //   if (Object.keys(newUserInfo).length > 0) {
-  //     console.log(newUserInfo);
-  //     await handleUploadImage();
-  //   }
-
-  //   props.setShow(false); //Close Modal
-  // };
-
-  const [warehouseList, setWarehouseList] = useState("");
-  useEffect(() => {
-    const fetchWarehouses = async () => {
-      await MyAxios.get("warehouses")
-        .then((res) => {
-          // console.log(res);
-          setWarehouseList(res.data.data);
-        })
-        .catch((e) => {});
-    };
-    fetchWarehouses();
-  }, []);
+  const [warehouseList, setWarehouseList] = useState([]);
   const [formData, setFormData] = useState({});
+  const [formErrors, setFormErrors] = useState({});
 
+  //Set warehouseList
+  useEffect(() => {
+    setWarehouseList(props.warehouseList);
+  }, [props]);
+
+  //Set formData
   useEffect(() => {
     if (props.mode === "edit") {
       setFormData(props.user);
-      // console.log(formData);
     } else {
       setFormData({
         email: "",
@@ -132,21 +50,119 @@ export default function ProductForm(props) {
     }
   }, [props]);
 
-  // console.log(JSON.stringify(formData));
-  // console.log(warehouseList);
+  //Validation
+  const handleValidation = () => {
+    const errors = {};
+    if (!formData.email) {
+      errors.email = "Email is required";
+    } else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        errors.email = "Email is not valid";
+      }
+    }
+    if (!formData.name) errors.name = "Name is required";
+    if (props.mode === "add") {
+      if (!formData.password) {
+        errors.password = "Password is required";
+      } else if (formData.password.length < 6) {
+        errors.password = "Password minimum length is 6";
+      }
+      if (formData.password !== formData.confirm_password) {
+        errors.confirm_password = "Passwords do not match";
+      }
+    }
+
+    if (!formData.role) errors.role = "Role is required";
+    if (formData.role === "manager" && !formData.warehouse_id)
+      errors.warehouse_id = "Warehouse is required for manager role";
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0; //no error
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!handleValidation()) return;
+
+    let newUserInfo;
+
+    const handlePost = async () => {
+      //CALL POST
+      await MyAxios.post("users", formData)
+        .then((res) => {
+          newUserInfo = res.data.data;
+          setAlertMessage(res.data.message);
+          setAlertVariant("success");
+          setShowAlert(true); //show Alert
+        })
+        .catch((e) => {
+          //display message
+          setAlertMessage(e.response.data.message);
+          setAlertVariant("warning");
+          setShowAlert(true); //show Alert
+        });
+    };
+
+    const handlePut = async () => {
+      await MyAxios.put(`users/${formData.id}`, formData)
+        .then((res) => {
+          newUserInfo = res.data.data;
+          console.log(res);
+          setAlertMessage(res.data.message);
+          setAlertVariant("success");
+          setShowAlert(true); // show Alert
+        })
+        .catch((e) => {
+          setAlertMessage(e.response.data.message);
+          setAlertVariant("warning");
+          setShowAlert(true); // show Alert
+        });
+    };
+
+    const handleUploadImage = async () => {
+      const imageFile = document.getElementById("uploaded-image-usr113").files[0];
+      if (!imageFile) return;
+
+      const formData = new FormData();
+      formData.append("file", imageFile);
+
+      await axios.post(`http://localhost:2000/api/users/${newUserInfo.id}/avatars`, formData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+    };
+
+    // if (props.mode === "edit") {
+    //   await handlePut();
+    // } else {
+    //   await handlePost();
+    // }
+
+    // if (Object.keys(newUserInfo).length > 0) {
+    //   await handleUploadImage();
+    // }
+
+    await handlePost();
+    await handleUploadImage();
+    props.setShow(false); // Close Modal
+  };
+
   return (
     <>
       <Modal
         show={props.show}
         onHide={() => {
-          props.setShow(false); //Close Modal
+          props.setShow(false); // Close Modal
         }}
       >
         <Modal.Header>
           <Modal.Title>{props.mode === "edit" ? "Edit User" : "Add new user"}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form>
+          <Form onSubmit={handleSubmit}>
             <Row className="mb-3">
               <Col>
                 <FormGroup>
@@ -154,8 +170,10 @@ export default function ProductForm(props) {
                   <FormControl
                     type="text"
                     value={formData.email}
+                    isInvalid={!!formErrors.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  ></FormControl>
+                  />
+                  <Form.Control.Feedback type="invalid">{formErrors.email}</Form.Control.Feedback>
                 </FormGroup>
               </Col>
               <Col>
@@ -164,8 +182,10 @@ export default function ProductForm(props) {
                   <FormControl
                     type="text"
                     value={formData.name}
+                    isInvalid={!!formErrors.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  ></FormControl>
+                  />
+                  <Form.Control.Feedback type="invalid">{formErrors.name}</Form.Control.Feedback>
                 </FormGroup>
               </Col>
             </Row>
@@ -177,8 +197,12 @@ export default function ProductForm(props) {
                     <FormControl
                       type="password"
                       value={formData.password}
+                      isInvalid={!!formErrors.password}
                       onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    ></FormControl>
+                    />
+                    <Form.Control.Feedback type="invalid">
+                      {formErrors.password}
+                    </Form.Control.Feedback>
                   </FormGroup>
                 </Col>
                 <Col>
@@ -187,10 +211,14 @@ export default function ProductForm(props) {
                     <FormControl
                       type="password"
                       value={formData.confirm_password}
+                      isInvalid={!!formErrors.confirm_password}
                       onChange={(e) =>
                         setFormData({ ...formData, confirm_password: e.target.value })
                       }
-                    ></FormControl>
+                    />
+                    <Form.Control.Feedback type="invalid">
+                      {formErrors.confirm_password}
+                    </Form.Control.Feedback>
                   </FormGroup>
                 </Col>
               </Row>
@@ -202,6 +230,7 @@ export default function ProductForm(props) {
                   <FormLabel>Role</FormLabel>
                   <FormSelect
                     value={formData.role}
+                    isInvalid={!!formErrors.role}
                     onChange={(e) =>
                       setFormData({
                         ...formData,
@@ -212,6 +241,7 @@ export default function ProductForm(props) {
                     <option value="admin">Admin</option>
                     <option value="manager">Manager</option>
                   </FormSelect>
+                  <Form.Control.Feedback type="invalid">{formErrors.role}</Form.Control.Feedback>
                 </FormGroup>
               </Col>
               <Col>
@@ -225,7 +255,7 @@ export default function ProductForm(props) {
                       date_of_birth: e.target.value,
                     })
                   }
-                ></FormControl>
+                />
               </Col>
             </Row>
 
@@ -241,7 +271,7 @@ export default function ProductForm(props) {
                       phone: e.target.value,
                     })
                   }
-                ></FormControl>
+                />
               </Col>
               <Col>
                 <FormGroup>
@@ -262,43 +292,62 @@ export default function ProductForm(props) {
                 </FormGroup>
               </Col>
             </Row>
+            {formData.role === "manager" && (
+              <Row className="mb-3">
+                <FormLabel>Warehouse to manage</FormLabel>
+                <FormSelect
+                  value={formData.warehouse_id}
+                  isInvalid={!!formErrors.warehouse_id}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      warehouse_id: e.target.value,
+                    })
+                  }
+                >
+                  <option value="">Select Warehouse</option>
+                  {warehouseList &&
+                    warehouseList.map((warehouse) => (
+                      <option key={warehouse.id} value={warehouse.id}>
+                        {warehouse.name}
+                      </option>
+                    ))}
+                </FormSelect>
+                <Form.Control.Feedback type="invalid">
+                  {formErrors.warehouse_id}
+                </Form.Control.Feedback>
+              </Row>
+            )}
             <Row className="mb-3">
-              <FormLabel>Warehouse to manage</FormLabel>
-              <FormSelect
-                value={formData.warehouse_id}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    warehouse_id: e.target.value,
-                  })
-                }
-              >
-                {/* <option value disabled></option> */}
-                {warehouseList &&
-                  warehouseList.map((warehouse) => (
-                    <option value={warehouse.id}>{warehouse.name}</option>
-                  ))}
-              </FormSelect>
-            </Row>
-
-            <Row>
               <FormGroup>
-                <Form.Label>Avatar</Form.Label>
-                <Form.Control type="file" id="uploaded-image-usr113"></Form.Control>
+                <FormLabel>Upload Image</FormLabel>
+                <FormControl
+                  type="file"
+                  id="uploaded-image-usr113"
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      image: e.target.files[0],
+                    })
+                  }
+                />
               </FormGroup>
             </Row>
+            <Button type="submit" variant="primary">
+              Submit
+            </Button>
           </Form>
         </Modal.Body>
         <Modal.Footer>
           <Button
             variant="secondary"
             onClick={() => {
-              props.setShow(false); //Close Modal
+              props.setShow(false);
+              setFormErrors({});
             }}
           >
             Close
           </Button>
-          <Button variant="primary">{props.mode === "edit" ? "Update User" : "Save User"}</Button>
         </Modal.Footer>
       </Modal>
 
