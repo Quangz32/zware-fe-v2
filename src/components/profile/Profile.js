@@ -22,21 +22,15 @@ const Profile = () => {
   const [avatarFile, setAvatarFile] = useState(null);
   const [imageData, setImageData] = useState("");
 
-
-
-
   useEffect(() => {
     if (profile.id) {
       fetchImageData();
     }
   }, [profile.id]);
 
-
-
   const fetchProfile = useCallback(() => {
     MyAxios.get("/users/me")
       .then((response) => {
-
         const profileData = response.data.data;
         if (profileData.date_of_birth) {
           profileData.date_of_birth = profileData.date_of_birth.slice(0, 10);
@@ -47,11 +41,9 @@ const Profile = () => {
           fetchWarehouseName(profileData.warehouse_id);
         }
       })
-
-      .catch(error => {
+      .catch((error) => {
         console.error('Error fetching profile:', error);
         setAlertMessage(error.response?.data?.message || "Error fetching profile");
-
         setAlertVariant("danger");
         triggerAlert();
       });
@@ -63,11 +55,11 @@ const Profile = () => {
 
   const fetchWarehouseName = (warehouseId) => {
     MyAxios.get(`warehouses/${warehouseId}`)
-      .then(response => {
+      .then((response) => {
         const warehouseData = response.data.data;
         setWarehouseName(warehouseData.name);
       })
-      .catch(error => {
+      .catch((error) => {
         console.error('Error fetching warehouse name:', error);
         setWarehouseName('Unknown');
       });
@@ -106,51 +98,51 @@ const Profile = () => {
     const file = e.target.files[0];
     if (file) {
       setAvatarFile(file);
-
-      const formData = new FormData();
-      formData.append('file', file);
-
-      MyAxios.post(`/users/${profile.id}/avatars`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      })
-      .then(response => {
-        setAlertMessage(response.data.message);
-        setAlertVariant("success");
-        setImageData(URL.createObjectURL(file));
-        triggerAlert();
-      })
-      .catch(error => {
-        console.error('Error uploading avatar:', error);
-        setAlertMessage(error.response?.data?.message || "Error uploading avatar");
-        setAlertVariant("danger");
-        triggerAlert();
-      });
-
+      setImageData(URL.createObjectURL(file));
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-
       let modifiedData = {};
-
       for (const key in profile) {
         if (profile[key] !== initialProfile[key]) {
           modifiedData[key] = profile[key];
         }
       }
 
-      if (Object.keys(modifiedData).length > 0) {
-        await MyAxios.put(`/users/${profile.id}`, modifiedData)
-          .then(response => {
-            setAlertMessage(response.data.message);
-            setAlertVariant("success");
-            setInitialProfile(profile); // Sync initialProfile with the latest profile
-            triggerAlert();
-          });
+      if (Object.keys(modifiedData).length > 0 || avatarFile) {
+        if (avatarFile) {
+          const formData = new FormData();
+          formData.append('file', avatarFile);
+          await MyAxios.post(`/users/${profile.id}/avatars`, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          })
+            .then(response => {
+              setAlertMessage(response.data.message);
+              setAlertVariant("success");
+              triggerAlert();
+            })
+            .catch(error => {
+              console.error('Error uploading avatar:', error);
+              setAlertMessage(error.response?.data?.message || "Error uploading avatar");
+              setAlertVariant("danger");
+              triggerAlert();
+            });
+        }
+
+        if (Object.keys(modifiedData).length > 0) {
+          await MyAxios.put(`/users/${profile.id}`, modifiedData)
+            .then(response => {
+              setAlertMessage(response.data.message);
+              setAlertVariant("success");
+              setInitialProfile(profile); // Sync initialProfile with the latest profile
+              triggerAlert();
+            });
+        }
       } else {
         setAlertMessage("No changes to save.");
         setAlertVariant("info");
@@ -159,7 +151,6 @@ const Profile = () => {
     } catch (error) {
       console.error('Error updating profile:', error);
       setAlertMessage(error.response?.data?.message || "Error updating profile");
-
       setAlertVariant("danger");
       triggerAlert();
     }
@@ -271,7 +262,6 @@ const Profile = () => {
                           value={profile.gender}
                           onChange={handleChange}
                         >
-                          
                           <option value="male">Male</option>
                           <option value="female">Female</option>
                         </select>
