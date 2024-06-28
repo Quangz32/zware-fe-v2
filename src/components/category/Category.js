@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react";
+
+import React, { useState, useEffect, useCallback } from "react";
+
 import {
   Container,
   Button,
@@ -11,7 +13,6 @@ import {
 } from "react-bootstrap";
 import MyAxios from "../../util/MyAxios";
 import MyAlert from "../share/MyAlert";
-// import "./Category.css";
 
 const Category = () => {
   /* STYLE */
@@ -48,32 +49,7 @@ const Category = () => {
     }
   }, [editingCategory]);
 
-  useEffect(() => {
-    filterCategories();
-  }, [categories, searchTerm]);
-
-  const fetchCategories = () => {
-    MyAxios.get("/categories")
-      .then((response) => {
-        setCategories(response.data.data);
-        if (!initialLoad) {
-          setAlertMessage(response.data.message);
-          setAlertVariant("success");
-          triggerAlert();
-        }
-        setInitialLoad(false); // Set initial load to false after first fetch
-      })
-      .catch((error) => {
-        setAlertMessage(
-          error.response?.data?.message || "There was an error fetching the categories!"
-        );
-        setAlertVariant("danger");
-        triggerAlert();
-        console.error("There was an error fetching the categories!", error);
-      });
-  };
-
-  const filterCategories = () => {
+  const filterCategories = useCallback(() => {
     if (!searchTerm) {
       setFilteredCategories(categories);
     } else {
@@ -83,6 +59,28 @@ const Category = () => {
         )
       );
     }
+  }, [categories, searchTerm]);
+
+  useEffect(() => {
+    filterCategories();
+  }, [categories, searchTerm, filterCategories]);
+
+  const fetchCategories = () => {
+    MyAxios.get("/categories")
+      .then((response) => {
+        setCategories(response.data.data);
+
+        if (!initialLoad) {
+          setAlertMessage(response.data.message);
+          setAlertVariant("success");
+          triggerAlert();
+        }
+        setInitialLoad(false); // Set initial load to false after first fetch
+
+      })
+      .catch((error) => {
+        console.error("There was an error fetching the categories!", error);
+      });
   };
 
   const addOrUpdateCategory = (category) => {

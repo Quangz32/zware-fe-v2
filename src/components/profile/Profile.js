@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import MyAxios from '../../util/MyAxios'; 
+import React, { useState, useEffect, useCallback } from "react";
+import MyAxios from "../../util/MyAxios";
 import defaultProfileImage from "./defaultProfileImage.jpg";
 import MyAlert from "../share/MyAlert";
 
@@ -8,23 +8,22 @@ const Profile = () => {
   const [alertVariant, setAlertVariant] = useState("");
   const [showAlert, setShowAlert] = useState(false);
   const [profile, setProfile] = useState({
-    name: '',
-    email: '',
-    role: '',
-    date_of_birth: '',
-    phone: '',
-    gender: '',
-    avatar: '',
-    warehouse_id: ''
+    name: "",
+    email: "",
+    role: "",
+    date_of_birth: "", // Assuming date_of_birth is a string from backend
+    phone: "",
+    gender: "",
+    avatar: "",
+    warehouse_id: "",
   });
   const [initialProfile, setInitialProfile] = useState(null);
   const [warehouseName, setWarehouseName] = useState('');
   const [avatarFile, setAvatarFile] = useState(null);
   const [imageData, setImageData] = useState("");
 
-  useEffect(() => {
-    fetchProfile();
-  }, []);
+
+
 
   useEffect(() => {
     if (profile.id) {
@@ -32,9 +31,12 @@ const Profile = () => {
     }
   }, [profile.id]);
 
-  const fetchProfile = () => {
-    MyAxios.get('/users/me')
-      .then(response => {
+
+
+  const fetchProfile = useCallback(() => {
+    MyAxios.get("/users/me")
+      .then((response) => {
+
         const profileData = response.data.data;
         if (profileData.date_of_birth) {
           profileData.date_of_birth = profileData.date_of_birth.slice(0, 10);
@@ -45,13 +47,19 @@ const Profile = () => {
           fetchWarehouseName(profileData.warehouse_id);
         }
       })
+
       .catch(error => {
         console.error('Error fetching profile:', error);
         setAlertMessage(error.response?.data?.message || "Error fetching profile");
+
         setAlertVariant("danger");
         triggerAlert();
       });
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
 
   const fetchWarehouseName = (warehouseId) => {
     MyAxios.get(`warehouses/${warehouseId}`)
@@ -90,7 +98,7 @@ const Profile = () => {
     const { name, value } = e.target;
     setProfile({
       ...profile,
-      [name]: value
+      [name]: value,
     });
   };
 
@@ -98,6 +106,7 @@ const Profile = () => {
     const file = e.target.files[0];
     if (file) {
       setAvatarFile(file);
+
       const formData = new FormData();
       formData.append('file', file);
 
@@ -118,12 +127,14 @@ const Profile = () => {
         setAlertVariant("danger");
         triggerAlert();
       });
+
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+
       let modifiedData = {};
 
       for (const key in profile) {
@@ -148,6 +159,7 @@ const Profile = () => {
     } catch (error) {
       console.error('Error updating profile:', error);
       setAlertMessage(error.response?.data?.message || "Error updating profile");
+
       setAlertVariant("danger");
       triggerAlert();
     }
@@ -170,7 +182,7 @@ const Profile = () => {
                   src={imageData || defaultProfileImage}
                   alt="Profile"
                 />
-                <span className="font-weight-bold mt-3" style={{ color: 'black' }}>
+                <span className="font-weight-bold mt-3" style={{ color: "black" }}>
                   {profile.name || "Name"}
                 </span>
                 <div className="mt-3">
@@ -266,7 +278,7 @@ const Profile = () => {
                       </div>
                     </div>
                     <div className="row mt-3">
-                      {profile.role !== 'admin' && (
+                      {profile.role !== "admin" && (
                         <div className="col-md-6">
                           <label className="labels">Warehouse Name</label>
                           <input
@@ -282,7 +294,9 @@ const Profile = () => {
                       )}
                     </div>
                     <div className="mt-5 text-center">
-                      <button className="btn btn-primary profile-button" type="submit">Save Profile</button>
+                      <button className="btn btn-primary profile-button" type="submit">
+                        Save Profile
+                      </button>
                     </div>
                   </div>
                 </form>

@@ -62,16 +62,12 @@ export default function ProductForm(props) {
       const formData = new FormData();
       formData.append("image", imageFile);
 
-      const response = await axios.post(
-        `http://localhost:2000/api/products/${newProduct.id}/image`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      await axios.post(`http://localhost:2000/api/products/${newProduct.id}/image`, formData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
     };
 
     if (props.mode === "edit") {
@@ -79,7 +75,12 @@ export default function ProductForm(props) {
     } else {
       await handlePost();
     }
-    await handleUploadImage();
+
+    //if Object is not empty
+    if (Object.keys(newProduct).length > 0) {
+      console.log(newProduct);
+      await handleUploadImage();
+    }
 
     props.setShow(false); //Close Modal
   };
