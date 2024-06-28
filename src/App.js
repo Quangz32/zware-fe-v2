@@ -1,10 +1,8 @@
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { Container } from "react-bootstrap";
 
-import User from "./components/user/User";
 import HomeAd from "./components/home/HomeAd";
 
-import Home from "./components/home/Home";
 import Sidebar from "./components/sidebar/Sidebar";
 import WarehouseManagement from "./components/warehouse/WarehouseManagement";
 import Login from "./components/login/Login";
