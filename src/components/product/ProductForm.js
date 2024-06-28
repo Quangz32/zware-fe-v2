@@ -79,7 +79,12 @@ export default function ProductForm(props) {
     } else {
       await handlePost();
     }
-    await handleUploadImage();
+
+    //if Object is not empty
+    if (Object.keys(newProduct).length > 0) {
+      console.log(newProduct);
+      await handleUploadImage();
+    }
 
     props.setShow(false); //Close Modal
   };
