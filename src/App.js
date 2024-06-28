@@ -1,5 +1,9 @@
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { Container } from "react-bootstrap";
+
+import User from "./components/user/User";
+import HomeAd from "./components/home/HomeAd";
+
 import Home from "./components/home/Home";
 import Sidebar from "./components/sidebar/Sidebar";
 import WarehouseManagement from "./components/warehouse/WarehouseManagement";
@@ -13,6 +17,7 @@ import UserList from "./components/manager/UserList";
 import InboundTransactions from "./components/inbound/InboundTransactions";
 import Category from "./components/category/Category";
 import Profile from "./components/profile/Profile";
+import OutboundTransactions from "./components/outbound/OutboundTransactions";
 
 function AppContent() {
   const location = useLocation();
@@ -33,13 +38,18 @@ function AppContent() {
         <Container>
           <Routes>
             <Route path="login" element={<Login />} />
-            <Route path="home" element={<Home />} />
+
+            <Route path="home" element={<HomeAd />} />
+
             <Route path="warehouses" element={<WarehouseManagement />} />
 
             <Route path="products" element={<ProductList />} />
-            <Route path="categories" element={<Category />} />
             <Route path="managers" element={<UserList />} />
             <Route path="inbound" element={<InboundTransactions />} />
+
+            <Route path="outbound" element={<OutboundTransactions />} />
+            <Route path="categories" element={<Category />} />
+
             <Route path="profile" element={<Profile />} />
 
             <Route path="test" element={<TestComponent />} />

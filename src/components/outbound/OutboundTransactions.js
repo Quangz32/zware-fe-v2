@@ -4,7 +4,7 @@ import FilterForm from "./FilterForm";
 import TransactionTabs from "./TransactionTabs";
 import AddTransactionModal from "./AddTransactionModal";
 
-const InboundTransactions = () => {
+const OutboundTransactions = () => {
   const [transactions, setTransactions] = useState([]);
   const [showModal, setShowModal] = useState(false);
 
@@ -25,9 +25,10 @@ const InboundTransactions = () => {
 
   return (
     <Container>
-      <h1>Inbound Transactions</h1>
+      <h1>Outbound Transactions</h1>
       <Button className='mb-3' variant="primary" onClick={handleShow}>
-      <i className="bi bi-plus-circle me-1"></i>Add New Inbound Transaction</Button>
+      <i className="bi bi-plus-circle me-1"></i>
+      Add New Outbound Transaction</Button>
       <Alert variant="info" >
       <FilterForm applyFilters={() => {}} resetFilters={() => {}} />
       </Alert>
@@ -37,4 +38,4 @@ const InboundTransactions = () => {
   );
 };
 
-export default InboundTransactions;
+export default OutboundTransactions;

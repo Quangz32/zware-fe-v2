@@ -1,5 +1,6 @@
-// Category.js;
+
 import React, { useState, useEffect, useCallback } from "react";
+
 import {
   Container,
   Button,
@@ -30,6 +31,7 @@ const Category = () => {
   const [alertVariant, setAlertVariant] = useState("");
   const [showAlert, setShowAlert] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [initialLoad, setInitialLoad] = useState(true);
 
   const triggerAlert = () => {
     setShowAlert(true);
@@ -67,6 +69,14 @@ const Category = () => {
     MyAxios.get("/categories")
       .then((response) => {
         setCategories(response.data.data);
+
+        if (!initialLoad) {
+          setAlertMessage(response.data.message);
+          setAlertVariant("success");
+          triggerAlert();
+        }
+        setInitialLoad(false); // Set initial load to false after first fetch
+
       })
       .catch((error) => {
         console.error("There was an error fetching the categories!", error);

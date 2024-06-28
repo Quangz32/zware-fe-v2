@@ -1,17 +1,65 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "./Sidebar.css";
 import { Link } from "react-router-dom";
+import MyAxios from "../../util/MyAxios";
+import defaultProfileImage from "./defaultProfileImage.jpg"; // Make sure to have a default profile image
 
 const Sidebar = () => {
-  //Handle LOGOUT
+  const [avatarUrl, setAvatarUrl] = useState(defaultProfileImage);
+  const [username, setUsername] = useState('');
+
+  const fetchUsername = () => {
+    MyAxios.get('/users/me')
+      .then(response => {
+        const nameData = response.data.data;
+        setUsername(nameData.name);
+      })
+      .catch(error => {
+        console.error('Error fetching username:', error);
+        setUsername('Error');
+      });
+  };
+
+  useEffect(() => {
+    fetchUsername();
+  }, []);
+
+  // Handle LOGOUT
   function handleLogout() {
     localStorage.removeItem("token");
     localStorage.removeItem("loggingUser");
   }
 
   const loggingUser = JSON.parse(localStorage.getItem("loggingUser"));
+
+  useEffect(() => {
+    if (loggingUser && loggingUser.id) {
+      fetchAvatar();
+    }
+  }, [loggingUser?.id]);
+
+  const fetchAvatar = () => {
+    MyAxios.get(`/users/${loggingUser.id}/avatars`, {
+      responseType: 'arraybuffer',
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    })
+    .then((response) => {
+      const base64Image = btoa(
+        new Uint8Array(response.data).reduce(
+          (data, byte) => data + String.fromCharCode(byte),
+          ""
+        )
+      );
+      setAvatarUrl(`data:image/jpeg;base64,${base64Image}`);
+    })
+    .catch((error) => {
+      console.error("Error fetching avatar:", error);
+    });
+  };
 
   return (
     <aside id="sidebar" className="expand">
@@ -21,11 +69,11 @@ const Sidebar = () => {
         </div>
       </div>
       <div className="profile">
-        <img src="avt1.png" alt="avatar" />
-        <span>{loggingUser.name}</span>
+        <img src={avatarUrl} alt="avatar" />
+        <span>{username}</span>
       </div>
       <div className="role">
-        <span className="role-box">{loggingUser.role}</span>
+        <span className="role-box">{loggingUser?.role}</span>
       </div>
       <ul className="sidebar-nav">
         <li className="sidebar-item">
@@ -46,7 +94,7 @@ const Sidebar = () => {
             <span>Manager</span>
           </Link>
         </li>
-        {loggingUser.role === "admin" && (
+        {loggingUser?.role === "admin" && (
           <li className="sidebar-item">
             <Link to="/warehouses" className="sidebar-link">
               <i className="bi bi-house-gear"></i>
