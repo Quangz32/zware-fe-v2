@@ -156,17 +156,19 @@ export default function ProductList() {
       <Row>
         {filtedProductList.length > 0 &&
           filtedProductList.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              //props for FORM
-              setShowForm={setShowProductForm}
-              setFormMode={setProductFormMode}
-              setFormData={setProductFormData}
-              // props for DELETE
-              setShowDeleteProduct={setShowDeleteProduct}
-              setProductToDelete={setProductToDelete}
-            ></ProductCard>
+            <div className="col-md-3 mb-3">
+              <ProductCard
+                key={product.id}
+                product={product}
+                //props for FORM
+                setShowForm={setShowProductForm}
+                setFormMode={setProductFormMode}
+                setFormData={setProductFormData}
+                // props for DELETE
+                setShowDeleteProduct={setShowDeleteProduct}
+                setProductToDelete={setProductToDelete}
+              ></ProductCard>
+            </div>
           ))}
       </Row>
 

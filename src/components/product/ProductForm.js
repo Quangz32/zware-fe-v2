@@ -5,53 +5,88 @@ import MyAxios from "../../util/MyAxios";
 import axios from "axios"; //for image upload
 import MyAlert from "../share/MyAlert";
 
-//Props contains: show, setShow, mode, categories, product(for edit)
+// Props contains: show, setShow, mode, categories, product(for edit)
 export default function ProductForm(props) {
   // MyAlert
   const [alertMessage, setAlertMessage] = useState("");
   const [alertVariant, setAlertVariant] = useState("");
   const [showAlert, setShowAlert] = useState(false);
 
+  const [formData, setFormData] = useState({});
+  const [formErrors, setFormErrors] = useState({});
+
+  useEffect(() => {
+    if (props.mode === "edit") {
+      setFormData(props.product);
+    } else {
+      setFormData({
+        name: "",
+        category_id: props.categories[0] ? props.categories[0].id : 0,
+        supplier: "",
+        measure_unit: "",
+      });
+    }
+  }, [props]);
+
+  const validateForm = () => {
+    let errors = {};
+
+    if (!formData.name) {
+      errors.name = "Product name is required";
+    } else if (formData.name.length > 255) {
+      errors.name = "Name must be less than 256 characters.";
+    }
+
+    if (!formData.supplier) {
+      errors.supplier = "Supplier is required";
+    } else if (formData.supplier.length > 255) {
+      errors.supplier = "Supplier must be less than 256 characters.";
+    }
+
+    if (!formData.measure_unit) {
+      errors.measure_unit = "Measure Unit is required";
+    } else if (formData.measure_unit.length > 255) {
+      errors.measure_unit = "Measure Unit must be less than 256 characters.";
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleSubmit = async () => {
+    if (!validateForm()) return;
+
     let newProduct = {};
 
     const handlePost = async () => {
-      //CALL POST
       await MyAxios.post("products", formData)
         .then((res) => {
           newProduct = res.data.data;
-          //display message
           setAlertMessage(res.data.message);
           setAlertVariant("success");
-          setShowAlert(true); //show Alert
+          setShowAlert(true);
         })
         .catch((e) => {
           console.log(e);
-
-          //display message
           setAlertMessage(e.response.data.message);
           setAlertVariant("warning");
-          setShowAlert(true); //show Alert
+          setShowAlert(true);
         });
     };
 
     const handlePut = async () => {
-      //CALL POST
       await MyAxios.put(`products/${formData.id}`, formData)
         .then((res) => {
           newProduct = res.data.data;
-          //display message
           setAlertMessage(res.data.message);
           setAlertVariant("success");
-          setShowAlert(true); //show Alert
+          setShowAlert(true);
         })
         .catch((e) => {
           console.log(e);
-
-          //display message
           setAlertMessage(e.response.data.message);
           setAlertVariant("warning");
-          setShowAlert(true); //show Alert
+          setShowAlert(true);
         });
     };
 
@@ -76,36 +111,20 @@ export default function ProductForm(props) {
       await handlePost();
     }
 
-    //if Object is not empty
     if (Object.keys(newProduct).length > 0) {
       console.log(newProduct);
       await handleUploadImage();
     }
 
-    props.setShow(false); //Close Modal
+    props.setShow(false);
   };
-
-  const [formData, setFormData] = useState({});
-
-  useEffect(() => {
-    if (props.mode === "edit") {
-      setFormData(props.product);
-    } else {
-      setFormData({
-        name: "",
-        category_id: props.categories[0] ? props.categories[0].id : 0,
-        supplier: "",
-        measure_unit: "",
-      });
-    }
-  }, [props]);
 
   return (
     <>
       <Modal
         show={props.show}
         onHide={() => {
-          props.setShow(false); //Close Modal
+          props.setShow(false);
         }}
       >
         <Modal.Header>
@@ -122,8 +141,10 @@ export default function ProductForm(props) {
                   <FormControl
                     type="text"
                     value={formData.name}
+                    isInvalid={!!formErrors.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  ></FormControl>
+                  />
+                  <FormControl.Feedback type="invalid">{formErrors.name}</FormControl.Feedback>
                 </FormGroup>
               </Col>
               {props.categories.length > 0 && (
@@ -134,12 +155,7 @@ export default function ProductForm(props) {
                     </FormLabel>
                     <Form.Select
                       value={formData.category_id}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          category_id: e.target.value,
-                        })
-                      }
+                      onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
                     >
                       {props.categories.map((c) => (
                         <option key={c.id} value={c.id}>
@@ -160,8 +176,10 @@ export default function ProductForm(props) {
                   <FormControl
                     type="text"
                     value={formData.supplier}
+                    isInvalid={!!formErrors.supplier}
                     onChange={(e) => setFormData({ ...formData, supplier: e.target.value })}
-                  ></FormControl>
+                  />
+                  <FormControl.Feedback type="invalid">{formErrors.supplier}</FormControl.Feedback>
                 </FormGroup>
               </Col>
               <Col>
@@ -172,13 +190,12 @@ export default function ProductForm(props) {
                   <FormControl
                     type="text"
                     value={formData.measure_unit}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        measure_unit: e.target.value,
-                      })
-                    }
-                  ></FormControl>
+                    isInvalid={!!formErrors.measure_unit}
+                    onChange={(e) => setFormData({ ...formData, measure_unit: e.target.value })}
+                  />
+                  <FormControl.Feedback type="invalid">
+                    {formErrors.measure_unit}
+                  </FormControl.Feedback>
                 </FormGroup>
               </Col>
             </Row>
@@ -187,7 +204,7 @@ export default function ProductForm(props) {
                 <Form.Label>
                   <strong>Image</strong>
                 </Form.Label>
-                <Form.Control type="file" id="uploaded-image-prd481"></Form.Control>
+                <Form.Control type="file" id="uploaded-image-prd481" />
               </FormGroup>
             </Row>
           </Form>
@@ -196,7 +213,7 @@ export default function ProductForm(props) {
           <Button
             variant="secondary"
             onClick={() => {
-              props.setShow(false); //Close Modal
+              props.setShow(false);
             }}
           >
             Close
@@ -207,7 +224,6 @@ export default function ProductForm(props) {
         </Modal.Footer>
       </Modal>
 
-      {/* ALERT */}
       <MyAlert
         message={alertMessage}
         variant={alertVariant}
