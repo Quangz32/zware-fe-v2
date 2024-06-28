@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { Container } from "react-bootstrap";
 import User from "./components/user/User";
+import HomeAd from "./components/home/HomeAd";
 import Home from "./components/home/Home";
 import Sidebar from "./components/sidebar/Sidebar";
 import WarehouseManagement from "./components/warehouse/WarehouseManagement";
@@ -33,7 +34,7 @@ function AppContent() {
             <Route path="users" element={<User />} />
             <Route path="login" element={<Login />} />
 
-            <Route path="home" element={<Home />} />
+            <Route path="home" element={<HomeAd />} />
             <Route path="warehouses" element={<WarehouseManagement />} />
             <Route path="products" element={<ProductManagement />} />
 
