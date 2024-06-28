@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import MyAxios from '../../util/MyAxios'; 
+import React, { useState, useEffect, useCallback } from "react";
+import MyAxios from "../../util/MyAxios";
 import defaultProfileImage from "./defaultProfileImage.jpg";
 import MyAlert from "../share/MyAlert";
 
@@ -8,24 +8,20 @@ const Profile = () => {
   const [alertVariant, setAlertVariant] = useState("");
   const [showAlert, setShowAlert] = useState(false);
   const [profile, setProfile] = useState({
-    name: '',
-    email: '',
-    role: '',
-    date_of_birth: '', // Assuming date_of_birth is a string from backend
-    phone: '',
-    gender: '',
-    avatar: '',
-    warehouse_id: ''
+    name: "",
+    email: "",
+    role: "",
+    date_of_birth: "", // Assuming date_of_birth is a string from backend
+    phone: "",
+    gender: "",
+    avatar: "",
+    warehouse_id: "",
   });
   const [avatarFile, setAvatarFile] = useState(null);
 
-  useEffect(() => {
-    fetchProfile();
-  }, []);
-
-  const fetchProfile = () => {
-    MyAxios.get('/users/me')
-      .then(response => {
+  const fetchProfile = useCallback(() => {
+    MyAxios.get("/users/me")
+      .then((response) => {
         const profileData = response.data.data;
         // YYYY-MM-DD Format data
         if (profileData.date_of_birth) {
@@ -33,19 +29,23 @@ const Profile = () => {
         }
         setProfile(profileData);
       })
-      .catch(error => {
-        console.error('Error fetching profile:', error);
-        setAlertMessage(error.response.data.message );
+      .catch((error) => {
+        console.error("Error fetching profile:", error);
+        setAlertMessage(error.response.data.message);
         setAlertVariant("danger");
         triggerAlert();
       });
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setProfile({
       ...profile,
-      [name]: value
+      [name]: value,
     });
   };
 
@@ -57,7 +57,7 @@ const Profile = () => {
       reader.onload = (upload) => {
         setProfile({
           ...profile,
-          avatar: upload.target.result
+          avatar: upload.target.result,
         });
       };
       reader.readAsDataURL(file);
@@ -69,14 +69,14 @@ const Profile = () => {
     try {
       if (avatarFile) {
         const formData = new FormData();
-        formData.append('file', avatarFile);
+        formData.append("file", avatarFile);
 
         // Upload the avatar
         await MyAxios.post(`/users/${profile.id}/avatars`, formData, {
           headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        }).then(response => {
+            "Content-Type": "multipart/form-data",
+          },
+        }).then((response) => {
           setAlertMessage(response.data.message);
           setAlertVariant("success");
           triggerAlert();
@@ -84,15 +84,14 @@ const Profile = () => {
       }
 
       // Update the profile
-      await MyAxios.put(`/users/${profile.id}`, profile)
-        .then(response => {
-          setAlertMessage(response.data.message);
-          setAlertVariant("success");
-          triggerAlert();
-        });
+      await MyAxios.put(`/users/${profile.id}`, profile).then((response) => {
+        setAlertMessage(response.data.message);
+        setAlertVariant("success");
+        triggerAlert();
+      });
     } catch (error) {
-      console.error('Error updating profile:', error);
-      setAlertMessage(error.response.data.message );
+      console.error("Error updating profile:", error);
+      setAlertMessage(error.response.data.message);
       setAlertVariant("danger");
       triggerAlert();
     }
@@ -115,7 +114,7 @@ const Profile = () => {
                   src={profile.avatar || defaultProfileImage}
                   alt="Profile"
                 />
-                <span className="font-weight-bold mt-3" style={{ color: 'black' }}>
+                <span className="font-weight-bold mt-3" style={{ color: "black" }}>
                   {profile.name || "Name"}
                 </span>
                 <div className="mt-3">
@@ -208,7 +207,7 @@ const Profile = () => {
                       </div>
                     </div>
                     <div className="row mt-3">
-                      {profile.role !== 'admin' && (
+                      {profile.role !== "admin" && (
                         <div className="col-md-6">
                           <label className="labels">Warehouse ID</label>
                           <input
@@ -223,7 +222,9 @@ const Profile = () => {
                       )}
                     </div>
                     <div className="mt-5 text-center">
-                      <button className="btn btn-primary profile-button" type="submit">Save Profile</button>
+                      <button className="btn btn-primary profile-button" type="submit">
+                        Save Profile
+                      </button>
                     </div>
                   </div>
                 </form>

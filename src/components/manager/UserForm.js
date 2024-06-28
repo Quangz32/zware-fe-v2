@@ -72,6 +72,10 @@ export default function ProductForm(props) {
       }
     }
 
+    if (formData.phone && !/^\d+$/.test(formData.phone)) {
+      errors.phone = "Phone is not valid";
+    }
+
     if (!formData.role) errors.role = "Role is required";
     if (formData.role === "manager" && !formData.warehouse_id)
       errors.warehouse_id = "Warehouse is required for manager role";
@@ -84,11 +88,18 @@ export default function ProductForm(props) {
     e.preventDefault();
     if (!handleValidation()) return;
 
+    const filtedForm = Object.keys(formData).reduce((acc, key) => {
+      if (formData[key] !== "") {
+        acc[key] = formData[key];
+      }
+      return acc;
+    }, {});
+
     let newUserInfo;
 
     const handlePost = async () => {
       //CALL POST
-      await MyAxios.post("users", formData)
+      await MyAxios.post("users", filtedForm)
         .then((res) => {
           newUserInfo = res.data.data;
           setAlertMessage(res.data.message);
@@ -104,7 +115,7 @@ export default function ProductForm(props) {
     };
 
     const handlePut = async () => {
-      await MyAxios.put(`users/${formData.id}`, formData)
+      await MyAxios.put(`users/${filtedForm.id}`, filtedForm)
         .then((res) => {
           newUserInfo = res.data.data;
           console.log(res);
@@ -123,10 +134,10 @@ export default function ProductForm(props) {
       const imageFile = document.getElementById("uploaded-image-usr113").files[0];
       if (!imageFile) return;
 
-      const formData = new FormData();
-      formData.append("file", imageFile);
+      const formDataImg = new FormData();
+      formDataImg.append("file", imageFile);
 
-      await axios.post(`http://localhost:2000/api/users/${newUserInfo.id}/avatars`, formData, {
+      await axios.post(`http://localhost:2000/api/users/${newUserInfo.id}/avatars`, formDataImg, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
           "Content-Type": "multipart/form-data",
@@ -135,7 +146,6 @@ export default function ProductForm(props) {
     };
 
     if (props.mode === "edit") {
-      console.log(formData);
       await handlePut();
     } else {
       await handlePost();
@@ -264,6 +274,7 @@ export default function ProductForm(props) {
                 <FormControl
                   type="text"
                   value={formData.phone}
+                  isInvalid={!!formErrors.phone}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
@@ -271,6 +282,7 @@ export default function ProductForm(props) {
                     })
                   }
                 />
+                <Form.Control.Feedback type="invalid">{formErrors.phone}</Form.Control.Feedback>
               </Col>
               <Col>
                 <FormGroup>
@@ -322,16 +334,7 @@ export default function ProductForm(props) {
             <Row className="mb-3">
               <FormGroup>
                 <FormLabel>Upload Image</FormLabel>
-                <FormControl
-                  type="file"
-                  id="uploaded-image-usr113"
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      image: e.target.files[0],
-                    })
-                  }
-                />
+                <FormControl type="file" id="uploaded-image-usr113" />
               </FormGroup>
             </Row>
           </Form>

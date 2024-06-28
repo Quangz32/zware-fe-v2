@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import defaultAvatar from "./defaultAvatar.jpg";
 import axios from "axios";
-import MyAxios from "../../util/MyAxios";
 
 //props contains: user, warehouseList, showMore,
 // setShowUserForm,setUserFormMode, setUserFormUser

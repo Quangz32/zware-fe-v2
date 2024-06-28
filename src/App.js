@@ -10,11 +10,9 @@ import TestComponent2 from "./components/test/TestComponent2";
 import ProductList from "./components/product/ProductList";
 import UserList from "./components/manager/UserList";
 
-import ProductManagement from "./components/product/ProductManagement";
 import InboundTransactions from "./components/inbound/InboundTransactions";
 import Category from "./components/category/Category";
 import Profile from "./components/profile/Profile";
-
 
 function AppContent() {
   const location = useLocation();
@@ -46,7 +44,6 @@ function AppContent() {
 
             <Route path="test" element={<TestComponent />} />
             <Route path="test2" element={<TestComponent2 />} />
-
           </Routes>
         </Container>
       </div>

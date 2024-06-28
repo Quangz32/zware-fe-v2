@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Alert, Button, Form, Table, Row, Col } from "react-bootstrap";
+import { Alert, Button, Form, Table } from "react-bootstrap";
 import MyAxios from "../../util/MyAxios";
 import UserRow from "./UserRow";
 import UserForm from "./UserForm";
@@ -19,8 +19,6 @@ export default function UserList() {
 
   useEffect(() => {
     const fetchManager = async () => {
-      console.log("hello");
-
       await MyAxios.get("users")
         .then((res) => {
           setUserList(res.data.data);

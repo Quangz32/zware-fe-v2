@@ -1,5 +1,5 @@
 // Category.js;
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Container,
   Button,
@@ -47,21 +47,7 @@ const Category = () => {
     }
   }, [editingCategory]);
 
-  useEffect(() => {
-    filterCategories();
-  }, [categories, searchTerm]);
-
-  const fetchCategories = () => {
-    MyAxios.get("/categories")
-      .then((response) => {
-        setCategories(response.data.data);
-      })
-      .catch((error) => {
-        console.error("There was an error fetching the categories!", error);
-      });
-  };
-
-  const filterCategories = () => {
+  const filterCategories = useCallback(() => {
     if (!searchTerm) {
       setFilteredCategories(categories);
     } else {
@@ -71,6 +57,20 @@ const Category = () => {
         )
       );
     }
+  }, [categories, searchTerm]);
+
+  useEffect(() => {
+    filterCategories();
+  }, [categories, searchTerm, filterCategories]);
+
+  const fetchCategories = () => {
+    MyAxios.get("/categories")
+      .then((response) => {
+        setCategories(response.data.data);
+      })
+      .catch((error) => {
+        console.error("There was an error fetching the categories!", error);
+      });
   };
 
   const addOrUpdateCategory = (category) => {
