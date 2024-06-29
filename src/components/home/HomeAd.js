@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from '../../util/MyAxios';
 import { Container, Row, Col, Card, Table } from 'react-bootstrap';
 
-const RoleManagementDashboard = () => {
+const AdDashboard = () => {
     const [warehouses, setWarehouses] = useState([]);
     const [totalWarehouses, setTotalWarehouses] = useState(0);
     const [users, setUsers] = useState([]);
@@ -111,7 +111,7 @@ const RoleManagementDashboard = () => {
     };
 
     return (
-        <div className="dashboard" style={{ marginTop: "-50px" }}>
+        <div style={{ marginTop: "-50px" }}>
             <Container>
                 <header className="text-center mt-4 mb-4">
                     <h1>Role Management Dashboard</h1>
@@ -238,4 +238,4 @@ const RoleManagementDashboard = () => {
     );
 };
 
-export default RoleManagementDashboard;
+export default AdDashboard;
