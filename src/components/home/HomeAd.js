@@ -9,28 +9,49 @@ const RoleManagementDashboard = () => {
     const [totalUsers, setTotalUsers] = useState(0);
     const [totalAdmins, setTotalAdmins] = useState(0);
     const [totalManagers, setTotalManagers] = useState(0);
-    const [product, setProduct] = useState([]);
-    const [category, setCategory] = useState([]);
+    const [products, setProducts] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [warehouseItems, setWarehouseItems] = useState([]);
+    const [items, setItems] = useState([]);
+    const [productQuantities, setProductQuantities] = useState([]);
 
+    useEffect(() => {
+        axios.get('warehouseitems')
+            .then(response => {
+                setWarehouseItems(response.data.data);
+            })
+            .catch(error => {
+                console.error('There was an error fetching the warehouse items!', error);
+            });
+    }, []);
 
     useEffect(() => {
         axios.get('categories')
             .then(response => {
-                setCategory(response.data.data);
+                setCategories(response.data.data);
             })
             .catch(error => {
                 console.error('There was an error fetching the categories!', error);
             });
     }, []);
 
-
     useEffect(() => {
         axios.get('products')
             .then(response => {
-                setProduct(response.data.data);
+                setProducts(response.data.data);
             })
             .catch(error => {
                 console.error('There was an error fetching the products!', error);
+            });
+    }, []);
+
+    useEffect(() => {
+        axios.get('items')
+            .then(response => {
+                setItems(response.data.data);
+            })
+            .catch(error => {
+                console.error('There was an error fetching the items!', error);
             });
     }, []);
 
@@ -44,6 +65,7 @@ const RoleManagementDashboard = () => {
                 console.error('There was an error fetching the warehouses!', error);
             });
     }, []);
+
     useEffect(() => {
         axios.get('users')
             .then(response => {
@@ -61,6 +83,32 @@ const RoleManagementDashboard = () => {
                 console.error('There was an error fetching the users!', error);
             });
     }, []);
+
+    useEffect(() => {
+        if (warehouseItems.length && items.length && products.length) {
+            const productQuantityMap = warehouseItems.reduce((acc, warehouseItem) => {
+                const item = items.find(item => item.id === warehouseItem.item_id);
+                if (item) {
+                    const product = products.find(product => product.id === item.product_id);
+                    if (product) {
+                        if (!acc[product.id]) {
+                            acc[product.id] = { ...product, quantity: 0 };
+                        }
+                        acc[product.id].quantity += warehouseItem.quantity;
+                    }
+                }
+                return acc;
+            }, {});
+
+            const sortedProductQuantities = Object.values(productQuantityMap).sort((a, b) => b.quantity - a.quantity);
+            setProductQuantities(sortedProductQuantities.slice(0, 5));
+        }
+    }, [warehouseItems, items, products]);
+
+    const getCategoryName = (categoryId) => {
+        const categoryObj = categories.find(cat => cat.id === categoryId);
+        return categoryObj ? categoryObj.name : 'Unknown Category';
+    };
 
     return (
         <div className="dashboard" style={{ marginTop: "-50px" }}>
@@ -131,7 +179,7 @@ const RoleManagementDashboard = () => {
                         </Card>
                         <Card>
                             <Card.Body>
-                                <Card.Title>Top 5 Product by Quantity</Card.Title>
+                                <Card.Title>Top 5 Products by Quantity</Card.Title>
                                 <Table striped bordered>
                                     <thead>
                                         <tr>
@@ -142,11 +190,11 @@ const RoleManagementDashboard = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {product.slice(0, 5).map((product) => (
+                                        {productQuantities.map((product) => (
                                             <tr key={product.id}>
                                                 <td>{product.id}</td>
                                                 <td>{product.name}</td>
-                                                <td>{product.category_id}</td>
+                                                <td>{getCategoryName(product.category_id)}</td>
                                                 <td>{product.quantity}</td>
                                             </tr>
                                         ))}
