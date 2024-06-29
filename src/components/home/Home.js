@@ -5,7 +5,7 @@ import axios from '../../util/MyAxios';
 const Dashboard = () => {
     const [user, setUser] = useState(null);
     const [managerWarehouses, setManagerWarehouses] = useState([]);
-    const [warehouses, setWarehouses] = useState([]);
+    const [ setWarehouses] = useState([]);
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
     const [warehouseItems, setWarehouseItems] = useState([]);
@@ -118,7 +118,7 @@ const Dashboard = () => {
             .catch(error => {
                 console.error('There was an error fetching the warehouses!', error);
             });
-    }, []);
+    });
 
     useEffect(() => {
         axios.get('warehouseitems')

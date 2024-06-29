@@ -41,6 +41,8 @@ function AppContent() {
 
             <Route path="home" element={<Home/>} />
 
+            <Route path="adhome" element={<HomeAd />} />
+
             <Route path="warehouses" element={<WarehouseManagement />} />
 
             <Route path="products" element={<ProductList />} />
