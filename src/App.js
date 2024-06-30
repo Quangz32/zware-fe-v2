@@ -3,6 +3,8 @@ import { Container } from "react-bootstrap";
 
 import HomeAd from "./components/home/HomeAd";
 
+import Home from "./components/home/Home";
+
 import Sidebar from "./components/sidebar/Sidebar";
 import WarehouseManagement from "./components/warehouse/WarehouseManagement";
 import Login from "./components/login/Login";
@@ -37,7 +39,9 @@ function AppContent() {
           <Routes>
             <Route path="login" element={<Login />} />
 
-            <Route path="home" element={<HomeAd />} />
+            <Route path="home" element={<Home/>} />
+
+            <Route path="adhome" element={<HomeAd />} />
 
             <Route path="warehouses" element={<WarehouseManagement />} />
 

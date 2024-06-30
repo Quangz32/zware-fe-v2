@@ -76,12 +76,22 @@ const Sidebar = () => {
         <span className="role-box">{loggingUser?.role}</span>
       </div>
       <ul className="sidebar-nav">
-        <li className="sidebar-item">
-          <Link to="/home" className="sidebar-link">
-            <i className="bi bi-house"></i>
-            <span>Home</span>
-          </Link>
-        </li>
+      {loggingUser?.role === "manager" && (
+          <li className="sidebar-item">
+            <Link to="/home" className="sidebar-link">
+              <i className="bi bi-house"></i>
+              <span>Home</span>
+            </Link>
+          </li>
+        )}
+        {loggingUser?.role === "admin" && (
+          <li className="sidebar-item">
+            <Link to="/adhome" className="sidebar-link">
+              <i className="bi bi-house"></i>
+              <span>Home</span>
+            </Link>
+          </li>
+        )}
         <li className="sidebar-item">
           <Link to="/profile" className="sidebar-link">
             <i className="bi bi-person"></i>
@@ -94,14 +104,7 @@ const Sidebar = () => {
             <span>Manager</span>
           </Link>
         </li>
-        {loggingUser?.role === "admin" && (
-          <li className="sidebar-item">
-            <Link to="/warehouses" className="sidebar-link">
-              <i className="bi bi-house-gear"></i>
-              <span>Warehouse</span>
-            </Link>
-          </li>
-        )}
+        
         <li className="sidebar-item">
           <Link to="/products" className="sidebar-link">
             <i className="bi bi-boxes"></i>

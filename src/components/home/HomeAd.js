@@ -2,9 +2,58 @@ import React, { useEffect, useState } from 'react';
 import axios from '../../util/MyAxios';
 import { Container, Row, Col, Card, Table } from 'react-bootstrap';
 
-const RoleManagementDashboard = () => {
+const AdDashboard = () => {
     const [warehouses, setWarehouses] = useState([]);
     const [totalWarehouses, setTotalWarehouses] = useState(0);
+    const [users, setUsers] = useState([]);
+    const [totalUsers, setTotalUsers] = useState(0);
+    const [totalAdmins, setTotalAdmins] = useState(0);
+    const [totalManagers, setTotalManagers] = useState(0);
+    const [products, setProducts] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [warehouseItems, setWarehouseItems] = useState([]);
+    const [items, setItems] = useState([]);
+    const [productQuantities, setProductQuantities] = useState([]);
+
+    useEffect(() => {
+        axios.get('warehouseitems')
+            .then(response => {
+                setWarehouseItems(response.data.data);
+            })
+            .catch(error => {
+                console.error('There was an error fetching the warehouse items!', error);
+            });
+    }, []);
+
+    useEffect(() => {
+        axios.get('categories')
+            .then(response => {
+                setCategories(response.data.data);
+            })
+            .catch(error => {
+                console.error('There was an error fetching the categories!', error);
+            });
+    }, []);
+
+    useEffect(() => {
+        axios.get('products')
+            .then(response => {
+                setProducts(response.data.data);
+            })
+            .catch(error => {
+                console.error('There was an error fetching the products!', error);
+            });
+    }, []);
+
+    useEffect(() => {
+        axios.get('items')
+            .then(response => {
+                setItems(response.data.data);
+            })
+            .catch(error => {
+                console.error('There was an error fetching the items!', error);
+            });
+    }, []);
 
     useEffect(() => {
         axios.get('warehouses')
@@ -17,8 +66,52 @@ const RoleManagementDashboard = () => {
             });
     }, []);
 
+    useEffect(() => {
+        axios.get('users')
+            .then(response => {
+                const userData = response.data.data;
+                setUsers(userData.slice(0, 10)); // Display first 10 users
+                setTotalUsers(userData.length);
+
+                // Count admins and managers
+                const admins = userData.filter(user => user.role === 'admin');
+                const managers = userData.filter(user => user.role === 'manager');
+                setTotalAdmins(admins.length);
+                setTotalManagers(managers.length);
+            })
+            .catch(error => {
+                console.error('There was an error fetching the users!', error);
+            });
+    }, []);
+
+    useEffect(() => {
+        if (warehouseItems.length && items.length && products.length) {
+            const productQuantityMap = warehouseItems.reduce((acc, warehouseItem) => {
+                const item = items.find(item => item.id === warehouseItem.item_id);
+                if (item) {
+                    const product = products.find(product => product.id === item.product_id);
+                    if (product) {
+                        if (!acc[product.id]) {
+                            acc[product.id] = { ...product, quantity: 0 };
+                        }
+                        acc[product.id].quantity += warehouseItem.quantity;
+                    }
+                }
+                return acc;
+            }, {});
+
+            const sortedProductQuantities = Object.values(productQuantityMap).sort((a, b) => b.quantity - a.quantity);
+            setProductQuantities(sortedProductQuantities.slice(0, 5));
+        }
+    }, [warehouseItems, items, products]);
+
+    const getCategoryName = (categoryId) => {
+        const categoryObj = categories.find(cat => cat.id === categoryId);
+        return categoryObj ? categoryObj.name : 'Unknown Category';
+    };
+
     return (
-        <div className="dashboard" style={{ marginTop: "-50px" }}>
+        <div style={{ marginTop: "-50px" }}>
             <Container>
                 <header className="text-center mt-4 mb-4">
                     <h1>Role Management Dashboard</h1>
@@ -36,23 +129,23 @@ const RoleManagementDashboard = () => {
                         <Card className="stat-card">
                             <Card.Body>
                                 <Card.Title>Total Users</Card.Title>
-                                <Card.Text>50</Card.Text>
+                                <Card.Text>{totalUsers}</Card.Text>
                             </Card.Body>
                         </Card>
                     </Col>
                     <Col sm={3}>
                         <Card className="stat-card">
                             <Card.Body>
-                                <Card.Title>Admin</Card.Title>
-                                <Card.Text>10</Card.Text>
+                                <Card.Title>Total Admins</Card.Title>
+                                <Card.Text>{totalAdmins}</Card.Text>
                             </Card.Body>
                         </Card>
                     </Col>
                     <Col sm={3}>
                         <Card className="stat-card">
                             <Card.Body>
-                                <Card.Title>Manage</Card.Title>
-                                <Card.Text>50</Card.Text>
+                                <Card.Title>Total Managers</Card.Title>
+                                <Card.Text>{totalManagers}</Card.Text>
                             </Card.Body>
                         </Card>
                     </Col>
@@ -86,7 +179,7 @@ const RoleManagementDashboard = () => {
                         </Card>
                         <Card>
                             <Card.Body>
-                                <Card.Title>Top 5 Items by Quantity</Card.Title>
+                                <Card.Title>Top 5 Products by Quantity</Card.Title>
                                 <Table striped bordered>
                                     <thead>
                                         <tr>
@@ -97,37 +190,14 @@ const RoleManagementDashboard = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {/* Example data */}
-                                        <tr>
-                                            <td>1</td>
-                                            <td>Product A</td>
-                                            <td>Category 1</td>
-                                            <td>150</td>
-                                        </tr>
-                                        <tr>
-                                            <td>2</td>
-                                            <td>Product B</td>
-                                            <td>Category 2</td>
-                                            <td>120</td>
-                                        </tr>
-                                        <tr>
-                                            <td>3</td>
-                                            <td>Product C</td>
-                                            <td>Category 1</td>
-                                            <td>100</td>
-                                        </tr>
-                                        <tr>
-                                            <td>4</td>
-                                            <td>Product D</td>
-                                            <td>Category 3</td>
-                                            <td>90</td>
-                                        </tr>
-                                        <tr>
-                                            <td>5</td>
-                                            <td>Product E</td>
-                                            <td>Category 2</td>
-                                            <td>80</td>
-                                        </tr>
+                                        {productQuantities.map((product) => (
+                                            <tr key={product.id}>
+                                                <td>{product.id}</td>
+                                                <td>{product.name}</td>
+                                                <td>{getCategoryName(product.category_id)}</td>
+                                                <td>{product.quantity}</td>
+                                            </tr>
+                                        ))}
                                     </tbody>
                                 </Table>
                             </Card.Body>
@@ -136,81 +206,29 @@ const RoleManagementDashboard = () => {
                     <Col sm={6}>
                         <Card className="mb-3">
                             <Card.Body>
-                                <Card.Title>User Roles</Card.Title>
-                                <Table striped bordered>
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Name</th>
-                                            <th>Email</th>
-                                            <th>Role</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {/* Example data */}
-                                        <tr>
-                                            <td>1</td>
-                                            <td>John Doe</td>
-                                            <td>john.doe@example.com</td>
-                                            <td>Admin</td>
-                                        </tr>
-                                        <tr>
-                                            <td>2</td>
-                                            <td>Jane Smith</td>
-                                            <td>jane.smith@example.com</td>
-                                            <td>Manager</td>
-                                        </tr>
-                                        <tr>
-                                            <td>3</td>
-                                            <td>John Doe</td>
-                                            <td>john.doe@example.com</td>
-                                            <td>Admin</td>
-                                        </tr>
-                                        <tr>
-                                            <td>4</td>
-                                            <td>Jane Smith</td>
-                                            <td>jane.smith@example.com</td>
-                                            <td>Manager</td>
-                                        </tr>
-                                        <tr>
-                                            <td>5</td>
-                                            <td>John Doe</td>
-                                            <td>john.doe@example.com</td>
-                                            <td>Manager</td>
-                                        </tr>
-                                        <tr>
-                                            <td>6</td>
-                                            <td>Jane Smith</td>
-                                            <td>jane.smith@example.com</td>
-                                            <td>Admin</td>
-                                        </tr>
-                                        <tr>
-                                            <td>7</td>
-                                            <td>John Doe</td>
-                                            <td>john.doe@example.com</td>
-                                            <td>Admin</td>
-                                        </tr>
-                                        <tr>
-                                            <td>8</td>
-                                            <td>John Doe</td>
-                                            <td>john.doe@example.com</td>
-                                            <td>Manager</td>
-                                        </tr>
-                                        <tr>
-                                            <td>9</td>
-                                            <td>John Doe</td>
-                                            <td>john.doe@example.com</td>
-                                            <td>Admin</td>
-                                        </tr>
-                                        <tr>
-                                            <td>10</td>
-                                            <td>John Doe</td>
-                                            <td>john.doe@example.com</td>
-                                            <td>Manager</td>
-                                        </tr>
-                                        {/* Add more rows as needed */}
-                                    </tbody>
-                                </Table>
+                                <Card.Title>List of Users</Card.Title>
+                                <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                                    <Table striped bordered>
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Name</th>
+                                                <th>Email</th>
+                                                <th>Role</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {users.map((user) => (
+                                                <tr key={user.id}>
+                                                    <td>{user.id}</td>
+                                                    <td>{user.name}</td>
+                                                    <td>{user.email}</td>
+                                                    <td>{user.role}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </Table>
+                                </div>
                             </Card.Body>
                         </Card>
                     </Col>
@@ -220,4 +238,4 @@ const RoleManagementDashboard = () => {
     );
 };
 
-export default RoleManagementDashboard;
+export default AdDashboard;
