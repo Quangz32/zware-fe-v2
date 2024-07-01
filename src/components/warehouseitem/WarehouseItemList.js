@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Table, Pagination } from "react-bootstrap";
 import MyAxios from "../../util/MyAxios";
-
+import "./WarehouseItemList.css"
 const WarehouseItemList = ({ zoneId }) => {
   const [warehouseItems, setWarehouseItems] = useState([]);
   const [products, setProducts] = useState([]);
