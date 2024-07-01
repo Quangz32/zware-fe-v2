@@ -117,6 +117,12 @@ const Sidebar = () => {
             <span>Category</span>
           </Link>
         </li>
+        <li className="sidebar-item">
+            <Link to="/warehouseitems" className="sidebar-link">
+              <i className="bi bi-house-check"></i>
+              <span>Warehouse Item</span>
+            </Link>
+          </li>
         <li className="sidebar-item has-dropdown">
           <Link to="#" className="sidebar-link">
             <i className="bi bi-arrow-left-right"></i>
