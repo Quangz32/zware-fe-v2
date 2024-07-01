@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Table } from "react-bootstrap";
+import { Table, Pagination } from "react-bootstrap";
 import MyAxios from "../../util/MyAxios";
 
 const WarehouseItemList = ({ zoneId }) => {
   const [warehouseItems, setWarehouseItems] = useState([]);
   const [products, setProducts] = useState([]);
   const [items, setItems] = useState([]);
+  const [productImages, setProductImages] = useState({});
   const [loading, setLoading] = useState(true);
-  const [productImage, setProductImage] = useState(null); // State để lưu trữ hình ảnh
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     async function fetchWarehouseItems() {
@@ -44,7 +46,29 @@ const WarehouseItemList = ({ zoneId }) => {
       try {
         const response = await MyAxios.get('/products');
         if (Array.isArray(response.data.data)) {
-          setProducts(response.data.data);
+          const products = response.data.data;
+          setProducts(products);
+          
+          // Fetch images for each product
+          products.forEach(async (product) => {
+            try {
+              const imageResponse = await MyAxios.get(`/products/${product.id}/image`, {
+                responseType: 'arraybuffer',
+              });
+              const base64Image = btoa(
+                new Uint8Array(imageResponse.data).reduce(
+                  (data, byte) => data + String.fromCharCode(byte),
+                  ""
+                )
+              );
+              setProductImages((prevImages) => ({
+                ...prevImages,
+                [product.id]: `data:image/jpeg;base64,${base64Image}`,
+              }));
+            } catch (error) {
+              console.error(`Error fetching image for product ${product.id}:`, error);
+            }
+          });
         } else {
           console.error("Dữ liệu từ API không phải là một mảng:", response.data);
           setProducts([]);
@@ -74,44 +98,77 @@ const WarehouseItemList = ({ zoneId }) => {
     return products.find(product => product.id === productId) || {};
   };
 
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = warehouseItems.slice(indexOfFirstItem, indexOfLastItem);
+
   if (loading) {
     return <div>Loading...</div>;
   }
 
+  const totalPages = Math.ceil(warehouseItems.length / itemsPerPage);
+
   return (
-    <Table striped bordered hover>
-      <thead>
-        <tr>
-          <th>Product</th>
-          <th>Image</th>
-          <th>Quantity</th>
-          <th>Expire Date</th>
-        </tr>
-      </thead>
-      <tbody>
-        {warehouseItems.map((warehouseItem) => {
-          const item = getItemById(warehouseItem.item_id);
-          const product = getProductById(item.product_id);
-          if (!product.name || !product.image) {
-            return null; // Skip if product details are not available
-          }
-          return (
-            <tr key={warehouseItem.id}>
-              <td>{product.name}</td>
-              <td>
-                <img
-                  src={product.image}
-                  alt="Product"
-                  style={{ width: "50px", height: "50px" }}
-                />
-              </td>
-              <td>{warehouseItem.quantity}</td>
-              <td>{item.expire_date}</td>
-            </tr>
-          );
-        })}
-      </tbody>
-    </Table>
+    <>
+      <Table striped bordered hover>
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Image</th>
+            <th>Quantity</th>
+            <th>Expire Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {currentItems.map((warehouseItem) => {
+            const item = getItemById(warehouseItem.item_id);
+            const product = getProductById(item.product_id);
+            if (!product.name) {
+              return null; // Skip if product details are not available
+            }
+            const productImageUrl = productImages[product.id]; // Get the image URL from state
+            return (
+              <tr key={warehouseItem.id}>
+                <td>{product.name}</td>
+                <td>
+                  {productImageUrl ? (
+                    <img
+                      src={productImageUrl}
+                      alt="Product"
+                      style={{ width: "50px", height: "50px" }}
+                    />
+                  ) : (
+                    "Loading..."
+                  )}
+                </td>
+                <td>{warehouseItem.quantity}</td>
+                <td>{item.expire_date}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </Table>
+      <div className="pagination-wrapper">
+        <Pagination>
+          <Pagination.First onClick={() => handlePageChange(1)} disabled={currentPage === 1} />
+          <Pagination.Prev onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} />
+          {[...Array(totalPages).keys()].map((page) => (
+            <Pagination.Item key={page + 1} active={page + 1 === currentPage} onClick={() => handlePageChange(page + 1)}>
+              {page + 1}
+            </Pagination.Item>
+          ))}
+          <Pagination.Next onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} />
+          <Pagination.Last onClick={() => handlePageChange(totalPages)} disabled={currentPage === totalPages} />
+        </Pagination>
+        <div className="total-pages">
+          Page {currentPage} of {totalPages}
+        </div>
+      </div>
+    </>
   );
 };
 
