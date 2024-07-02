@@ -1,9 +1,10 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "react-bootstrap";
 import "../../mystyle.css";
 import WarehouseList from "./WarehouseList";
-import SearchBar from "./SearchBar";
-import ZoneList from "../warehouse/ZoneList";
+// import SearchBar from "./SearchBar";
+// import ZoneList from "../warehouse/ZoneList";
 import SearchPage from "./SearchPage";
 
 const WarehouseItemManagement = () => {

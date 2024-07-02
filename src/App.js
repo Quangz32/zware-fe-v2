@@ -19,7 +19,7 @@ import Category from "./components/category/Category";
 import Profile from "./components/profile/Profile";
 import OutboundTransactions from "./components/outbound/OutboundTransactions";
 import WarehouseItemManagement from "./components/warehouseitem/WarehouseItemManagement";
-
+// import DisposalGoods from "./components/DisposalGoods/DisposalGoods";
 function AppContent() {
   const location = useLocation();
   const isLoginPage = location.pathname === "/login";
@@ -55,6 +55,7 @@ function AppContent() {
 
             <Route path="profile" element={<Profile />} />
             <Route path="warehouseitems" element={<WarehouseItemManagement />} />
+            {/* <Route path="disposedgoods" element={<DisposalGoods />} /> */}
 
             <Route path="test" element={<TestComponent />} />
             <Route path="test2" element={<TestComponent2 />} />

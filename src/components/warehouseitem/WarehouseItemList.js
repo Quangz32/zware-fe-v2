@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Table, Pagination } from "react-bootstrap";
 import MyAxios from "../../util/MyAxios";
-import "./WarehouseItemList.css"
+import "./WarehouseItemList.css";
+import MyAlert from "./MyAlert"; // Import your alert component
+
 const WarehouseItemList = ({ zoneId }) => {
   const [warehouseItems, setWarehouseItems] = useState([]);
   const [products, setProducts] = useState([]);
@@ -9,6 +11,8 @@ const WarehouseItemList = ({ zoneId }) => {
   const [productImages, setProductImages] = useState({});
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [showAlert, setShowAlert] = useState(false);
+  const [expiredProducts, setExpiredProducts] = useState([]);
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -48,7 +52,7 @@ const WarehouseItemList = ({ zoneId }) => {
         if (Array.isArray(response.data.data)) {
           const products = response.data.data;
           setProducts(products);
-          
+
           // Fetch images for each product
           products.forEach(async (product) => {
             try {
@@ -90,6 +94,23 @@ const WarehouseItemList = ({ zoneId }) => {
     fetchData();
   }, [zoneId]);
 
+  useEffect(() => {
+    const checkExpiredProducts = () => {
+      const today = new Date();
+      const expired = warehouseItems.filter((warehouseItem) => {
+        const item = getItemById(warehouseItem.item_id);
+        const expireDate = new Date(item.expire_date);
+        return expireDate < today;
+      });
+      setExpiredProducts(expired);
+      if (expired.length > 0) {
+        setShowAlert(true);
+      }
+    };
+
+    checkExpiredProducts();
+  }, [warehouseItems, items]);
+
   const getItemById = (itemId) => {
     return items.find(item => item.id === itemId) || {};
   };
@@ -114,6 +135,15 @@ const WarehouseItemList = ({ zoneId }) => {
 
   return (
     <>
+      {showAlert && (
+        <MyAlert
+          message={`Today, there are ${expiredProducts.length} expired products.`}
+          variant="danger"
+          show={showAlert}
+          setShow={setShowAlert}
+          link="/create-cancellation-form" // Link to the cancellation form page
+        />
+      )}
       <Table striped bordered hover>
         <thead>
           <tr>
@@ -139,13 +169,13 @@ const WarehouseItemList = ({ zoneId }) => {
                     <img
                       src={productImageUrl}
                       alt="Product"
-                      style={{ width: "50px", height: "50px" }}
+                      style={{ width: "50px", height: "50px", display: "block", margin: "0 auto" }}
                     />
                   ) : (
                     "Loading..."
                   )}
                 </td>
-                <td>{warehouseItem.quantity}</td>
+                <td style={{ textAlign: "center" }}>{warehouseItem.quantity}</td>
                 <td>{item.expire_date}</td>
               </tr>
             );
@@ -168,8 +198,44 @@ const WarehouseItemList = ({ zoneId }) => {
           Page {currentPage} of {totalPages}
         </div>
       </div>
-    </>
-  );
+      <h3>Expired Products</h3>
+      <Table striped bordered hover>
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Image</th>
+            <th>Quantity</th>
+            <th>Expire Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {expiredProducts.map((warehouseItem) => {
+            const item = getItemById(warehouseItem.item_id);
+            const product = getProductById(item.product_id);
+            const productImageUrl = productImages[product.id];
+            return (
+              <tr key={warehouseItem.id}>
+                <td>{product.name}</td>
+                <td>
+                  {productImageUrl ? (
+                    <img
+                      src={productImageUrl}
+                      alt="Product"
+                      style={{ width: "50px", height: "50px", display: "block", margin: "0 auto" }}
+                    />
+                  ) : (
+                    "Loading..."
+                  )}
+                </td>
+                <td style={{ textAlign: "center" }}>{warehouseItem.quantity}</td>
+                <td>{item.expire_date}</td>
+              </tr>
+);
+})}
+</tbody>
+</Table>
+</>
+);
 };
 
 export default WarehouseItemList;
