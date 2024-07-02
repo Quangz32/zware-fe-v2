@@ -38,7 +38,7 @@ export default function ZoneList({ warehouse }) {
     // Fetch zones from DB
     async function fetchData() {
       try {
-        const response = await MyAxios.get(`warehouses/${warehouse.id}/zones`);
+        const response = await MyAxios.get(`zones?warehouse_id=${warehouse.id}`);
         setZones(response.data.data);
       } catch (error) {
         console.log(error);
@@ -52,12 +52,7 @@ export default function ZoneList({ warehouse }) {
     <>
       <h5 className="card-subtitle mb-2 ">
         Zones:{" "}
-        <Button
-          variant="primary"
-          size="sm"
-          className="me-2"
-          onClick={handleAddZoneClick}
-        >
+        <Button variant="primary" size="sm" className="me-2" onClick={handleAddZoneClick}>
           Add Zone
         </Button>
       </h5>
@@ -98,11 +93,7 @@ export default function ZoneList({ warehouse }) {
       />
 
       {zoneToDelete && (
-        <DeleteZone
-          zone={zoneToDelete}
-          show={showDeleteZone}
-          setShow={setShowDeleteZone}
-        />
+        <DeleteZone zone={zoneToDelete} show={showDeleteZone} setShow={setShowDeleteZone} />
       )}
     </>
   );

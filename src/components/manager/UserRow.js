@@ -64,25 +64,29 @@ export default function ManagerRow(props) {
       )}
 
       <td>
-        <button
-          className="btn btn-warning btn-sm mx-1"
-          onClick={() => {
-            props.setUserFormMode("edit");
-            props.setUserFormUser(props.user);
-            props.setShowUserForm(true);
-          }}
-        >
-          <i className="bi bi-pencil-square"></i>
-        </button>
-        <button
-          className="btn btn-danger btn-sm mx-1"
-          onClick={() => {
-            props.setUserToDelete(props.user);
-            props.setShowUserDelete(true);
-          }}
-        >
-          <i className="bi bi-trash"></i>
-        </button>
+        {props.user.role === "manager" && (
+          <>
+            <button
+              className="btn btn-danger btn-sm mx-1"
+              onClick={() => {
+                props.setUserToDelete(props.user);
+                props.setShowUserDelete(true);
+              }}
+            >
+              <i className="bi bi-trash"></i>
+            </button>
+            <button
+              className="btn btn-warning btn-sm mx-1"
+              onClick={() => {
+                props.setUserFormMode("edit");
+                props.setUserFormUser(props.user);
+                props.setShowUserForm(true);
+              }}
+            >
+              <i className="bi bi-pencil-square"></i>
+            </button>
+          </>
+        )}
       </td>
     </tr>
   );

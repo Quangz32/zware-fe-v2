@@ -8,17 +8,17 @@ import defaultProfileImage from "./defaultProfileImage.jpg"; // Make sure to hav
 
 const Sidebar = () => {
   const [avatarUrl, setAvatarUrl] = useState(defaultProfileImage);
-  const [username, setUsername] = useState('');
+  const [username, setUsername] = useState("");
 
   const fetchUsername = () => {
-    MyAxios.get('/users/me')
-      .then(response => {
+    MyAxios.get("/users/me")
+      .then((response) => {
         const nameData = response.data.data;
         setUsername(nameData.name);
       })
-      .catch(error => {
-        console.error('Error fetching username:', error);
-        setUsername('Error');
+      .catch((error) => {
+        console.error("Error fetching username:", error);
+        setUsername("Error");
       });
   };
 
@@ -42,23 +42,20 @@ const Sidebar = () => {
 
   const fetchAvatar = () => {
     MyAxios.get(`/users/${loggingUser.id}/avatars`, {
-      responseType: 'arraybuffer',
+      responseType: "arraybuffer",
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     })
-    .then((response) => {
-      const base64Image = btoa(
-        new Uint8Array(response.data).reduce(
-          (data, byte) => data + String.fromCharCode(byte),
-          ""
-        )
-      );
-      setAvatarUrl(`data:image/jpeg;base64,${base64Image}`);
-    })
-    .catch((error) => {
-      console.error("Error fetching avatar:", error);
-    });
+      .then((response) => {
+        const base64Image = btoa(
+          new Uint8Array(response.data).reduce((data, byte) => data + String.fromCharCode(byte), "")
+        );
+        setAvatarUrl(`data:image/jpeg;base64,${base64Image}`);
+      })
+      .catch((error) => {
+        console.error("Error fetching avatar:", error);
+      });
   };
 
   return (
@@ -76,7 +73,7 @@ const Sidebar = () => {
         <span className="role-box">{loggingUser?.role}</span>
       </div>
       <ul className="sidebar-nav">
-      {loggingUser?.role === "manager" && (
+        {loggingUser?.role === "manager" && (
           <li className="sidebar-item">
             <Link to="/home" className="sidebar-link">
               <i className="bi bi-house"></i>
@@ -104,7 +101,16 @@ const Sidebar = () => {
             <span>Manager</span>
           </Link>
         </li>
-        
+
+        {loggingUser?.role === "admin" && (
+          <li className="sidebar-item">
+            <Link to="/warehouses" className="sidebar-link">
+              <i className="bi bi-house-gear"></i>
+              <span>Warehouse</span>
+            </Link>
+          </li>
+        )}
+
         <li className="sidebar-item">
           <Link to="/products" className="sidebar-link">
             <i className="bi bi-boxes"></i>
