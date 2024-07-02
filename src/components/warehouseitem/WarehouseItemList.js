@@ -21,7 +21,9 @@ const WarehouseItemList = ({ zoneId }) => {
   useEffect(() => {
     async function fetchWarehouseItems() {
       try {
-        const response = await MyAxios.get(`/warehouses/${zoneId}/items`);
+        const response = await MyAxios.get(`/warehouse_items`, {
+          params: { zone_id: zoneId },
+        });
         if (Array.isArray(response.data.data)) {
           setWarehouseItems(response.data.data);
         } else {
@@ -160,10 +162,7 @@ const WarehouseItemList = ({ zoneId }) => {
     <>
       {showAlert && (
         <MyAlert
-          message={`The following warehouses have expired items in zone ${zone.name} (ID: ${zone.id}): ${expiredProducts.map(item => {
-            const product = getProductById(getItemById(item.item_id).product_id);
-            return product.name;
-          }).join(', ')}`}
+          message={`There are expired items in warehouse ${zone.warehouse_id} and zone ${zone.name}.`}
           variant="danger"
           show={showAlert}
           setShow={setShowAlert}

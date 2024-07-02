@@ -10,7 +10,9 @@ const ZoneList = ({ warehouse }) => {
     // Fetch zones from DB
     async function fetchData() {
       try {
-        const response = await MyAxios.get(`/warehouses/${warehouse.id}/zones`);
+        const response = await MyAxios.get(`/zones`, {
+          params: { warehouse_id: warehouse.id },
+        });
         setZones(response.data.data);
       } catch (error) {
         console.log(error);

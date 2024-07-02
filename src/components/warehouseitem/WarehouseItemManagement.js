@@ -32,6 +32,7 @@ const WarehouseItemManagement = () => {
     <div className="container">
       <SearchPage onSearchResults={handleSearchResults} />
       <WarehouseList searchTerm={searchTerm} render={listRender} searchResults={searchResults} />
+      
     </div>
   );
 };

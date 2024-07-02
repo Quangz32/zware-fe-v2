@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Table, Form, Button } from "react-bootstrap";
+import { Container, Row, Col, Table, Form, Button, Spinner } from "react-bootstrap";
 import MyAxios from "../../util/MyAxios";
 
 const SearchPage = () => {
@@ -56,90 +56,101 @@ const SearchPage = () => {
   };
 
   return (
-    <div>
-      <h1>Search Page</h1>
-      <Form onSubmit={handleSearch}>
-        <Form.Group controlId="warehouse">
-          <Form.Label>Warehouse</Form.Label>
-          <Form.Control
-            as="select"
-            name="warehouse"
-            value={searchParams.warehouse}
-            onChange={handleInputChange}
-          >
-            <option value="">Select Warehouse</option>
-            {warehouses.map((warehouse) => (
-              <option key={warehouse.id} value={warehouse.id}>
-                {warehouse.name}
-              </option>
-            ))}
-          </Form.Control>
-        </Form.Group>
+    <Container>
+      <Row className="justify-content-md-center">
+        <Col md={8}>
+          {/* <h1 className="mt-4">WAREHOUSE ITEM</h1> */}
+          <Form onSubmit={handleSearch} className="mb-3">
+            <Row>
+              <Col>
+                <Form.Group controlId="warehouse">
+                  {/* <Form.Label>Warehouse</Form.Label> */}
+                  <Form.Control
+                    as="select"
+                    name="warehouse"
+                    value={searchParams.warehouse}
+                    onChange={handleInputChange}
+                  >
+                    <option value="">Select Warehouse</option>
+                    {warehouses.map((warehouse) => (
+                      <option key={warehouse.id} value={warehouse.id}>
+                        {warehouse.name}
+                      </option>
+                    ))}
+                  </Form.Control>
+                </Form.Group>
+              </Col>
+              <Col>
+                <Form.Group controlId="zone">
+                  {/* <Form.Label>Zone</Form.Label> */}
+                  <Form.Control
+                    as="select"
+                    name="zone"
+                    value={searchParams.zone}
+                    onChange={handleInputChange}
+                  >
+                    <option value="">Select Zone</option>
+                    {zones.map((zone) => (
+                      <option key={zone.id} value={zone.id}>
+                        {zone.name}
+                      </option>
+                    ))}
+                  </Form.Control>
+                </Form.Group>
+              </Col>
+              <Col>
+                <Form.Group controlId="product">
+                  {/* <Form.Label>Product</Form.Label> */}
+                  <Form.Control
+                    as="select"
+                    name="product"
+                    value={searchParams.product}
+                    onChange={handleInputChange}
+                  >
+                    <option value="">Select Product</option>
+                    {products.map((product) => (
+                      <option key={product.id} value={product.id}>
+                        {product.name}
+                      </option>
+                    ))}
+                  </Form.Control>
+                </Form.Group>
+              </Col>
+              <Col xs="auto">
+                <Button variant="primary" type="submit" disabled={loading}>
+                  {loading ? <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> : "Search"}
+                </Button>
+              </Col>
+            </Row>
+          </Form>
 
-        <Form.Group controlId="zone">
-          <Form.Label>Zone</Form.Label>
-          <Form.Control
-            as="select"
-            name="zone"
-            value={searchParams.zone}
-            onChange={handleInputChange}
-          >
-            <option value="">Select Zone</option>
-            {zones.map((zone) => (
-              <option key={zone.id} value={zone.id}>
-                {zone.name}
-              </option>
-            ))}
-          </Form.Control>
-        </Form.Group>
-
-        <Form.Group controlId="product">
-          <Form.Label>Product</Form.Label>
-          <Form.Control
-            as="select"
-            name="product"
-            value={searchParams.product}
-            onChange={handleInputChange}
-          >
-            <option value="">Select Product</option>
-            {products.map((product) => (
-              <option key={product.id} value={product.id}>
-                {product.name}
-              </option>
-            ))}
-          </Form.Control>
-        </Form.Group>
-
-        <Button variant="primary" type="submit" disabled={loading}>
-          {loading ? "Searching..." : "Search"}
-        </Button>
-      </Form>
-
-      {searchResults.length > 0 && (
-        <Table striped bordered hover style={{ marginTop: '20px' }}>
-          <thead>
-            <tr>
-              <th>Warehouse</th>
-              <th>Zone</th>
-              <th>Product</th>
-              <th>Quantity</th>
-              <th>Expire Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            {searchResults.map((result) => (
-              <tr key={result.id}>
-                <td>{result.warehouse_name}</td>
-                <td>{result.zone_name}</td>
-                <td>{result.product_name}</td>
-                <td>{result.quantity}</td>
-                <td>{result.expire_date}</td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      )}
-    </div>
+          {searchResults.length > 0 && (
+            <Table striped bordered hover className="mt-4">
+              <thead>
+                <tr>
+                  <th>Warehouse</th>
+                  <th>Zone</th>
+                  <th>Product</th>
+                  <th>Quantity</th>
+                  <th>Expire Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {searchResults.map((result) => (
+                  <tr key={result.id}>
+                    <td>{result.warehouse_name}</td>
+                    <td>{result.zone_name}</td>
+                    <td>{result.product_name}</td>
+                    <td>{result.quantity}</td>
+                    <td>{result.expire_date}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          )}
+        </Col>
+      </Row>
+    </Container>
   );
 };
 
