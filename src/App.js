@@ -18,7 +18,7 @@ import InboundTransactions from "./components/inbound/InboundTransactions";
 import Category from "./components/category/Category";
 import Profile from "./components/profile/Profile";
 import OutboundTransactions from "./components/outbound/OutboundTransactions";
-
+import WarehouseItemManagement from "./components/warehouseitem/WarehouseItemManagement";
 function AppContent() {
   const location = useLocation();
   const isLoginPage = location.pathname === "/login";
@@ -53,6 +53,7 @@ function AppContent() {
             <Route path="categories" element={<Category />} />
 
             <Route path="profile" element={<Profile />} />
+            <Route path="warehouseitems" element={<WarehouseItemManagement />} />
 
             <Route path="test" element={<TestComponent />} />
             <Route path="test2" element={<TestComponent2 />} />
