@@ -1,21 +1,24 @@
 import React, { useState, useEffect } from "react";
-import { Container, Row, Col, Table, Form, Button, Spinner } from "react-bootstrap";
+import { Container, Row, Col, Form, Button, Spinner } from "react-bootstrap";
 import MyAxios from "../../util/MyAxios";
+import ZoneList from "./ZoneList";
+import WarehouseItemList from "./WarehouseItemList";
 
-const SearchPage = () => {
+const SearchPage = ({ onSearchResults }) => {
   const [warehouses, setWarehouses] = useState([]);
   const [zones, setZones] = useState([]);
+  const [items, setItems] = useState([]);
   const [products, setProducts] = useState([]);
-  const [searchResults, setSearchResults] = useState([]);
   const [searchParams, setSearchParams] = useState({
     warehouse: "",
     zone: "",
+    item: "",
     product: ""
   });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
+    async function fetchData() {
       try {
         const warehouseResponse = await MyAxios.get('/warehouses');
         setWarehouses(warehouseResponse.data.data);
@@ -23,12 +26,15 @@ const SearchPage = () => {
         const zoneResponse = await MyAxios.get('/zones');
         setZones(zoneResponse.data.data);
 
+        const itemResponse = await MyAxios.get('/items');
+        setItems(itemResponse.data.data);
+
         const productResponse = await MyAxios.get('/products');
         setProducts(productResponse.data.data);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
-    };
+    }
 
     fetchData();
   }, []);
@@ -48,9 +54,22 @@ const SearchPage = () => {
       const response = await MyAxios.get('/search', {
         params: searchParams
       });
-      setSearchResults(response.data.data);
+      onSearchResults(response.data.data); // Pass search results to parent component
     } catch (error) {
       console.error("Error during search:", error);
+    }
+    setLoading(false);
+  };
+
+  const handleZoneSearch = async (zoneName) => {
+    setLoading(true);
+    try {
+      const response = await MyAxios.get('/zones', {
+        params: { name: zoneName }
+      });
+      setZones(response.data.data); // Update zones state with search results
+    } catch (error) {
+      console.error("Error searching zones:", error);
     }
     setLoading(false);
   };
@@ -59,12 +78,10 @@ const SearchPage = () => {
     <Container>
       <Row className="justify-content-md-center">
         <Col md={8}>
-          {/* <h1 className="mt-4">WAREHOUSE ITEM</h1> */}
           <Form onSubmit={handleSearch} className="mb-3">
             <Row>
               <Col>
                 <Form.Group controlId="warehouse">
-                  {/* <Form.Label>Warehouse</Form.Label> */}
                   <Form.Control
                     as="select"
                     name="warehouse"
@@ -82,7 +99,6 @@ const SearchPage = () => {
               </Col>
               <Col>
                 <Form.Group controlId="zone">
-                  {/* <Form.Label>Zone</Form.Label> */}
                   <Form.Control
                     as="select"
                     name="zone"
@@ -99,8 +115,24 @@ const SearchPage = () => {
                 </Form.Group>
               </Col>
               <Col>
+                <Form.Group controlId="item">
+                  <Form.Control
+                    as="select"
+                    name="item"
+                    value={searchParams.item}
+                    onChange={handleInputChange}
+                  >
+                    <option value="">Select Item</option>
+                    {items.map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.name}
+                      </option>
+                    ))}
+                  </Form.Control>
+                </Form.Group>
+              </Col>
+              <Col>
                 <Form.Group controlId="product">
-                  {/* <Form.Label>Product</Form.Label> */}
                   <Form.Control
                     as="select"
                     name="product"
@@ -123,31 +155,26 @@ const SearchPage = () => {
               </Col>
             </Row>
           </Form>
-
-          {searchResults.length > 0 && (
-            <Table striped bordered hover className="mt-4">
-              <thead>
-                <tr>
-                  <th>Warehouse</th>
-                  <th>Zone</th>
-                  <th>Product</th>
-                  <th>Quantity</th>
-                  <th>Expire Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {searchResults.map((result) => (
-                  <tr key={result.id}>
-                    <td>{result.warehouse_name}</td>
-                    <td>{result.zone_name}</td>
-                    <td>{result.product_name}</td>
-                    <td>{result.quantity}</td>
-                    <td>{result.expire_date}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          )}
+          <Form onSubmit={(e) => { e.preventDefault(); handleZoneSearch(searchParams.zone); }} className="mb-3">
+            <Row>
+              <Col>
+                <Form.Group controlId="zoneSearch">
+                  <Form.Control
+                    type="text"
+                    placeholder="Search Zone"
+                    name="zone"
+                    value={searchParams.zone}
+                    onChange={handleInputChange}
+                  />
+                </Form.Group>
+              </Col>
+              <Col xs="auto">
+                <Button variant="primary" type="submit" disabled={loading}>
+                  {loading ? <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> : "Search"}
+                </Button>
+              </Col>
+            </Row>
+          </Form>
         </Col>
       </Row>
     </Container>

@@ -1,39 +1,107 @@
 
-import React, { useState, useEffect } from "react";
-import { Button } from "react-bootstrap";
-import "../../mystyle.css";
+// import React, { useState, useEffect } from "react";
+// import { Button } from "react-bootstrap";
+// import "../../mystyle.css";
+// import WarehouseList from "./WarehouseList";
+
+// const WarehouseItemManagement = () => {
+//   const [listRender, setListRender] = useState(true);
+//   const [searchTerm, setSearchTerm] = useState("");
+
+//   return (
+//     <div className="container">
+//       <WarehouseList searchTerm={searchTerm} render={listRender}  />
+
+//     </div>
+//   );
+// };
+
+// export default WarehouseItemManagement;
+import React, { useState } from "react";
 import WarehouseList from "./WarehouseList";
-// import SearchBar from "./SearchBar";
-// import ZoneList from "../warehouse/ZoneList";
-import SearchPage from "./SearchPage";
 
 const WarehouseItemManagement = () => {
   const [listRender, setListRender] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [warehouseSearchTerm, setWarehouseSearchTerm] = useState("");
+  const [zoneSearchTerm, setZoneSearchTerm] = useState("");
+  const [productSearchTerm, setProductSearchTerm] = useState("");
 
-  const defaultWarehouse = {
-    id: 0,
-    name: "",
-    address: "",
+  const handleWarehouseSearchChange = (e) => {
+    setWarehouseSearchTerm(e.target.value);
   };
 
-  const [showWarehouseModal, setShowWarehouseModal] = useState(false);
-  const [searchResults, setSearchResults] = useState([]);
-
-  const handleSearchResults = (results) => {
-    setSearchResults(results);
+  const handleZoneSearchChange = (e) => {
+    setZoneSearchTerm(e.target.value);
   };
 
-  useEffect(() => {
-    if (showWarehouseModal === false) setListRender((p) => !p);
-  }, [showWarehouseModal]);
+  const handleProductSearchChange = (e) => {
+    setProductSearchTerm(e.target.value);
+  };
 
   return (
+    <>
+    <h1 className="container text-center">Warehouse Item</h1>
     <div className="container">
-      <SearchPage onSearchResults={handleSearchResults} />
-      <WarehouseList searchTerm={searchTerm} render={listRender} searchResults={searchResults} />
-      
+     <div className="container">
+  <div className="search-bar">
+    <div className="row p-3">
+      {/* Warehouse Search */}
+      <div className="col-md-4 p-1">
+        <div className="input-group">
+          <div className="input-group-prepend">
+            <span className="input-group-text">Warehouse</span>
+          </div>
+          <input
+            type="text"
+            placeholder="Search Warehouse"
+            value={warehouseSearchTerm}
+            onChange={handleWarehouseSearchChange}
+            className="form-control"
+          />
+        </div>
+      </div>
+      {/* Zone Search */}
+      <div className="col-md-4 p-1">
+        <div className="input-group">
+          <div className="input-group-prepend">
+            <span className="input-group-text"> Zone</span>
+          </div>
+          <input
+            type="text"
+            placeholder="Search Zone"s
+            value={zoneSearchTerm}
+            onChange={handleZoneSearchChange}
+            className="form-control"
+          />
+        </div>
+      </div>
+      {/* Product Search */}
+      <div className="col-md-4 p-1">
+        <div className="input-group">
+          <div className="input-group-prepend">
+            <span className="input-group-text">Product</span>
+          </div>
+          <input
+            type="text"
+            placeholder="Search Product"
+            value={productSearchTerm}
+            onChange={handleProductSearchChange}
+            className="form-control"
+          />
+        </div>
+      </div>
     </div>
+  </div>
+</div>
+
+      <WarehouseList
+        warehouseSearchTerm={warehouseSearchTerm}
+        zoneSearchTerm={zoneSearchTerm}
+        productSearchTerm={productSearchTerm}
+        render={listRender}
+      />
+    </div>
+    </>
   );
 };
 

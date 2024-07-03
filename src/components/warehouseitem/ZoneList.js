@@ -3,11 +3,10 @@ import { Card } from "react-bootstrap";
 import MyAxios from "../../util/MyAxios";
 import WarehouseItemList from "./WarehouseItemList";
 
-const ZoneList = ({ warehouse }) => {
+const ZoneList = ({ warehouse, zoneSearchTerm, productSearchTerm }) => {
   const [zones, setZones] = useState([]);
 
   useEffect(() => {
-    // Fetch zones from DB
     async function fetchData() {
       try {
         const response = await MyAxios.get(`/zones`, {
@@ -22,15 +21,22 @@ const ZoneList = ({ warehouse }) => {
     fetchData();
   }, [warehouse.id]);
 
+  const filteredZones = zones.filter((zone) =>
+    zone.name.toLowerCase().includes(zoneSearchTerm.toLowerCase())
+  );
+
   return (
     <div className="container">
       <div className="row row-cols-1 row-cols-md-2 g-4">
-        {zones.map((zone) => (
+        {filteredZones.map((zone) => (
           <div key={zone.id} className="col">
             <Card>
               <Card.Body>
                 <Card.Title>{zone.name}</Card.Title>
-                <WarehouseItemList zoneId={zone.id} />
+                <WarehouseItemList
+                  zoneId={zone.id}
+                  productSearchTerm={productSearchTerm}
+                />
               </Card.Body>
             </Card>
           </div>

@@ -6,7 +6,7 @@ import ConfirmModal from "../../components/share/ConfirmModal";
 import defaultProductImage from "./defaultProductImage.jpg"; // Import the default product image
 import "./WarehouseItemList.css";
 
-const WarehouseItemList = ({ zoneId }) => {
+const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
   const [warehouseItems, setWarehouseItems] = useState([]);
   const [products, setProducts] = useState([]);
   const [items, setItems] = useState([]);
@@ -151,13 +151,21 @@ const WarehouseItemList = ({ zoneId }) => {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = warehouseItems.slice(indexOfFirstItem, indexOfLastItem);
+
+  // Filter warehouseItems based on productSearchTerm
+  const filteredWarehouseItems = warehouseItems.filter((warehouseItem) => {
+    const item = getItemById(warehouseItem.item_id);
+    const product = getProductById(item.product_id);
+    return product.name && product.name.toLowerCase().includes(productSearchTerm.toLowerCase());
+  });
+
+  const currentItems = filteredWarehouseItems.slice(indexOfFirstItem, indexOfLastItem);
 
   if (loading) {
     return <div>Loading...</div>;
   }
 
-  const totalPages = Math.ceil(warehouseItems.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredWarehouseItems.length / itemsPerPage);
 
   const expiredProductStyle = { color: 'red' };
 
