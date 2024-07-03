@@ -3,7 +3,8 @@ import { Table, Pagination, Button } from "react-bootstrap";
 import MyAxios from "../../util/MyAxios";
 import MyAlert from "./MyAlert";
 import ConfirmModal from "../../components/share/ConfirmModal";
-// import "./WarehouseItemList.css";
+import defaultProductImage from "./defaultProductImage.jpg"; // Import the default product image
+import "./WarehouseItemList.css";
 
 const WarehouseItemList = ({ zoneId }) => {
   const [warehouseItems, setWarehouseItems] = useState([]);
@@ -16,7 +17,7 @@ const WarehouseItemList = ({ zoneId }) => {
   const [expiredProducts, setExpiredProducts] = useState([]);
   const [showAlert, setShowAlert] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const itemsPerPage = 10;
+  const itemsPerPage = 5;
 
   useEffect(() => {
     async function fetchWarehouseItems() {
@@ -158,11 +159,7 @@ const WarehouseItemList = ({ zoneId }) => {
 
   const totalPages = Math.ceil(warehouseItems.length / itemsPerPage);
 
-  // Inline style for expired products
-  const expiredProductStyle = {
-    backgroundColor: '#f8d7da',
-    color: '#721c24'
-  };
+  const expiredProductStyle = { color: 'red' };
 
   return (
     <>
@@ -190,47 +187,39 @@ const WarehouseItemList = ({ zoneId }) => {
             if (!product.name) {
               return null; // Skip if product details are not available
             }
-            const productImageUrl = productImages[product.id]; // Get the image URL from state
-
-            // Determine if the product is expired
-            const expireDate = new Date(item.expire_date);
-            const isExpired = expireDate < new Date();
-
+            const isExpired = new Date(item.expire_date) < new Date();
+            const productImageUrl = productImages[product.id] || defaultProductImage; // Use default image if not available
+            const cellStyle = isExpired ? expiredProductStyle : {};
             return (
               <tr key={warehouseItem.id}>
-                <td style={isExpired ? expiredProductStyle : {}}>{product.name}</td>
-                <td style={{ textAlign: "center", ...(isExpired ? expiredProductStyle : {}) }}>
-                  {productImageUrl ? (
-                    <img
-                      src={productImageUrl}
-                      alt="Product"
-                      style={{ width: "50px", height: "50px" }}
-                    />
-                  ) : (
-                    "Loading..."
-                  )}
+                <td style={cellStyle}>{product.name}</td>
+                <td style={{ textAlign: "center", ...cellStyle }}>
+                  <img
+                    src={productImageUrl}
+                    alt="Product"
+                    style={{ width: "50px", height: "50px" }}
+                  />
                 </td>
-                <td style={{ textAlign: "center", ...(isExpired ? expiredProductStyle : {}) }}>{warehouseItem.quantity}</td>
-                <td style={isExpired ? expiredProductStyle : {}}>{item.expire_date}</td>
+                <td style={{ textAlign: "center", ...cellStyle }}>{warehouseItem.quantity}</td>
+                <td style={cellStyle}>{item.expire_date}</td>
               </tr>
             );
           })}
         </tbody>
       </Table>
       <div className="pagination-wrapper text-center">
-  <Pagination className="justify-content-center">
-    <Pagination.First onClick={() => handlePageChange(1)} disabled={currentPage === 1} />
-    <Pagination.Prev onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} />
-    {[...Array(totalPages).keys()].map((page) => (
-      <Pagination.Item key={page + 1} active={page + 1 === currentPage} onClick={() => handlePageChange(page + 1)}>
-        {page + 1}
-      </Pagination.Item>
-    ))}
-    <Pagination.Next onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} />
-    <Pagination.Last onClick={() => handlePageChange(totalPages)} disabled={currentPage === totalPages} />
-  </Pagination>
-
-        <div className="total-pages text-center">
+        <Pagination className="justify-content-center">
+          <Pagination.First onClick={() => handlePageChange(1)} disabled={currentPage === 1} />
+          <Pagination.Prev onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} />
+          {[...Array(totalPages).keys()].map((page) => (
+            <Pagination.Item key={page + 1} active={page + 1 === currentPage} onClick={() => handlePageChange(page + 1)}>
+              {page + 1}
+            </Pagination.Item>
+          ))}
+          <Pagination.Next onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} />
+          <Pagination.Last onClick={() => handlePageChange(totalPages)} disabled={currentPage === totalPages} />
+        </Pagination>
+        <div className="total-pages">
            {currentPage} / {totalPages}
         </div>
       </div>
@@ -263,23 +252,22 @@ const WarehouseItemList = ({ zoneId }) => {
                 {expiredProducts.map((warehouseItem) => {
                   const item = getItemById(warehouseItem.item_id);
                   const product = getProductById(item.product_id);
-                  const productImageUrl = productImages[product.id];
+                  if (!product.name) {
+                    return null; // Skip if product details are not available
+                  }
+                  const productImageUrl = productImages[product.id] || defaultProductImage; // Use default image if not available
                   return (
                     <tr key={warehouseItem.id}>
-                      <td style={expiredProductStyle}>{product.name}</td>
-                      <td style={{ textAlign: "center", ...expiredProductStyle }}>
-                        {productImageUrl ? (
-                          <img
-                            src={productImageUrl}
-                            alt="Product"
-                            style={{ width: "50px", height: "50px" }}
-                          />
-                        ) : (
-                          "Loading..."
-                        )}
+                      <td>{product.name}</td>
+                      <td style={{ textAlign: "center" }}>
+                        <img
+                          src={productImageUrl}
+                          alt="Product"
+                          style={{ width: "50px", height: "50px" }}
+                        />
                       </td>
-                      <td style={{ textAlign: "center", ...expiredProductStyle }}>{warehouseItem.quantity}</td>
-                      <td style={expiredProductStyle}>{item.expire_date}</td>
+                      <td style={{ textAlign: "center" }}>{warehouseItem.quantity}</td>
+                      <td>{item.expire_date}</td>
                     </tr>
                   );
                 })}
