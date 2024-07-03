@@ -25,7 +25,7 @@ const MyAlert = ({ message, variant, show, setShow, link }) => {
           {message}
           <div className="mt-3">
             <Button variant="primary" href={link}>
-              Create Expire date Form
+              Create DisposalGoods
             </Button>
           </div>
         </Alert>

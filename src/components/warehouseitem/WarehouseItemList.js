@@ -17,7 +17,7 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
   const [expiredProducts, setExpiredProducts] = useState([]);
   const [showAlert, setShowAlert] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const itemsPerPage = 5;
+  const itemsPerPage = 10;
 
   useEffect(() => {
     async function fetchWarehouseItems() {
@@ -235,7 +235,7 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
         View Expired Products
       </Button>
       <Button variant="danger" onClick={handleCreateExpiredForm} style={{ marginTop: "20px" }}>
-        Create Expired Form
+        Create DisposalGoods
       </Button>
 
       <ConfirmModal
