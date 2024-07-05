@@ -45,6 +45,9 @@ export default function InboundTransactionDetail(props) {
         <Badge bg="warning" text="dark">
           {`Source: ${props.transaction.source}`}
         </Badge>
+        <Badge bg="success">{`Warehouse: ${
+          findById(props?.warehouseList, props?.transaction?.warehouse_id)?.name
+        }`}</Badge>
         <Button size="sm" className="ms-auto">
           Update Status
         </Button>

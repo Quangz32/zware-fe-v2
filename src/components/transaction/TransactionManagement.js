@@ -98,7 +98,7 @@ export default function TransactionManagement() {
   //    fet Warehouse
   useEffect(() => {
     const fetchWarehouse = async () => {
-      await MyAxios.get("zones")
+      await MyAxios.get("warehouses")
         .then((res) => {
           if (res.status === 200) {
             setWarehouseList(res.data.data);
