@@ -1,19 +1,40 @@
 import React, { useState, useEffect } from "react";
 import MyAxios from "../../util/MyAxios";
 import { Table, Stack, Badge, Button } from "react-bootstrap";
+import defaultProductImage from "./defaultProductImage.jpg";
 
 //props: itemList, productList, userList, zoneList, transaction
 export default function InboundTransactionDetail(props) {
-  const [details, setDetails] = useState([]);
+  const [transactionInfo, setTransactionInfo] = useState({});
 
   useEffect(() => {
+    const fetchTransactionInfo = () => {
+      const tempInfo = { ...props.transaction };
+      tempInfo.maker = props?.userList.find((user) => user.id == tempInfo.maker_id);
+      tempInfo.warehouse = props.warehouseList.find(
+        (warehouse) => warehouse.id == tempInfo.warehouse_id
+      );
+      tempInfo.details = [];
+      setTransactionInfo(tempInfo);
+    };
+
     const fetchDetails = async () => {
       await MyAxios.get(`inbound_transaction_details?transaction_id=${props.transaction.id}`)
         .then((res) => {
           if (res.status === 200) {
-            setDetails(res.data.data);
-          } else {
-            console.log("Fail");
+            const detailListResponse = res.data.data;
+            const detailList = []; //save full data
+            detailListResponse.forEach((detail) => {
+              // console.log(detail);
+              const itemInfo = props.itemList.find((itemx) => itemx.id == detail.item_id);
+              detailList.push({
+                ...detail,
+                item: itemInfo,
+                product: props.productList.find((prd) => prd.id == itemInfo?.product_id),
+                zone: props.zoneList.find((zonex) => zonex.id == detail.zone_id),
+              });
+            });
+            setTransactionInfo({ ...transactionInfo, details: detailList });
           }
         })
         .catch((e) => {
@@ -21,33 +42,21 @@ export default function InboundTransactionDetail(props) {
         });
     };
 
+    fetchTransactionInfo();
     fetchDetails();
-  }, []);
-
-  function findById(array, id) {
-    for (let i = 0; i < array.length; i++) {
-      if (array[i].id === id) {
-        return array[i];
-      }
-    }
-    return null; // Trả về null nếu không tìm thấy mục với id tương ứng
-  }
+  }, [props]);
 
   return (
     <div className="">
       <Stack direction="horizontal" gap={2} className="mb-2 pe-5">
-        <Badge bg="primary">{`Date: ${props?.transaction?.date}`}</Badge>
-        <Badge bg="success">{`Maker: ${
-          findById(props?.userList, props?.transaction?.maker_id)?.name
-        }`}</Badge>
-        <Badge bg="info" text="dark">{`Status: ${props?.transaction?.status}`}</Badge>
+        <Badge bg="primary">{`Date: ${transactionInfo.date}`}</Badge>
+        <Badge bg="success">{`Maker: ${transactionInfo.maker?.name}`}</Badge>
+        <Badge bg="info" text="dark">{`Status: ${transactionInfo.status}`}</Badge>
 
         <Badge bg="warning" text="dark">
-          {`Source: ${props.transaction.source}`}
+          {`Source: ${transactionInfo.source}`}
         </Badge>
-        <Badge bg="success">{`Warehouse: ${
-          findById(props?.warehouseList, props?.transaction?.warehouse_id)?.name
-        }`}</Badge>
+        <Badge bg="success">{`Warehouse: ${transactionInfo.warehouse?.name}`}</Badge>
         <Button size="sm" className="ms-auto">
           Update Status
         </Button>
@@ -57,25 +66,32 @@ export default function InboundTransactionDetail(props) {
           <tr>
             <th>#</th>
             <th>Product</th>
+            <th>Image</th>
             <th>Expire date</th>
             <th>Quantity</th>
             <th>Zone</th>
           </tr>
         </thead>
         <tbody>
-          {details?.length > 0 &&
-            details.map((detail, index) => (
+          {transactionInfo.details?.length > 0 &&
+            transactionInfo.details.map((detail, index) => (
               <tr key={detail.id}>
                 <td>{index + 1}</td>
+                <td>{detail.product?.name}</td>
                 <td>
-                  {
-                    findById(props.productList, findById(props.itemList, detail.item_id).product_id)
-                      .name
-                  }
+                  <img
+                    height={50}
+                    width={50}
+                    src={
+                      detail.product?.image
+                        ? `http://localhost:2000/imageproducts/${detail.product?.image}`
+                        : defaultProductImage
+                    }
+                  ></img>
                 </td>
-                <td>{findById(props.itemList, detail.item_id).expire_date}</td>
+                <td>{detail.item?.expire_date}</td>
                 <td>{detail.quantity}</td>
-                <td>{findById(props.zoneList, detail.zone_id).name}</td>
+                <td>{detail.zone?.name}</td>
               </tr>
             ))}
         </tbody>

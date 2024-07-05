@@ -18,15 +18,13 @@ import Category from "./components/category/Category";
 import Profile from "./components/profile/Profile";
 import OutboundTransactions from "./components/outbound/OutboundTransactions";
 
-
 import TransactionManagement from "./components/transaction/TransactionManagement";
 
-/*
 import WarehouseItemManagement from "./components/warehouseitem/WarehouseItemManagement";
 // import DisposalGoods from "./components/disposalgoods/DisposalGoodsPage";
 // import DisposalGoodsPage from "./components/disposalgoods/DisposalGoodsPage";
 import MaWarehouseItemManagement from "./components/warehouseitemmanager/MaWarehouseItemManagement";
-*/
+
 function AppContent() {
   const location = useLocation();
   const isLoginPage = location.pathname === "/login";
@@ -64,7 +62,6 @@ function AppContent() {
             <Route path="warehouseitems" element={<WarehouseItemManagement />} />
             <Route path="managerwarehouseitems" element={<MaWarehouseItemManagement />} />
 
-            
             {/* <Route path="disposedgoods" element={<DisposalGoodsPage />} /> */}
 
             <Route path="test" element={<TestComponent />} />

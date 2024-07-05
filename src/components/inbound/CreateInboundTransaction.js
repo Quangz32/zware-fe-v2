@@ -197,6 +197,7 @@ export default function CreateInboundTransaction(props) {
                   <thead>
                     <tr>
                       <th>Product</th>
+                      <th>Image</th>
                       <th>Expire Date</th>
                       <th>Quantity</th>
                       <th>Zone</th>
