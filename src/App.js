@@ -21,10 +21,11 @@ import OutboundTransactions from "./components/outbound/OutboundTransactions";
 import TransactionManagement from "./components/transaction/TransactionManagement";
 
 import WarehouseItemManagement from "./components/warehouseitem/WarehouseItemManagement";
-// import DisposalGoods from "./components/disposalgoods/DisposalGoodsPage";
+import DisposalGoods from "./components/disposalgoods/DisposalGoodsList";
 // import DisposalGoodsPage from "./components/disposalgoods/DisposalGoodsPage";
 import MaWarehouseItemManagement from "./components/warehouseitemmanager/MaWarehouseItemManagement";
-
+import DisposalGoodsList from "./components/disposalgoods/DisposalGoodsList";
+import CreateDisposalForm from "./components/disposalgoods/DisposalGoodsForm";
 function AppContent() {
   const location = useLocation();
   const isLoginPage = location.pathname === "/login";
@@ -62,8 +63,8 @@ function AppContent() {
             <Route path="warehouseitems" element={<WarehouseItemManagement />} />
             <Route path="managerwarehouseitems" element={<MaWarehouseItemManagement />} />
 
-            {/* <Route path="disposedgoods" element={<DisposalGoodsPage />} /> */}
-
+            <Route path="disposedgoods" element={<DisposalGoodsList />} />
+            <Route path="/create-disposal" element={<CreateDisposalForm />} />
             <Route path="test" element={<TestComponent />} />
             <Route path="test2" element={<TestComponent2 />} />
           </Routes>
