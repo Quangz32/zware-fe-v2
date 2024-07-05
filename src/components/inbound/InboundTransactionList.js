@@ -62,6 +62,8 @@ export default function InboundTransactionList(props) {
         show={showAddModal}
         setShow={setShowAddModal}
         warehouseList={props.warehouseList}
+        productList={props.productList}
+        zoneList={props.zoneList}
       ></CreateInboundTransaction>
     </div>
   );
