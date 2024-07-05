@@ -14,14 +14,19 @@ import TestComponent2 from "./components/test/TestComponent2";
 import ProductList from "./components/product/ProductList";
 import UserList from "./components/manager/UserList";
 
-import InboundTransactions from "./components/inbound/InboundTransactions";
 import Category from "./components/category/Category";
 import Profile from "./components/profile/Profile";
 import OutboundTransactions from "./components/outbound/OutboundTransactions";
+
+
+import TransactionManagement from "./components/transaction/TransactionManagement";
+
+/*
 import WarehouseItemManagement from "./components/warehouseitem/WarehouseItemManagement";
 // import DisposalGoods from "./components/disposalgoods/DisposalGoodsPage";
 // import DisposalGoodsPage from "./components/disposalgoods/DisposalGoodsPage";
 import MaWarehouseItemManagement from "./components/warehouseitemmanager/MaWarehouseItemManagement";
+*/
 function AppContent() {
   const location = useLocation();
   const isLoginPage = location.pathname === "/login";
@@ -42,7 +47,7 @@ function AppContent() {
           <Routes>
             <Route path="login" element={<Login />} />
 
-            <Route path="home" element={<Home/>} />
+            <Route path="home" element={<Home />} />
 
             <Route path="adhome" element={<HomeAd />} />
 
@@ -50,9 +55,9 @@ function AppContent() {
 
             <Route path="products" element={<ProductList />} />
             <Route path="managers" element={<UserList />} />
-            <Route path="inbound" element={<InboundTransactions />} />
-
+            {/* <Route path="inbound" element={<InboundTransactionManagement />} /> */}
             <Route path="outbound" element={<OutboundTransactions />} />
+            <Route path="transactions" element={<TransactionManagement />} />
             <Route path="categories" element={<Category />} />
 
             <Route path="profile" element={<Profile />} />
