@@ -27,7 +27,7 @@ const WarehouseItemManagement = () => {
   <div className="search-bar">
     <div className="row p-3">
       {/* Zone Search */}
-      <div className="col-md-4 p-1">
+      <div className="col-md-6 p-1">
         <div className="input-group">
           <div className="input-group-prepend">
             <span className="input-group-text"> Zone</span>
@@ -42,7 +42,7 @@ const WarehouseItemManagement = () => {
         </div>
       </div>
       {/* Product Search */}
-      <div className="col-md-4 p-1">
+      <div className="col-md-6 p-1">
         <div className="input-group">
           <div className="input-group-prepend">
             <span className="input-group-text">Product</span>
