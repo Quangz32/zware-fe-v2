@@ -146,6 +146,7 @@ const Sidebar = () => {
             </li>
           </ul>
         </li>
+        <Link to="/transactions">Transaction</Link>
       </ul>
       <div className="sidebar-footer">
         <Link to="/login" className="sidebar-link" onClick={handleLogout}>
