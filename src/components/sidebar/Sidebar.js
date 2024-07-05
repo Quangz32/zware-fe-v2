@@ -110,6 +110,24 @@ const Sidebar = () => {
             </Link>
           </li>
         )}
+        {loggingUser?.role === "admin" && (
+          <li className="sidebar-item">
+            <Link to="/warehouseitems" className="sidebar-link">
+              <i className="bi bi-house-check"></i>
+              <span>Warehouse Item</span>
+            </Link>
+          </li>
+        )}
+
+{loggingUser?.role === "manager" && (
+          <li className="sidebar-item">
+            <Link to="/managerwarehouseitems" className="sidebar-link">
+              <i className="bi bi-house-check"></i>
+              <span>Warehouse Item</span>
+            </Link>
+          </li>
+        )}
+
 
         <li className="sidebar-item">
           <Link to="/products" className="sidebar-link">
