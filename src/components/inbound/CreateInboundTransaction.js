@@ -10,7 +10,10 @@ import {
   FormControl,
   Table,
   FormSelect,
+  Toast,
 } from "react-bootstrap";
+
+import MyAxios from "../../util/MyAxios";
 
 //props: show, setShow, warehouseList, productList
 export default function CreateInboundTransaction(props) {
@@ -23,6 +26,13 @@ export default function CreateInboundTransaction(props) {
     console.log("submit");
     console.log(formData);
     if (!validateForm()) return;
+
+    MyAxios.post("inbound_transactions/create", formData).then((res) => {
+      if (res.status === 200) {
+        props.setShow(false);
+        setShowNotification(true);
+      }
+    });
   };
 
   //formData1: warehouse_id, source
@@ -30,19 +40,34 @@ export default function CreateInboundTransaction(props) {
   const [formData, setFormData] = useState({});
   const [formErrors, setFormErrors] = useState({});
   const [isAdmin, setIsAdmin] = useState(false);
+  const [showNotification, setShowNotification] = useState(false);
 
   const validateForm = () => {
     const errors = {};
     if (formData.source === "") errors.source = "Source is required";
 
-    formData.detail.forEach((inboundDetail) => {
-      if (inboundDetail.expire_date === "")
+    formData.details.forEach((inboundDetail) => {
+      if (inboundDetail.expire_date === "") {
         errors.products = "Expire date is required in any product";
-      else {
-        const quantityNumber = parseInt(inboundDetail.quantity);
-        if (quantityNumber > 1000000000 || quantityNumber < 1) {
-          errors.products = "Quantity must be bigger than 0 and smaller than 1 billion";
-        }
+        return false;
+      }
+
+      const inputDate = new Date(inboundDetail.expire_date);
+      const currentDate = new Date();
+      if (inputDate <= currentDate) {
+        errors.products = "Expire date must be in the future";
+        return false;
+      }
+
+      const quantityNumber = parseInt(inboundDetail.quantity);
+      if (quantityNumber > 1000000000 || quantityNumber < 1) {
+        errors.products = "Quantity must be bigger than 0 and smaller than 1 billion";
+        return false;
+      }
+
+      if (inboundDetail.zone_id == -1) {
+        errors.products = "Zone is required in any product";
+        return false;
       }
     });
     // if (formData.expire_date === "") errors.expire_date = "Expire date is required";
@@ -56,13 +81,13 @@ export default function CreateInboundTransaction(props) {
     console.log("ADd");
     setFormData({
       ...formData,
-      detail: [
-        ...formData.detail,
+      details: [
+        ...formData.details,
         {
           product_id: props.productList[0]?.id,
           expire_date: "",
           quantity: 0,
-          zone_id: props.zoneList?.find((zone) => zone.warehouse_id === formData.warehouse_id)?.id,
+          zone_id: -1,
         },
       ],
     });
@@ -74,17 +99,16 @@ export default function CreateInboundTransaction(props) {
     console.log("Remove " + indexToRemove);
     setFormData({
       ...formData,
-      detail: formData.detail.filter((_, index) => index != indexToRemove),
+      details: formData.details.filter((_, index) => index != indexToRemove),
     });
     console.log(formData);
   };
 
   const handleUpdateFormDetail = (indexToUpdate, field, updateValue) => {
-    const newDetail = formData.detail.map((inboundDetail, index) =>
+    const newDetails = formData.details.map((inboundDetail, index) =>
       index === indexToUpdate ? { ...inboundDetail, [field]: updateValue } : inboundDetail
     );
-    setFormData({ ...formData, detail: newDetail });
-    console.log(formData.detail);
+    setFormData({ ...formData, details: newDetails });
   };
 
   //   const handleChange
@@ -99,12 +123,12 @@ export default function CreateInboundTransaction(props) {
     setFormData({
       warehouse_id: selectedWarehouse,
       source: "",
-      detail: [
+      details: [
         {
           product_id: props.productList[0]?.id,
           expire_date: "",
           quantity: 0,
-          zone_id: props.zoneList?.find((zone) => zone.warehouse_id === selectedWarehouse)?.id,
+          zone_id: -1,
         },
       ],
     });
@@ -180,7 +204,7 @@ export default function CreateInboundTransaction(props) {
                     </tr>
                   </thead>
                   <tbody>
-                    {formData?.detail?.map((inboundDetail, index) => (
+                    {formData?.details?.map((inboundDetail, index) => (
                       <tr key={index}>
                         <td>
                           <FormSelect
@@ -199,7 +223,7 @@ export default function CreateInboundTransaction(props) {
                         <td>
                           <FormControl
                             type="date"
-                            value={formData.detail[index]?.expire_date}
+                            value={formData.details[index]?.expire_date}
                             onChange={(e) => {
                               handleUpdateFormDetail(index, "expire_date", e.target.value);
                             }}
@@ -208,7 +232,7 @@ export default function CreateInboundTransaction(props) {
                         <td>
                           <FormControl
                             type="number"
-                            value={formData.detail[index]?.quantity}
+                            value={formData.details[index]?.quantity}
                             onChange={(e) => {
                               handleUpdateFormDetail(index, "quantity", e.target.value);
                             }}
@@ -216,11 +240,12 @@ export default function CreateInboundTransaction(props) {
                         </td>
                         <td>
                           <FormSelect
-                            value={formData.detail[index]?.zone_id}
+                            value={formData.details[index]?.zone_id}
                             onChange={(e) => {
                               handleUpdateFormDetail(index, "zone_id", e.target.value);
                             }}
                           >
+                            <option value="-1">--Choose zone--</option>
                             {props?.zoneList?.map(
                               (zone) =>
                                 zone.warehouse_id == formData.warehouse_id && (
@@ -246,7 +271,7 @@ export default function CreateInboundTransaction(props) {
                     ))}
                   </tbody>
                 </Table>
-                <div className="d-flex justify-content-end pe-4 mt-5">
+                <div className="d-flex justify-content-end pe-3 ">
                   <Button onClick={handleAddFormDetail}>
                     <i className="bi bi-plus-lg"></i>
                   </Button>
@@ -269,6 +294,27 @@ export default function CreateInboundTransaction(props) {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      <Toast
+        className="position-fixed"
+        style={{ top: "50px", right: "50px" }}
+        bg="primary"
+        show={showNotification}
+        onClose={() => {
+          setShowNotification(false);
+        }}
+        autohide={true}
+        delay={5000}
+      >
+        <Toast.Header>
+          <img src="holder.js/20x20?text=%20" className="rounded me-2" alt="" />
+          <strong className="me-auto">Warehouse management</strong>
+          <small>now</small>
+        </Toast.Header>
+        <Toast.Body className="text-white">
+          Inbound Transaction has been created!<i className="ms-2 bi bi-check-circle"></i>
+        </Toast.Body>
+      </Toast>
     </div>
   );
 }
