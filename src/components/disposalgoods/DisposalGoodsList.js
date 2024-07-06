@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Table, Button } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import MyAxios from "../../util/MyAxios";
 import ConfirmModal from "../../components/share/ConfirmModal";
 import defaultProductImage from "./defaultProductImage.jpg";
@@ -13,6 +13,7 @@ const DisposalGoods = ({ warehouseId }) => {
   const [productImages, setProductImages] = useState({});
   const [expiredProducts, setExpiredProducts] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchWarehouseItems() {
@@ -158,11 +159,19 @@ const DisposalGoods = ({ warehouseId }) => {
                     <td>{item ? item.expire_date : "N/A"}</td>
                     <td>{zone.name}</td>
                     <td>
-                      <Link to={`/create-disposal/${warehouseItem.id}`}>
-                        <Button variant="danger">
-                          Create Disposal
-                        </Button>
-                      </Link>
+                      <Button
+                        variant="danger"
+                        onClick={() => navigate('/create-disposal', {
+                          state: {
+                            product_name: product.name,
+                            zone_name: zone.name,
+                            expire_date: item ? item.expire_date : '',
+                            quantity: warehouseItem.quantity,
+                          },
+                        })}
+                      >
+                        Create Disposal
+                      </Button>
                     </td>
                   </tr>
                 );

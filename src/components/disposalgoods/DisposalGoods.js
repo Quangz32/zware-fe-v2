@@ -7,8 +7,10 @@ import CreateDisposalForm from "./DisposalGoodsForm";
   return (
     <Router>
       <Routes>
-        <Route path="disposedgoods" element={<DisposalGoodsList />} />
+        <Route path="disposedgoods" element={<DisposalGoodsList warehouseId={1} />} />
         <Route path="/create-disposal" element={<CreateDisposalForm />} />
+        <Route path="/create-disposal/:warehouseItemId" element={<CreateDisposalForm />} />
+
         {/* <Route path="/expired-products" element={<ExpiredProducts />} /> */}
       </Routes>
     </Router>
