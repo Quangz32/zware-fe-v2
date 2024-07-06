@@ -5,7 +5,7 @@ import defaultProductImage from "./defaultProductImage.jpg";
 import ChangeStatus from "./ChangeStatus";
 
 //props: itemList, productList, userList, zoneList, transaction, filter
-export default function InboundTransactionDetail(props) {
+export default function OutboundTransactionDetail(props) {
   const [transactionInfo, setTransactionInfo] = useState({});
   const [details, setDetails] = useState([]);
   const [showStatusModal, setShowStatusModal] = useState(false);
@@ -21,7 +21,7 @@ export default function InboundTransactionDetail(props) {
     };
 
     const fetchDetails = async () => {
-      await MyAxios.get(`inbound_transaction_details?transaction_id=${props.transaction.id}`)
+      await MyAxios.get(`outbound_transaction_details?transaction_id=${props.transaction.id}`)
         .then((res) => {
           if (res.status === 200) {
             const detailListResponse = res.data.data;
@@ -73,7 +73,7 @@ export default function InboundTransactionDetail(props) {
             </Stack>
             <Stack direction="horizontal" gap={2} className="mb-2 pe-5">
               <Badge bg="warning" text="dark">
-                {`Source: ${transactionInfo.source}`}
+                {`Destination: ${transactionInfo.destination}`}
               </Badge>
               <Badge bg="success">{`Warehouse: ${transactionInfo.warehouse?.name}`}</Badge>
             </Stack>

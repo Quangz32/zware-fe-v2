@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import MyAxios from "../../util/MyAxios";
 import InboundTransactionList from "../inbound/InboundTransactionList";
 import TransactionFilter from "./TransactionFilter";
-// import OutboundTransactionList from "../outbound/OutboundTransactionList";
+import OutboundTransactionList from "../outbound/OutboundTransactionList";
 
 export default function TransactionManagement() {
   // STYLE
@@ -173,7 +173,7 @@ export default function TransactionManagement() {
                 filter={filter}
               />
             )}
-            {/* {page === "outbound" && (
+            {page === "outbound" && (
               <OutboundTransactionList
                 itemList={itemList}
                 productList={productList}
@@ -182,7 +182,7 @@ export default function TransactionManagement() {
                 warehouseList={warehouseList}
                 filter={filter}
               />
-            )} */}
+            )}
           </div>
         </div>
       </div>
