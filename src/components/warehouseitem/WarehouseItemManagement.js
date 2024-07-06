@@ -1,22 +1,3 @@
-
-// import React, { useState, useEffect } from "react";
-// import { Button } from "react-bootstrap";
-// import "../../mystyle.css";
-// import WarehouseList from "./WarehouseList";
-
-// const WarehouseItemManagement = () => {
-//   const [listRender, setListRender] = useState(true);
-//   const [searchTerm, setSearchTerm] = useState("");
-
-//   return (
-//     <div className="container">
-//       <WarehouseList searchTerm={searchTerm} render={listRender}  />
-
-//     </div>
-//   );
-// };
-
-// export default WarehouseItemManagement;
 import React, { useState } from "react";
 import WarehouseList from "./WarehouseList";
 

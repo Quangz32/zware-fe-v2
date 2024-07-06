@@ -1,58 +1,178 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Container } from "react-bootstrap";
-import MyAxios from "../../util/MyAxios";
+import { Table, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
+import MyAxios from "../../util/MyAxios";
+import ConfirmModal from "../../components/share/ConfirmModal";
+import defaultProductImage from "./defaultProductImage.jpg";
 
-const DisposalGoodsList = () => {
-  const [disposalGoods, setDisposalGoods] = useState([]);
+const DisposalGoods = ({ warehouseId }) => {
+  const [warehouseItems, setWarehouseItems] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [items, setItems] = useState([]);
+  const [zones, setZones] = useState([]);
+  const [productImages, setProductImages] = useState({});
+  const [expiredProducts, setExpiredProducts] = useState([]);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    const fetchDisposalGoods = async () => {
+    async function fetchWarehouseItems() {
       try {
-        const response = await MyAxios.get("/goods_disposal");
-        setDisposalGoods(response.data.data);
+        const response = await MyAxios.get(`/warehouse_items`, {
+          params: { warehouse_id: warehouseId },
+        });
+        setWarehouseItems(response.data.data);
       } catch (error) {
-        console.error("Error fetching disposal goods:", error);
+        console.error("Error fetching warehouse items:", error);
       }
-    };
+    }
 
-    fetchDisposalGoods();
-  }, []);
+    async function fetchItems() {
+      try {
+        const response = await MyAxios.get('/items');
+        setItems(response.data.data);
+      } catch (error) {
+        console.error("Error fetching items:", error);
+      }
+    }
+
+    async function fetchProducts() {
+      try {
+        const response = await MyAxios.get('/products');
+        const products = response.data.data;
+        setProducts(products);
+
+        // Fetch images for each product
+        products.forEach(async (product) => {
+          try {
+            const imageResponse = await MyAxios.get(`/products/${product.id}/image`, {
+              responseType: 'arraybuffer',
+            });
+            const base64Image = btoa(
+              new Uint8Array(imageResponse.data).reduce(
+                (data, byte) => data + String.fromCharCode(byte),
+                ""
+              )
+            );
+            setProductImages((prevImages) => ({
+              ...prevImages,
+              [product.id]: `data:image/jpeg;base64,${base64Image}`,
+            }));
+          } catch (error) {
+            console.error(`Error fetching image for product ${product.id}:`, error);
+          }
+        });
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    }
+
+    async function fetchZones() {
+      try {
+        const response = await MyAxios.get('/zones');
+        setZones(response.data.data);
+      } catch (error) {
+        console.error("Error fetching zones:", error);
+      }
+    }
+
+    async function fetchData() {
+      await fetchWarehouseItems();
+      await fetchItems();
+      await fetchProducts();
+      await fetchZones();
+    }
+
+    fetchData();
+  }, [warehouseId]);
+
+  useEffect(() => {
+    const expired = warehouseItems.filter((warehouseItem) => {
+      const item = items.find(item => item.id === warehouseItem.item_id);
+      if (item) {
+        const expireDate = new Date(item.expire_date);
+        return expireDate < new Date();
+      }
+      return false;
+    });
+    setExpiredProducts(expired);
+  }, [warehouseItems, items]);
+
+  const getProductById = (productId) => {
+    return products.find(product => product.id === productId) || {};
+  };
+
+  const getZoneById = (zoneId) => {
+    return zones.find(zone => zone.id === zoneId) || {};
+  };
+
+  const handleViewExpired = () => {
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
 
   return (
-    <Container>
-      <h1>Disposed Goods</h1>
+    <div>
+      <h1>Disposal Goods</h1>
+      <Button onClick={handleViewExpired}>View Expired Products</Button>
       <Link to="/create-disposal">
-        <Button variant="primary" className="mb-3">
-          Create Disposal Form
+        <Button variant="primary" className="ms-2">
+          Create Disposal
         </Button>
       </Link>
-      <Table striped bordered hover>
-        <thead>
-          <tr>
-            <th>Warehouse ID</th>
-            <th>Product ID</th>
-            <th>Zone ID</th>
-            <th>Expire Date</th>
-            <th>Quantity</th>
-            <th>Reason</th>
-          </tr>
-        </thead>
-        <tbody>
-          {disposalGoods.map((item, index) => (
-            <tr key={index}>
-              <td>{item.warehouse_id}</td>
-              <td>{item.product_id}</td>
-              <td>{item.zone_id}</td>
-              <td>{item.expire_date}</td>
-              <td>{item.quantity}</td>
-              <td>{item.reason}</td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
-    </Container>
+      <ConfirmModal
+        show={showModal}
+        handleClose={handleCloseModal}
+        title="Expired Products"
+        body={
+          <Table striped bordered hover>
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th style={{ textAlign: "center" }}>Image</th>
+                <th style={{ textAlign: "center" }}>Quantity</th>
+                <th>Expire Date</th>
+                <th>Zone</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {expiredProducts.map((warehouseItem) => {
+                const item = items.find(item => item.id === warehouseItem.item_id);
+                const product = getProductById(item.product_id);
+                const zone = getZoneById(warehouseItem.zone_id);
+                const productImageUrl = productImages[product.id] || defaultProductImage;
+                return (
+                  <tr key={warehouseItem.id}>
+                    <td>{product.name}</td>
+                    <td style={{ textAlign: "center" }}>
+                      <img
+                        src={productImageUrl}
+                        alt="Product"
+                        style={{ width: "50px", height: "50px" }}
+                      />
+                    </td>
+                    <td style={{ textAlign: "center" }}>{warehouseItem.quantity}</td>
+                    <td>{item ? item.expire_date : "N/A"}</td>
+                    <td>{zone.name}</td>
+                    <td>
+                      <Link to={`/create-disposal/${warehouseItem.id}`}>
+                        <Button variant="danger">
+                          Create Disposal
+                        </Button>
+                      </Link>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </Table>
+        }
+      />
+    </div>
   );
 };
 
-export default DisposalGoodsList;
+export default DisposalGoods;
