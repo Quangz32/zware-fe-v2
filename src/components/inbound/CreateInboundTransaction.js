@@ -27,7 +27,7 @@ export default function CreateInboundTransaction(props) {
     console.log(formData);
     if (!validateForm()) return;
 
-    MyAxios.post("inbound_transactions/create", formData).then((res) => {
+    await MyAxios.post("inbound_transactions/create", formData).then((res) => {
       if (res.status === 200) {
         props.setShow(false);
         setShowNotification(true);
@@ -66,7 +66,7 @@ export default function CreateInboundTransaction(props) {
       }
 
       if (inboundDetail.zone_id == -1) {
-        errors.products = "Zone is required in any product";
+        errors.products = "Zone is required in all product";
         return false;
       }
     });

@@ -2,10 +2,12 @@ import React, { useState, useEffect } from "react";
 import MyAxios from "../../util/MyAxios";
 import { Table, Stack, Badge, Button } from "react-bootstrap";
 import defaultProductImage from "./defaultProductImage.jpg";
+import ChangeStatus from "./ChangeStatus";
 
 //props: itemList, productList, userList, zoneList, transaction
 export default function InboundTransactionDetail(props) {
   const [transactionInfo, setTransactionInfo] = useState({});
+  const [showStatusModal, setShowStatusModal] = useState(false);
 
   useEffect(() => {
     const fetchTransactionInfo = () => {
@@ -48,19 +50,28 @@ export default function InboundTransactionDetail(props) {
 
   return (
     <div className="">
-      <Stack direction="horizontal" gap={2} className="mb-2 pe-5">
-        <Badge bg="primary">{`Date: ${transactionInfo.date}`}</Badge>
-        <Badge bg="success">{`Maker: ${transactionInfo.maker?.name}`}</Badge>
-        <Badge bg="info" text="dark">{`Status: ${transactionInfo.status}`}</Badge>
+      <div className="d-flex flex-row">
+        <div>
+          {" "}
+          <Stack direction="horizontal" gap={2} className="mb-2 pe-5">
+            <Badge bg="primary">{`Date: ${transactionInfo.date}`}</Badge>
+            <Badge bg="success">{`Maker: ${transactionInfo.maker?.name}`}</Badge>
+            <Badge bg="info" text="dark">{`Status: ${transactionInfo.status}`}</Badge>
+          </Stack>
+          <Stack direction="horizontal" gap={2} className="mb-2 pe-5">
+            <Badge bg="warning" text="dark">
+              {`Source: ${transactionInfo.source}`}
+            </Badge>
+            <Badge bg="success">{`Warehouse: ${transactionInfo.warehouse?.name}`}</Badge>
+          </Stack>
+        </div>
+        <div className="my-auto ms-auto me-3">
+          <Button size="sm" onClick={() => setShowStatusModal(true)}>
+            Update Status
+          </Button>
+        </div>
+      </div>
 
-        <Badge bg="warning" text="dark">
-          {`Source: ${transactionInfo.source}`}
-        </Badge>
-        <Badge bg="success">{`Warehouse: ${transactionInfo.warehouse?.name}`}</Badge>
-        <Button size="sm" className="ms-auto">
-          Update Status
-        </Button>
-      </Stack>
       <Table size="sm" striped responsive>
         <thead>
           <tr>
@@ -96,6 +107,11 @@ export default function InboundTransactionDetail(props) {
             ))}
         </tbody>
       </Table>
+      <ChangeStatus
+        show={showStatusModal}
+        setShow={setShowStatusModal}
+        transaction={transactionInfo}
+      ></ChangeStatus>
       {/* {JSON.stringify(details)} */}
     </div>
   );
