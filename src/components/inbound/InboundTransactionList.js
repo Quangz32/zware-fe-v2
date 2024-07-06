@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Alert, Button, Nav, TabContainer, TabContent } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import InboundTransactionDetail from "./InboundTransactionDetail";
 import MyAxios from "../../util/MyAxios";
 import CreateInboundTransaction from "./CreateInboundTransaction";
@@ -30,7 +30,7 @@ export default function InboundTransactionList(props) {
     };
 
     fetchTransactionListByRole();
-  }, []);
+  }, [props]);
 
   return (
     <div>

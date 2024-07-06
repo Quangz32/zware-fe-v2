@@ -1,18 +1,9 @@
 import React, { useState, useEffect } from "react";
-import {
-  Container,
-  Row,
-  Col,
-  Modal,
-  Form,
-  FormGroup,
-  FormLabel,
-  FormControl,
-} from "react-bootstrap";
+
 import MyAxios from "../../util/MyAxios";
 import InboundTransactionList from "../inbound/InboundTransactionList";
-import Select from "react-select";
 import TransactionFilter from "./TransactionFilter";
+// import OutboundTransactionList from "../outbound/OutboundTransactionList";
 
 export default function TransactionManagement() {
   // STYLE
@@ -182,6 +173,16 @@ export default function TransactionManagement() {
                 filter={filter}
               />
             )}
+            {/* {page === "outbound" && (
+              <OutboundTransactionList
+                itemList={itemList}
+                productList={productList}
+                userList={userList}
+                zoneList={zoneList}
+                warehouseList={warehouseList}
+                filter={filter}
+              />
+            )} */}
           </div>
         </div>
       </div>

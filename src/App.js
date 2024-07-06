@@ -16,7 +16,6 @@ import UserList from "./components/manager/UserList";
 
 import Category from "./components/category/Category";
 import Profile from "./components/profile/Profile";
-import OutboundTransactions from "./components/outbound/OutboundTransactions";
 
 import TransactionManagement from "./components/transaction/TransactionManagement";
 
@@ -54,7 +53,7 @@ function AppContent() {
             <Route path="products" element={<ProductList />} />
             <Route path="managers" element={<UserList />} />
             {/* <Route path="inbound" element={<InboundTransactionManagement />} /> */}
-            <Route path="outbound" element={<OutboundTransactions />} />
+            {/* <Route path="outbound" element={<OutboundTransactions />} /> */}
             <Route path="transactions" element={<TransactionManagement />} />
             <Route path="categories" element={<Category />} />
 

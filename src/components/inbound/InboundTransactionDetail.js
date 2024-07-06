@@ -7,10 +7,11 @@ import ChangeStatus from "./ChangeStatus";
 //props: itemList, productList, userList, zoneList, transaction, filter
 export default function InboundTransactionDetail(props) {
   const [transactionInfo, setTransactionInfo] = useState({});
+  const [details, setDetails] = useState([]);
   const [showStatusModal, setShowStatusModal] = useState(false);
 
   useEffect(() => {
-    const fetchTransactionInfo = () => {
+    const fetchTransactionInfo = async () => {
       const tempInfo = { ...props.transaction };
       tempInfo.maker = props?.userList.find((user) => user.id == tempInfo.maker_id);
       tempInfo.warehouse = props.warehouseList.find(
@@ -36,7 +37,8 @@ export default function InboundTransactionDetail(props) {
                 zone: props.zoneList.find((zonex) => zonex.id == detail.zone_id),
               });
             });
-            setTransactionInfo({ ...transactionInfo, details: detailList });
+
+            setDetails(detailList);
           }
         })
         .catch((e) => {
@@ -48,17 +50,18 @@ export default function InboundTransactionDetail(props) {
     fetchDetails();
   }, [props]);
 
-  // console.log(transactionInfo.details);
   const checkFilterProduct = () => {
     if (props.filter.product_name === "") return true;
     let passFilter = false;
-    transactionInfo.details.forEach((detail) => {
+    details?.forEach((detail) => {
       if (detail.product.name == props.filter.product_name) {
         passFilter = true;
       }
     });
     return passFilter;
   };
+
+  console.log(props);
 
   return (
     checkFilterProduct() && (
@@ -97,8 +100,8 @@ export default function InboundTransactionDetail(props) {
             </tr>
           </thead>
           <tbody>
-            {transactionInfo.details?.length > 0 &&
-              transactionInfo.details.map((detail, index) => (
+            {details?.length > 0 &&
+              details?.map((detail, index) => (
                 <tr key={detail.id}>
                   <td>{index + 1}</td>
                   <td>{detail.product?.name}</td>
