@@ -12,12 +12,11 @@ export default function TransactionFilter(props) {
       start_date: "",
       end_date: "",
       product_name: "",
-      status: "", //all, pending, shipping, completed, canceled
+      status: "all", //all, pending, shipping, completed, canceled
     });
   };
 
   const handleProductSelect = (selectedOption) => {
-    console.log("hadnlProSel");
     props.setFilter({
       ...props.filter,
       product_name: selectedOption.value,
@@ -25,7 +24,6 @@ export default function TransactionFilter(props) {
     });
   };
 
-  console.log(props.filter);
   return (
     <div className="">
       <Form className="mt-5">

@@ -4,7 +4,7 @@ import InboundTransactionDetail from "./InboundTransactionDetail";
 import MyAxios from "../../util/MyAxios";
 import CreateInboundTransaction from "./CreateInboundTransaction";
 
-//props: transactions
+//props: transactions, productList, itemList, userList, zoneList, warehouseList, filter
 export default function InboundTransactionList(props) {
   const [transactionList, setTransactionList] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -44,18 +44,37 @@ export default function InboundTransactionList(props) {
       </Button>
 
       {/* TRANSACTION LIST */}
-      {transactionList.map((transaction) => (
-        <Alert key={transaction.id}>
+      {transactionList.map((transaction) => {
+        //Do filter by Date and Status
+        const startDate = new Date(props.filter?.start_date);
+        const endDate = new Date(props.filter?.end_date);
+        const transactionDate = new Date(transaction.date);
+
+        if (!isNaN(startDate) && startDate > transactionDate) {
+          return;
+        }
+
+        if (!isNaN(endDate) && endDate < transactionDate) {
+          return;
+        }
+
+        if (props.filter?.status !== "all" && transaction.status !== props.filter?.status) {
+          return;
+        }
+
+        return (
           <InboundTransactionDetail
+            key={transaction.id}
             productList={props.productList}
             itemList={props.itemList}
             userList={props.userList}
             zoneList={props.zoneList}
             warehouseList={props.warehouseList}
             transaction={transaction}
+            filter={props.filter}
           />
-        </Alert>
-      ))}
+        );
+      })}
 
       {/* ADD MODAL */}
       <CreateInboundTransaction

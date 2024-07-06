@@ -179,6 +179,7 @@ export default function TransactionManagement() {
                 userList={userList}
                 zoneList={zoneList}
                 warehouseList={warehouseList}
+                filter={filter}
               />
             )}
           </div>
