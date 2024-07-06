@@ -7,7 +7,7 @@ export default function ChangeStatus(props) {
     console.log("handle submit");
   };
 
-  console.log(props.transaction);
+  // console.log(props.transaction);
   return (
     <Modal
       show={props.show}

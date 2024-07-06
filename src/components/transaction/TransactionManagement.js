@@ -36,7 +36,13 @@ export default function TransactionManagement() {
   const [zoneList, setZoneList] = useState([]);
   const [warehouseList, setWarehouseList] = useState([]);
 
-  const [filter, setFilter] = useState({});
+  const [filter, setFilter] = useState({
+    start_date: "",
+    end_date: "",
+    product_name: "",
+    product_image: "", //TO SHOW only
+    status: "all", //all, pending, shipping, completed, canceled
+  });
 
   const [page, setPage] = useState("inbound"); //only inbound, outbound, internal
 
