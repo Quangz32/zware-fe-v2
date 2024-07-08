@@ -4,6 +4,7 @@ import MyAxios from "../../util/MyAxios";
 import InboundTransactionList from "../inbound/InboundTransactionList";
 import TransactionFilter from "./TransactionFilter";
 import OutboundTransactionList from "../outbound/OutboundTransactionList";
+import InternalTransactionList from "../internal/InternalTransactionList";
 
 export default function TransactionManagement() {
   // STYLE
@@ -175,6 +176,16 @@ export default function TransactionManagement() {
             )}
             {page === "outbound" && (
               <OutboundTransactionList
+                itemList={itemList}
+                productList={productList}
+                userList={userList}
+                zoneList={zoneList}
+                warehouseList={warehouseList}
+                filter={filter}
+              />
+            )}
+            {page === "internal" && (
+              <InternalTransactionList
                 itemList={itemList}
                 productList={productList}
                 userList={userList}
