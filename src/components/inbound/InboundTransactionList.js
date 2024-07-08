@@ -77,6 +77,7 @@ export default function InboundTransactionList(props) {
             warehouseList={props.warehouseList}
             transaction={transaction}
             filter={props.filter}
+            triggerRender={triggerRender}
           />
         );
       })}

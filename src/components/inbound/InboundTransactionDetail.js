@@ -4,7 +4,7 @@ import { Table, Stack, Badge, Button, Alert } from "react-bootstrap";
 import defaultProductImage from "./defaultProductImage.jpg";
 import ChangeStatus from "./ChangeStatus";
 
-//props: itemList, productList, userList, zoneList, transaction, filter
+//props: itemList, productList, userList, zoneList, transaction, filter, triggerRender
 export default function InboundTransactionDetail(props) {
   const [transactionInfo, setTransactionInfo] = useState({});
   const [details, setDetails] = useState([]);
@@ -78,11 +78,13 @@ export default function InboundTransactionDetail(props) {
               <Badge bg="success">{`Warehouse: ${transactionInfo.warehouse?.name}`}</Badge>
             </Stack>
           </div>
-          <div className="my-auto ms-auto me-3">
-            <Button size="sm" onClick={() => setShowStatusModal(true)}>
-              Update Status
-            </Button>
-          </div>
+          {transactionInfo.status !== "canceled" && transactionInfo.status !== "completed" && (
+            <div className="my-auto ms-auto me-3">
+              <Button size="sm" onClick={() => setShowStatusModal(true)}>
+                Update Status
+              </Button>
+            </div>
+          )}
         </div>
 
         <Table size="sm" striped responsive>
@@ -124,6 +126,7 @@ export default function InboundTransactionDetail(props) {
           show={showStatusModal}
           setShow={setShowStatusModal}
           transaction={transactionInfo}
+          triggerRender={props.triggerRender}
         ></ChangeStatus>
         {/* {JSON.stringify(details)} */}
       </Alert>

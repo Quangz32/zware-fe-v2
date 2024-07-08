@@ -35,6 +35,8 @@ export default function CreateOutboundTransaction(props) {
   //formData2: details , [{productid, expiredate, quantity, zone}]
   const [formData, setFormData] = useState({});
   const [formErrors, setFormErrors] = useState({});
+  const [availableQuantity, setAvailableQuantity] = useState([]);
+
   const [isAdmin, setIsAdmin] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
 
@@ -43,17 +45,14 @@ export default function CreateOutboundTransaction(props) {
     if (formData.destination === "") errors.destination = "Destination is required";
 
     formData.details.forEach((inboundDetail) => {
-      const inputDate = new Date(inboundDetail.expire_date);
-      const currentDate = new Date();
-      if (inputDate <= currentDate) {
-        errors.products = "Expire date must be in the future";
+      const quantityNumber = parseInt(inboundDetail.quantity);
+      if (quantityNumber < 1) {
+        errors.products = "Quantity must be bigger than 0";
         return false;
       }
 
-      const quantityNumber = parseInt(inboundDetail.quantity);
-      if (quantityNumber > 1000000000 || quantityNumber < 1) {
-        errors.products = "Quantity must be bigger than 0 and smaller than 1 billion";
-        return false;
+      if (quantityNumber > getAvailableQuantity(inboundDetail.product_id)) {
+        errors.products = "Quantity of some product is not not enough";
       }
     });
     // if (formData.expire_date === "") errors.expire_date = "Expire date is required";
@@ -63,29 +62,24 @@ export default function CreateOutboundTransaction(props) {
     return Object.keys(errors).length === 0;
   };
 
-  const handleAddFormDetail = useCallback(() => {
-    console.log("ADd");
+  const handleAddFormDetail = () => {
     setFormData({
       ...formData,
       details: [
         ...formData.details,
         {
           product_id: props.productList[0]?.id,
-          expire_date: "",
           quantity: 0,
-          zone_id: -1,
         },
       ],
     });
-
-    console.log(formData);
-  });
+  };
 
   const handleRemoveFormDetail = (indexToRemove) => {
     console.log("Remove " + indexToRemove);
     setFormData({
       ...formData,
-      details: formData.details.filter((_, index) => index != indexToRemove),
+      details: formData.details.filter((_, index) => index !== indexToRemove),
     });
     console.log(formData);
   };
@@ -97,30 +91,49 @@ export default function CreateOutboundTransaction(props) {
     setFormData({ ...formData, details: newDetails });
   };
 
-  //   const handleChange
+  const getAvailableQuantity = (productId) => {
+    return availableQuantity.find((element) => element.productId == productId)?.quantity;
+  };
 
   useEffect(() => {
-    const loggingUser = JSON.parse(localStorage.getItem("loggingUser"));
-    if (loggingUser.role === "admin") setIsAdmin(true);
+    const initFormData = () => {
+      const loggingUser = JSON.parse(localStorage.getItem("loggingUser"));
+      if (loggingUser.role === "admin") setIsAdmin(true);
 
-    const selectedWarehouse =
-      loggingUser?.role === "admin" ? props.warehouseList[0]?.id : loggingUser.warehouse_id;
+      const selectedWarehouse =
+        loggingUser?.role === "admin" ? props.warehouseList[0]?.id : loggingUser.warehouse_id;
 
-    setFormData({
-      warehouse_id: selectedWarehouse,
-      destination: "",
-      details: [
-        {
-          product_id: props.productList[0]?.id,
-          quantity: 0,
-        },
-      ],
-    });
+      setFormData({
+        warehouse_id: selectedWarehouse,
+        destination: "",
+        details: [
+          {
+            product_id: props.productList[0]?.id,
+            quantity: 0,
+          },
+        ],
+      });
+    };
+
+    initFormData();
   }, [props]);
 
-  //   console.log(formData.detail);
-  //   console.log(props.zoneList.find((zone) => zone.warehouse_id === 3));
-  //   console.log(formErrors);
+  useEffect(() => {
+    const fetchAvailableQuantity = async () => {
+      if (!formData.warehouse_id) return;
+      await MyAxios.get(`products/non_expire_quantity?warehouse_id=${formData.warehouse_id}`).then(
+        (res) => {
+          if (res.status === 200) {
+            setAvailableQuantity(res.data.data);
+          }
+        }
+      );
+    };
+    fetchAvailableQuantity();
+  }, [formData]);
+
+  // console.log(availableQuantity);
+
   return (
     <div>
       <Modal
@@ -131,7 +144,7 @@ export default function CreateOutboundTransaction(props) {
         }}
       >
         <Modal.Header>
-          <Modal.Title>Create Inbound Transaction</Modal.Title>
+          <Modal.Title>Create Outbound Transaction</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
@@ -183,7 +196,6 @@ export default function CreateOutboundTransaction(props) {
                   <thead>
                     <tr>
                       <th>Product</th>
-                      {/* <th>Image</th> */}
                       <th>Quantity</th>
                       <th>Action</th>
                     </tr>
@@ -207,13 +219,18 @@ export default function CreateOutboundTransaction(props) {
                         </td>
 
                         <td>
-                          <FormControl
-                            type="number"
-                            value={formData.details[index]?.quantity}
-                            onChange={(e) => {
-                              handleUpdateFormDetail(index, "quantity", e.target.value);
-                            }}
-                          ></FormControl>
+                          <div className="d-flex flex-row align-items-center">
+                            <FormControl
+                              type="number"
+                              value={formData.details[index]?.quantity}
+                              onChange={(e) => {
+                                handleUpdateFormDetail(index, "quantity", e.target.value);
+                              }}
+                            ></FormControl>
+                            <label className="ps-1 pe-3 text-muted">
+                              /{getAvailableQuantity(formData.details[index]?.product_id)}
+                            </label>
+                          </div>
                         </td>
                         <td>
                           <Button
