@@ -129,29 +129,14 @@ export default function CreateInternalTransaction(props) {
 
   useEffect(() => {
     const loggingUser = JSON.parse(localStorage.getItem("loggingUser"));
-    if (loggingUser.role === "admin") setIsAdmin(true);
+    const isAdmin = loggingUser.role === "admin";
+    setIsAdmin(isAdmin);
 
-    const selectedWarehouse =
-      loggingUser?.role === "admin"
-        ? props.warehouseList[0]?.id
-        : loggingUser.warehouse_id;
+    const userWarehouseId = isAdmin ? null : loggingUser.warehouse_id;
 
-    const inboundData = {
+    const initialData = {
       type: "inbound",
       source_warehouse: "",
-      destination_warehouse: selectedWarehouse,
-      details: [
-        {
-          product_id: props.productList[0]?.id,
-          quantity: 0,
-          destination_zone: "",
-        },
-      ],
-    };
-
-    const outboundData = {
-      type: "outbound",
-      source_warehouse: selectedWarehouse,
       destination_warehouse: "",
       details: [
         {
@@ -162,12 +147,48 @@ export default function CreateInternalTransaction(props) {
       ],
     };
 
-    if (inboundData.type === "inbound") {
-      setFormData(inboundData);
-    } else if (outboundData.type === "outbound") {
-      setFormData(outboundData);
+    if (isAdmin) {
+      setFormData(initialData);
+    } else {
+      if (initialData.type === "inbound") {
+        setFormData({
+          ...initialData,
+          destination_warehouse: userWarehouseId,
+        });
+      } else {
+        setFormData({
+          ...initialData,
+          type: "outbound",
+          source_warehouse: userWarehouseId,
+        });
+      }
     }
   }, [props]);
+
+  const handleTypeChange = (newType) => {
+    if (isAdmin) {
+      setFormData({ ...formData, type: newType });
+    } else {
+      const userWarehouseId = JSON.parse(
+        localStorage.getItem("loggingUser")
+      ).warehouse_id;
+      if (newType === "inbound") {
+        setFormData({
+          ...formData,
+          type: newType,
+          source_warehouse: "",
+          destination_warehouse: userWarehouseId,
+        });
+      } else {
+        setFormData({
+          ...formData,
+          type: newType,
+          source_warehouse: userWarehouseId,
+          destination_warehouse: "",
+        });
+      }
+    }
+  };
 
   return (
     <div>
@@ -191,9 +212,7 @@ export default function CreateInternalTransaction(props) {
                   </FormLabel>
                   <Form.Select
                     value={formData?.type}
-                    onChange={(e) =>
-                      setFormData({ ...formData, type: e.target.value })
-                    }
+                    onChange={(e) => handleTypeChange(e.target.value)}
                   >
                     <option value="inbound">Inbound</option>
                     <option value="outbound">Outbound</option>
@@ -208,6 +227,7 @@ export default function CreateInternalTransaction(props) {
                   <Form.Select
                     value={formData?.source_warehouse}
                     isInvalid={!!formErrors.source_warehouse}
+                    disabled={!isAdmin && formData.type === "outbound"}
                     // disabled={!isAdmin}
                     onChange={(e) =>
                       setFormData({
@@ -237,6 +257,7 @@ export default function CreateInternalTransaction(props) {
                   <Form.Select
                     value={formData?.destination_warehouse}
                     isInvalid={!!formErrors.destination_warehouse}
+                    disabled={!isAdmin && formData.type === "inbound"}
                     onChange={(e) =>
                       setFormData({
                         ...formData,
@@ -254,8 +275,6 @@ export default function CreateInternalTransaction(props) {
                   </Form.Select>
                   <FormControl.Feedback type="invalid">
                     {formErrors.destination_warehouse}
-                    {/* {formErrors.warehouse &&
-                      "Ensure warehouses are not the same."} */}
                   </FormControl.Feedback>
                 </FormGroup>
               </Col>
