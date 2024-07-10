@@ -1,10 +1,9 @@
 import React from "react";
-import InboundTransactions from "../inbound_long/InboundTransactions";
-
+import ProductQuantityChart from "../history/ProductQuantityChart";
 export default function TestComponent2() {
   return (
     <div>
-      <InboundTransactions></InboundTransactions>
+      <ProductQuantityChart></ProductQuantityChart>
     </div>
   );
 }

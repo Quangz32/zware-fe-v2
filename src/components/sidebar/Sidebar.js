@@ -5,10 +5,14 @@ import "./Sidebar.css";
 import { Link } from "react-router-dom";
 import MyAxios from "../../util/MyAxios";
 import defaultProfileImage from "./defaultProfileImage.jpg"; // Make sure to have a default profile image
+import ChangePassword from "./ChangePassword";
+import { Button } from "react-bootstrap";
 
 const Sidebar = () => {
   const [avatarUrl, setAvatarUrl] = useState(defaultProfileImage);
   const [username, setUsername] = useState("");
+
+  const [showChangePassword, setShowChangePassword] = useState(false);
 
   const fetchUsername = () => {
     MyAxios.get("/users/me")
@@ -58,123 +62,124 @@ const Sidebar = () => {
       });
   };
 
+  console.log(showChangePassword);
+
   return (
-    <aside id="sidebar" className="expand">
-      <div className="d-flex logo-container">
-        <div className="sidebar-logo">
-          <Link to="/home">Warehouse Management</Link>
+    <>
+      {" "}
+      <aside id="sidebar" className="expand">
+        <div className="d-flex logo-container">
+          <div className="sidebar-logo">
+            <Link to="/home">Warehouse Management</Link>
+          </div>
         </div>
-      </div>
-      <div className="profile">
-        <img src={avatarUrl} alt="avatar" />
-        <span>{username}</span>
-      </div>
-      <div className="role">
-        <span className="role-box">{loggingUser?.role}</span>
-      </div>
-      <ul className="sidebar-nav">
-        {loggingUser?.role === "manager" && (
-          <li className="sidebar-item">
-            <Link to="/home" className="sidebar-link">
-              <i className="bi bi-house"></i>
-              <span>Home</span>
-            </Link>
-          </li>
-        )}
-        {loggingUser?.role === "admin" && (
-          <li className="sidebar-item">
-            <Link to="/adhome" className="sidebar-link">
-              <i className="bi bi-house"></i>
-              <span>Home</span>
-            </Link>
-          </li>
-        )}
-        <li className="sidebar-item">
-          <Link to="/profile" className="sidebar-link">
-            <i className="bi bi-person"></i>
-            <span>Profile</span>
-          </Link>
-        </li>
-        <li className="sidebar-item">
-          <Link to="/managers" className="sidebar-link">
-            <i className="bi bi-person-vcard"></i>
-            <span>Manager</span>
-          </Link>
-        </li>
-
-        {loggingUser?.role === "admin" && (
-          <li className="sidebar-item">
-            <Link to="/warehouses" className="sidebar-link">
-              <i className="bi bi-house-gear"></i>
-              <span>Warehouse</span>
-            </Link>
-          </li>
-        )}
-        {loggingUser?.role === "admin" && (
-          <li className="sidebar-item">
-            <Link to="/warehouseitems" className="sidebar-link">
-              <i className="bi bi-house-check"></i>
-              <span>Warehouse Item</span>
-            </Link>
-          </li>
-        )}
-
-{loggingUser?.role === "manager" && (
-          <li className="sidebar-item">
-            <Link to="/managerwarehouseitems" className="sidebar-link">
-              <i className="bi bi-house-check"></i>
-              <span>Warehouse Item</span>
-            </Link>
-          </li>
-        )}
-
-
-        <li className="sidebar-item">
-          <Link to="/products" className="sidebar-link">
-            <i className="bi bi-boxes"></i>
-            <span>Product</span>
-          </Link>
-        </li>
-        <li className="sidebar-item">
-          <Link to="/categories" className="sidebar-link">
-            <i className="bi bi-box-seam-fill"></i>
-            <span>Category</span>
-          </Link>
-        </li>
-        <li className="sidebar-item has-dropdown">
-          <Link to="#" className="sidebar-link">
-            <i className="bi bi-arrow-left-right"></i>
-            <span>Transaction</span>
-          </Link>
-          <ul className="sidebar-dropdown">
+        <div className="profile">
+          <img src={avatarUrl} alt="avatar" />
+          <span>{username}</span>
+        </div>
+        <div className="role">
+          <span className="role-box">{loggingUser?.role}</span>
+        </div>
+        <ul className="sidebar-nav">
+          {loggingUser?.role === "manager" && (
             <li className="sidebar-item">
-              <Link to="/inbound" className="sidebar-link">
-                <span>Inbound</span>
+              <Link to="/home" className="sidebar-link">
+                <i className="bi bi-house"></i>
+                <span>Home</span>
               </Link>
             </li>
+          )}
+          {loggingUser?.role === "admin" && (
             <li className="sidebar-item">
-              <Link to="/outbound" className="sidebar-link">
-                <span>Outbound</span>
+              <Link to="/adhome" className="sidebar-link">
+                <i className="bi bi-house"></i>
+                <span>Home</span>
               </Link>
             </li>
+          )}
+          <li className="sidebar-item">
+            <Link to="/profile" className="sidebar-link">
+              <i className="bi bi-person"></i>
+              <span>Profile</span>
+            </Link>
+          </li>
+          <li className="sidebar-item">
+            <Link to="/managers" className="sidebar-link">
+              <i className="bi bi-person-vcard"></i>
+              <span>Manager</span>
+            </Link>
+          </li>
+
+          {loggingUser?.role === "admin" && (
             <li className="sidebar-item">
-              <Link to="/disposedgoods" className="sidebar-link">
-                <span>Disposed goods</span>
+              <Link to="/warehouses" className="sidebar-link">
+                <i className="bi bi-house-gear"></i>
+                <span>Warehouse</span>
               </Link>
             </li>
-          </ul>
-        </li>
-        <Link to="/transactions">Transaction</Link>
-        <br></br>
-        <Link to="/test2">Test2</Link>
-      </ul>
-      <div className="sidebar-footer">
-        <Link to="/login" className="sidebar-link" onClick={handleLogout}>
-          <i className="bi bi-box-arrow-right"></i>
-          <span>Logout</span>
-        </Link>
-      </div>
-    </aside>
+          )}
+          {loggingUser?.role === "admin" && (
+            <li className="sidebar-item">
+              <Link to="/warehouseitems" className="sidebar-link">
+                <i className="bi bi-house-check"></i>
+                <span>Warehouse Item</span>
+              </Link>
+            </li>
+          )}
+
+          {loggingUser?.role === "manager" && (
+            <li className="sidebar-item">
+              <Link to="/managerwarehouseitems" className="sidebar-link">
+                <i className="bi bi-house-check"></i>
+                <span>Warehouse Item</span>
+              </Link>
+            </li>
+          )}
+
+          <li className="sidebar-item">
+            <Link to="/products" className="sidebar-link">
+              <i className="bi bi-boxes"></i>
+              <span>Product</span>
+            </Link>
+          </li>
+          <li className="sidebar-item">
+            <Link to="/categories" className="sidebar-link">
+              <i className="bi bi-box-seam-fill"></i>
+              <span>Category</span>
+            </Link>
+          </li>
+
+          <li className="sidebar-item">
+            <Link to="/transactions" className="sidebar-link">
+              <i className="bi bi-arrow-left-right"></i>
+              <span>Transaction</span>
+            </Link>
+          </li>
+          <li className="sidebar-item">
+            <Link to="/history" className="sidebar-link">
+              <i className="bi bi-clipboard-data"></i>
+              <span>Report</span>
+            </Link>
+          </li>
+        </ul>
+        <div className="sidebar-footer">
+          <Link
+            className="sidebar-link ms-2 p-2"
+            onClick={() => {
+              setShowChangePassword(true);
+            }}
+          >
+            <i className="bi bi-shield-exclamation"></i>
+            <span>Change password</span>
+          </Link>
+          <Link to="/login" className="sidebar-link ms-2 p-2" onClick={handleLogout}>
+            <i className="bi bi-box-arrow-right"></i>
+            <span>Logout</span>
+          </Link>
+        </div>
+      </aside>
+      <ChangePassword show={showChangePassword} setShow={setShowChangePassword}></ChangePassword>
+    </>
   );
 };
 

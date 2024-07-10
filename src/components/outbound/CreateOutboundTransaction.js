@@ -16,13 +16,13 @@ import {
 import MyAxios from "../../util/MyAxios";
 
 //props: show, setShow, warehouseList, productList, triggerRender
-export default function CreateInboundTransaction(props) {
+export default function CreateOutboundTransaction(props) {
   const handleSubmit = async () => {
     console.log("submit");
     console.log(formData);
     if (!validateForm()) return;
 
-    await MyAxios.post("inbound_transactions/create", formData).then((res) => {
+    await MyAxios.post("outbound_transactions/create", formData).then((res) => {
       if (res.status === 200) {
         props.setShow(false);
         setShowNotification(true);
@@ -31,39 +31,28 @@ export default function CreateInboundTransaction(props) {
     });
   };
 
-  //formData1: warehouse_id, source
+  //formData1: warehouse_id, destination
   //formData2: details , [{productid, expiredate, quantity, zone}]
   const [formData, setFormData] = useState({});
   const [formErrors, setFormErrors] = useState({});
+  const [availableQuantity, setAvailableQuantity] = useState([]);
+
   const [isAdmin, setIsAdmin] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
 
   const validateForm = () => {
     const errors = {};
-    if (formData.source === "") errors.source = "Source is required";
+    if (formData.destination === "") errors.destination = "Destination is required";
 
     formData.details.forEach((inboundDetail) => {
-      if (inboundDetail.expire_date === "") {
-        errors.products = "Expire date is required in any product";
-        return false;
-      }
-
-      const inputDate = new Date(inboundDetail.expire_date);
-      const currentDate = new Date();
-      if (inputDate <= currentDate) {
-        errors.products = "Expire date must be in the future";
-        return false;
-      }
-
       const quantityNumber = parseInt(inboundDetail.quantity);
-      if (quantityNumber > 1000000000 || quantityNumber < 1) {
-        errors.products = "Quantity must be bigger than 0 and smaller than 1 billion";
+      if (quantityNumber < 1) {
+        errors.products = "Quantity must be bigger than 0";
         return false;
       }
 
-      if (inboundDetail.zone_id == -1) {
-        errors.products = "Zone is required in all product";
-        return false;
+      if (quantityNumber > getAvailableQuantity(inboundDetail.product_id)) {
+        errors.products = "Quantity of some product is not not enough";
       }
     });
     // if (formData.expire_date === "") errors.expire_date = "Expire date is required";
@@ -73,29 +62,24 @@ export default function CreateInboundTransaction(props) {
     return Object.keys(errors).length === 0;
   };
 
-  const handleAddFormDetail = useCallback(() => {
-    console.log("ADd");
+  const handleAddFormDetail = () => {
     setFormData({
       ...formData,
       details: [
         ...formData.details,
         {
           product_id: props.productList[0]?.id,
-          expire_date: "",
           quantity: 0,
-          zone_id: -1,
         },
       ],
     });
-
-    console.log(formData);
-  });
+  };
 
   const handleRemoveFormDetail = (indexToRemove) => {
     console.log("Remove " + indexToRemove);
     setFormData({
       ...formData,
-      details: formData.details.filter((_, index) => index != indexToRemove),
+      details: formData.details.filter((_, index) => index !== indexToRemove),
     });
     console.log(formData);
   };
@@ -107,43 +91,60 @@ export default function CreateInboundTransaction(props) {
     setFormData({ ...formData, details: newDetails });
   };
 
-  //   const handleChange
+  const getAvailableQuantity = (productId) => {
+    return availableQuantity.find((element) => element.productId == productId)?.quantity;
+  };
 
   useEffect(() => {
-    const loggingUser = JSON.parse(localStorage.getItem("loggingUser"));
-    if (loggingUser.role === "admin") setIsAdmin(true);
+    const initFormData = () => {
+      const loggingUser = JSON.parse(localStorage.getItem("loggingUser"));
+      if (loggingUser.role === "admin") setIsAdmin(true);
 
-    const selectedWarehouse =
-      loggingUser?.role === "admin" ? props.warehouseList[0]?.id : loggingUser.warehouse_id;
+      const selectedWarehouse =
+        loggingUser?.role === "admin" ? props.warehouseList[0]?.id : loggingUser.warehouse_id;
 
-    setFormData({
-      warehouse_id: selectedWarehouse,
-      source: "",
-      details: [
-        {
-          product_id: props.productList[0]?.id,
-          expire_date: "",
-          quantity: 0,
-          zone_id: -1,
-        },
-      ],
-    });
+      setFormData({
+        warehouse_id: selectedWarehouse,
+        destination: "",
+        details: [
+          {
+            product_id: props.productList[0]?.id,
+            quantity: 0,
+          },
+        ],
+      });
+    };
+
+    initFormData();
   }, [props]);
 
-  //   console.log(formData.detail);
-  //   console.log(props.zoneList.find((zone) => zone.warehouse_id === 3));
-  //   console.log(formErrors);
+  useEffect(() => {
+    const fetchAvailableQuantity = async () => {
+      if (!formData.warehouse_id) return;
+      await MyAxios.get(`products/non_expire_quantity?warehouse_id=${formData.warehouse_id}`).then(
+        (res) => {
+          if (res.status === 200) {
+            setAvailableQuantity(res.data.data);
+          }
+        }
+      );
+    };
+    fetchAvailableQuantity();
+  }, [formData]);
+
+  // console.log(availableQuantity);
+
   return (
     <div>
       <Modal
-        size="lg"
+        size="md"
         show={props.show}
         onHide={() => {
           props.setShow(false);
         }}
       >
         <Modal.Header>
-          <Modal.Title>Create Inbound Transaction</Modal.Title>
+          <Modal.Title>Create Outbound Transaction</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
@@ -171,15 +172,17 @@ export default function CreateInboundTransaction(props) {
               <Col>
                 <FormGroup>
                   <FormLabel>
-                    <strong>Source</strong>
+                    <strong>Destination</strong>
                   </FormLabel>
                   <FormControl
                     type="text"
-                    value={formData.source}
-                    isInvalid={!!formErrors.source}
-                    onChange={(e) => setFormData({ ...formData, source: e.target.value })}
+                    value={formData.destination}
+                    isInvalid={!!formErrors.destination}
+                    onChange={(e) => setFormData({ ...formData, destination: e.target.value })}
                   />
-                  <FormControl.Feedback type="invalid">{formErrors.source}</FormControl.Feedback>
+                  <FormControl.Feedback type="invalid">
+                    {formErrors.destination}
+                  </FormControl.Feedback>
                 </FormGroup>
               </Col>
 
@@ -193,10 +196,7 @@ export default function CreateInboundTransaction(props) {
                   <thead>
                     <tr>
                       <th>Product</th>
-                      {/* <th>Image</th> */}
-                      <th>Expire Date</th>
                       <th>Quantity</th>
-                      <th>Zone</th>
                       <th>Action</th>
                     </tr>
                   </thead>
@@ -217,41 +217,20 @@ export default function CreateInboundTransaction(props) {
                             ))}
                           </FormSelect>
                         </td>
+
                         <td>
-                          <FormControl
-                            type="date"
-                            value={formData.details[index]?.expire_date}
-                            onChange={(e) => {
-                              handleUpdateFormDetail(index, "expire_date", e.target.value);
-                            }}
-                          ></FormControl>
-                        </td>
-                        <td>
-                          <FormControl
-                            type="number"
-                            value={formData.details[index]?.quantity}
-                            onChange={(e) => {
-                              handleUpdateFormDetail(index, "quantity", e.target.value);
-                            }}
-                          ></FormControl>
-                        </td>
-                        <td>
-                          <FormSelect
-                            value={formData.details[index]?.zone_id}
-                            onChange={(e) => {
-                              handleUpdateFormDetail(index, "zone_id", e.target.value);
-                            }}
-                          >
-                            <option value="-1">--Choose zone--</option>
-                            {props?.zoneList?.map(
-                              (zone) =>
-                                zone.warehouse_id == formData.warehouse_id && (
-                                  <option key={zone.id} value={zone.id}>
-                                    {zone.name}
-                                  </option>
-                                )
-                            )}
-                          </FormSelect>
+                          <div className="d-flex flex-row align-items-center">
+                            <FormControl
+                              type="number"
+                              value={formData.details[index]?.quantity}
+                              onChange={(e) => {
+                                handleUpdateFormDetail(index, "quantity", e.target.value);
+                              }}
+                            ></FormControl>
+                            <label className="ps-1 pe-3 text-muted">
+                              /{getAvailableQuantity(formData.details[index]?.product_id)}
+                            </label>
+                          </div>
                         </td>
                         <td>
                           <Button
@@ -309,7 +288,7 @@ export default function CreateInboundTransaction(props) {
           <small>now</small>
         </Toast.Header>
         <Toast.Body className="text-white">
-          Inbound Transaction has been created!<i className="ms-2 bi bi-check-circle"></i>
+          Outbound Transaction has been created!<i className="ms-2 bi bi-check-circle"></i>
         </Toast.Body>
       </Toast>
     </div>

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Container } from "react-bootstrap";
+
 import MyAxios from "../../util/MyAxios";
 import InboundTransactionList from "../inbound/InboundTransactionList";
+import TransactionFilter from "./TransactionFilter";
+import OutboundTransactionList from "../outbound/OutboundTransactionList";
 
 export default function TransactionManagement() {
   // STYLE
@@ -24,6 +26,14 @@ export default function TransactionManagement() {
   const [userList, setUserList] = useState([]);
   const [zoneList, setZoneList] = useState([]);
   const [warehouseList, setWarehouseList] = useState([]);
+
+  const [filter, setFilter] = useState({
+    start_date: "",
+    end_date: "",
+    product_name: "",
+    product_image: "", //TO SHOW only
+    status: "all", //all, pending, shipping, completed, canceled
+  });
 
   const [page, setPage] = useState("inbound"); //only inbound, outbound, internal
 
@@ -113,46 +123,69 @@ export default function TransactionManagement() {
   }, []);
 
   return (
-    <Container>
-      {/*  Navbar */}
-      <div className="">
-        <label
-          style={page === "inbound" ? myActiveNavStyle : myNavStyle}
-          onClick={() => {
-            setPage("inbound");
-          }}
-        >
-          Inbound Transaction
-        </label>
-        <label
-          style={page === "outbound" ? myActiveNavStyle : myNavStyle}
-          onClick={() => {
-            setPage("outbound");
-          }}
-        >
-          Outbound Transaction
-        </label>
-        <label
-          style={page === "internal" ? myActiveNavStyle : myNavStyle}
-          onClick={() => {
-            setPage("internal");
-          }}
-        >
-          Internal Transaction
-        </label>
-      </div>
-      <hr />
-      <div className="">
-        {page === "inbound" && (
-          <InboundTransactionList
-            itemList={itemList}
+    <>
+      <div className="d-flex flex-row">
+        <div className="me-3 " style={{ width: "20%" }}>
+          <TransactionFilter
             productList={productList}
-            userList={userList}
-            zoneList={zoneList}
-            warehouseList={warehouseList}
-          />
-        )}
+            filter={filter}
+            setFilter={setFilter}
+          ></TransactionFilter>
+        </div>
+
+        <div style={{ width: "80%" }}>
+          {/*  Navbar */}
+          <div className="">
+            <label
+              style={page === "inbound" ? myActiveNavStyle : myNavStyle}
+              onClick={() => {
+                setPage("inbound");
+              }}
+            >
+              Inbound Transaction
+            </label>
+            <label
+              style={page === "outbound" ? myActiveNavStyle : myNavStyle}
+              onClick={() => {
+                setPage("outbound");
+              }}
+            >
+              Outbound Transaction
+            </label>
+            <label
+              style={page === "internal" ? myActiveNavStyle : myNavStyle}
+              onClick={() => {
+                setPage("internal");
+              }}
+            >
+              Internal Transaction
+            </label>
+          </div>
+          <hr />
+          <div className="">
+            {page === "inbound" && (
+              <InboundTransactionList
+                itemList={itemList}
+                productList={productList}
+                userList={userList}
+                zoneList={zoneList}
+                warehouseList={warehouseList}
+                filter={filter}
+              />
+            )}
+            {page === "outbound" && (
+              <OutboundTransactionList
+                itemList={itemList}
+                productList={productList}
+                userList={userList}
+                zoneList={zoneList}
+                warehouseList={warehouseList}
+                filter={filter}
+              />
+            )}
+          </div>
+        </div>
       </div>
-    </Container>
+    </>
   );
 }

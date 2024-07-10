@@ -16,7 +16,6 @@ import UserList from "./components/manager/UserList";
 
 import Category from "./components/category/Category";
 import Profile from "./components/profile/Profile";
-import OutboundTransactions from "./components/outbound/OutboundTransactions";
 
 import TransactionManagement from "./components/transaction/TransactionManagement";
 
@@ -24,6 +23,7 @@ import WarehouseItemManagement from "./components/warehouseitem/WarehouseItemMan
 // import DisposalGoods from "./components/disposalgoods/DisposalGoodsPage";
 // import DisposalGoodsPage from "./components/disposalgoods/DisposalGoodsPage";
 import MaWarehouseItemManagement from "./components/warehouseitemmanager/MaWarehouseItemManagement";
+import WarehouseHistory from "./components/history/WarehouseHistory";
 
 function AppContent() {
   const location = useLocation();
@@ -54,13 +54,15 @@ function AppContent() {
             <Route path="products" element={<ProductList />} />
             <Route path="managers" element={<UserList />} />
             {/* <Route path="inbound" element={<InboundTransactionManagement />} /> */}
-            <Route path="outbound" element={<OutboundTransactions />} />
+            {/* <Route path="outbound" element={<OutboundTransactions />} /> */}
             <Route path="transactions" element={<TransactionManagement />} />
             <Route path="categories" element={<Category />} />
 
             <Route path="profile" element={<Profile />} />
             <Route path="warehouseitems" element={<WarehouseItemManagement />} />
             <Route path="managerwarehouseitems" element={<MaWarehouseItemManagement />} />
+
+            <Route path="history" element={<WarehouseHistory />} />
 
             {/* <Route path="disposedgoods" element={<DisposalGoodsPage />} /> */}
 
