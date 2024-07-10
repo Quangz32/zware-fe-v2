@@ -1,13 +1,13 @@
 import React from "react";
 import { Toast } from "react-bootstrap";
 
-//props: show, setShow, message
+//props: show, setShow, message, variant
 export default function MyToast(props) {
   return (
     <Toast
       className="position-fixed"
       style={{ top: "50px", right: "50px" }}
-      bg="primary"
+      bg={props.variant ? props.variant : "primary"}
       show={props.show}
       onClose={() => {
         props.setShow(false);
