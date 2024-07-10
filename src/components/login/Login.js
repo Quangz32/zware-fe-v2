@@ -36,10 +36,7 @@ export default function Login() {
         const userRole = userData.role;
         if (userRole === "admin") {
           navigate("/adhome");
-        } else if (userRole === "manage") {
-          navigate("/home");
         } else {
-          // Handle other roles or default redirection if needed
           navigate("/home");
         }
       })
