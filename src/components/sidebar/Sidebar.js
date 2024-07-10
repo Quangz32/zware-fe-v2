@@ -62,11 +62,8 @@ const Sidebar = () => {
       });
   };
 
-  console.log(showChangePassword);
-
   return (
     <>
-      {" "}
       <aside id="sidebar" className="expand">
         <div className="d-flex logo-container">
           <div className="sidebar-logo">
@@ -103,12 +100,14 @@ const Sidebar = () => {
               <span>Profile</span>
             </Link>
           </li>
-          <li className="sidebar-item">
-            <Link to="/managers" className="sidebar-link">
-              <i className="bi bi-person-vcard"></i>
-              <span>Manager</span>
-            </Link>
-          </li>
+          {loggingUser?.role === "admin" && (
+            <li className="sidebar-item">
+              <Link to="/managers" className="sidebar-link">
+                <i className="bi bi-person-vcard"></i>
+                <span>Manager</span>
+              </Link>
+            </li>
+          )}
 
           {loggingUser?.role === "admin" && (
             <li className="sidebar-item">

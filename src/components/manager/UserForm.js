@@ -331,14 +331,13 @@ export default function ProductForm(props) {
                 </Col>
               </Row>
             )}
-            {formData.role === "manager" && (
-              <Row className="mb-3">
-                <FormGroup>
-                  <FormLabel>Upload Image</FormLabel>
-                  <FormControl type="file" id="uploaded-image-usr113" />
-                </FormGroup>
-              </Row>
-            )}
+
+            <Row className="mb-3">
+              <FormGroup>
+                <FormLabel>Upload Image</FormLabel>
+                <FormControl type="file" id="uploaded-image-usr113" />
+              </FormGroup>
+            </Row>
           </Form>
         </Modal.Body>
         <Modal.Footer className="d-flex">
