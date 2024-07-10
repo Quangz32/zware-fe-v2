@@ -23,6 +23,7 @@ import WarehouseItemManagement from "./components/warehouseitem/WarehouseItemMan
 // import DisposalGoods from "./components/disposalgoods/DisposalGoodsPage";
 // import DisposalGoodsPage from "./components/disposalgoods/DisposalGoodsPage";
 import MaWarehouseItemManagement from "./components/warehouseitemmanager/MaWarehouseItemManagement";
+import WarehouseHistory from "./components/history/WarehouseHistory";
 
 function AppContent() {
   const location = useLocation();
@@ -60,6 +61,8 @@ function AppContent() {
             <Route path="profile" element={<Profile />} />
             <Route path="warehouseitems" element={<WarehouseItemManagement />} />
             <Route path="managerwarehouseitems" element={<MaWarehouseItemManagement />} />
+
+            <Route path="history" element={<WarehouseHistory />} />
 
             {/* <Route path="disposedgoods" element={<DisposalGoodsPage />} /> */}
 

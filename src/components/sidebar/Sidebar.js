@@ -119,7 +119,7 @@ const Sidebar = () => {
           </li>
         )}
 
-{loggingUser?.role === "manager" && (
+        {loggingUser?.role === "manager" && (
           <li className="sidebar-item">
             <Link to="/managerwarehouseitems" className="sidebar-link">
               <i className="bi bi-house-check"></i>
@@ -127,7 +127,6 @@ const Sidebar = () => {
             </Link>
           </li>
         )}
-
 
         <li className="sidebar-item">
           <Link to="/products" className="sidebar-link">
@@ -144,7 +143,7 @@ const Sidebar = () => {
         <li className="sidebar-item has-dropdown">
           <Link to="#" className="sidebar-link">
             <i className="bi bi-arrow-left-right"></i>
-            <span>Transaction</span>
+            <span>Transaction-old</span>
           </Link>
           <ul className="sidebar-dropdown">
             <li className="sidebar-item">
@@ -164,6 +163,19 @@ const Sidebar = () => {
             </li>
           </ul>
         </li>
+        <li className="sidebar-item">
+          <Link to="/transactions" className="sidebar-link">
+            <i className="bi bi-arrow-left-right"></i>
+            <span>Transaction</span>
+          </Link>
+        </li>
+        <li className="sidebar-item">
+          <Link to="/history" className="sidebar-link">
+            <i className="bi bi-clipboard-data"></i>
+            <span>Report</span>
+          </Link>
+        </li>
+
         <Link to="/transactions">Transaction</Link>
         <br></br>
         <Link to="/test2">Test2</Link>
