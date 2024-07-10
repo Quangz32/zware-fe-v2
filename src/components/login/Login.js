@@ -23,7 +23,6 @@ export default function Login() {
   //Navigate
   const navigate = useNavigate();
 
-  //Function to save user data to LocalStorage
   const saveUserToLocalStrorage = async () => {
     await MyAxios.get("users/me")
       .then((res) => {
@@ -32,6 +31,17 @@ export default function Login() {
 
         const userLocalStorage = localStorage.getItem("loggingUser");
         console.log(JSON.parse(userLocalStorage));
+
+        // Check user role and redirect accordingly
+        const userRole = userData.role;
+        if (userRole === "admin") {
+          navigate("/adhome");
+        } else if (userRole === "manage") {
+          navigate("/home");
+        } else {
+          // Handle other roles or default redirection if needed
+          navigate("/home");
+        }
       })
       .catch((e) => {
         console.log(e);
@@ -56,13 +66,7 @@ export default function Login() {
           setAlertVariant("success");
           triggerAlert();
 
-          //Save user data to local storage
           saveUserToLocalStrorage();
-
-          //go to /home (after 666ms)
-          setTimeout(function () {
-            navigate("/home");
-          }, 666);
         }
       })
       .catch((e) => {

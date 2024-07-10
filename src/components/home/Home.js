@@ -121,7 +121,7 @@ const Dashboard = () => {
     });
 
     useEffect(() => {
-        axios.get('warehouseitems')
+        axios.get('warehouse_items')
             .then(response => {
                 setWarehouseItems(response.data.data);
             })
