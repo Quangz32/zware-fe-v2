@@ -135,7 +135,7 @@ export default function CreateInternalTransaction(props) {
     const userWarehouseId = isAdmin ? null : loggingUser.warehouse_id;
 
     const initialData = {
-      type: "inbound",
+      type: "outbound", // Change this to always be "outbound"
       source_warehouse: "",
       destination_warehouse: "",
       details: [
@@ -150,18 +150,10 @@ export default function CreateInternalTransaction(props) {
     if (isAdmin) {
       setFormData(initialData);
     } else {
-      if (initialData.type === "inbound") {
-        setFormData({
-          ...initialData,
-          destination_warehouse: userWarehouseId,
-        });
-      } else {
-        setFormData({
-          ...initialData,
-          type: "outbound",
-          source_warehouse: userWarehouseId,
-        });
-      }
+      setFormData({
+        ...initialData,
+        source_warehouse: userWarehouseId,
+      });
     }
   }, [props]);
 
@@ -210,13 +202,7 @@ export default function CreateInternalTransaction(props) {
                   <FormLabel>
                     <strong>Type</strong>
                   </FormLabel>
-                  <Form.Select
-                    value={formData?.type}
-                    onChange={(e) => handleTypeChange(e.target.value)}
-                  >
-                    <option value="inbound">Inbound</option>
-                    <option value="outbound">Outbound</option>
-                  </Form.Select>
+                  <FormControl type="text" value="Outbound" disabled />
                 </FormGroup>
               </Col>
               <Col>

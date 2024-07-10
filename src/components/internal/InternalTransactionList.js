@@ -69,8 +69,8 @@ export default function InternalTransactionList(props) {
           setShowAddModal(true);
         }}
       >
-        <i className="bi bi-file-earmark-plus-fill me-2"></i>New
-        InternalTransaction
+        <i className="bi bi-file-earmark-plus-fill me-2"></i>New Outbound
+        Transaction
       </Button>
       <Button
         className="mb-4"
