@@ -51,7 +51,9 @@ function AppContent() {
               <Route path="/adhome" element={<HomeAd />} />
             </Route>
 
+            <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
             <Route path="warehouses" element={<WarehouseManagement />} />
+            </Route>
 
             <Route path="products" element={<ProductList />} />
             <Route path="managers" element={<UserList />} />
@@ -61,7 +63,9 @@ function AppContent() {
             <Route path="categories" element={<Category />} />
 
             <Route path="profile" element={<Profile />} />
+            <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
             <Route path="warehouseitems" element={<WarehouseItemManagement />} />
+            </Route>
             <Route path="managerwarehouseitems" element={<MaWarehouseItemManagement />} />
 
             <Route path="history" element={<WarehouseHistory />} />
