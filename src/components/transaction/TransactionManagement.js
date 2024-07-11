@@ -4,6 +4,7 @@ import MyAxios from "../../util/MyAxios";
 import InboundTransactionList from "../inbound/InboundTransactionList";
 import TransactionFilter from "./TransactionFilter";
 import OutboundTransactionList from "../outbound/OutboundTransactionList";
+import DisposalGoodsList from "../disposalgoods/WarehouseItemManagement";
 
 export default function TransactionManagement() {
   // STYLE
@@ -160,6 +161,12 @@ export default function TransactionManagement() {
             >
               Internal Transaction
             </label>
+            <label
+            style={page === "disposalgoods" ? myActiveNavStyle : myNavStyle}
+            onClick={() => setPage("disposalgoods")}
+          >
+            Disposal Goods
+          </label>
           </div>
           <hr />
           <div className="">
@@ -183,6 +190,16 @@ export default function TransactionManagement() {
                 filter={filter}
               />
             )}
+             {page === "disposalgoods" && (
+            <DisposalGoodsList
+              itemList={itemList}
+              productList={productList}
+              userList={userList}
+              zoneList={zoneList}
+              warehouseList={warehouseList}
+              filter={filter}
+            />
+          )}
           </div>
         </div>
       </div>
