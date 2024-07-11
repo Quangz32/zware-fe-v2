@@ -2,8 +2,8 @@ import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { Container } from "react-bootstrap";
 
 import HomeAd from "./components/home/HomeAd";
-
 import Home from "./components/home/Home";
+import ProtectedRoute from './components/login/ProtectedRoute';
 
 import Sidebar from "./components/sidebar/Sidebar";
 import WarehouseManagement from "./components/warehouse/WarehouseManagement";
@@ -47,7 +47,9 @@ function AppContent() {
 
             <Route path="home" element={<Home />} />
 
-            <Route path="adhome" element={<HomeAd />} />
+            <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+              <Route path="/adhome" element={<HomeAd />} />
+            </Route>
 
             <Route path="warehouses" element={<WarehouseManagement />} />
 
