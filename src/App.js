@@ -24,7 +24,8 @@ import WarehouseItemManagement from "./components/warehouseitem/WarehouseItemMan
 // import DisposalGoodsPage from "./components/disposalgoods/DisposalGoodsPage";
 import MaWarehouseItemManagement from "./components/warehouseitemmanager/MaWarehouseItemManagement";
 import WarehouseHistory from "./components/history/WarehouseHistory";
-
+import CreateDisposal from "./components/disposalgoods/CreateDisposal"
+import CreateDisposalForm from "./components/disposalgoods/CreateDisposal";
 function AppContent() {
   const location = useLocation();
   const isLoginPage = location.pathname === "/login";
@@ -67,7 +68,10 @@ function AppContent() {
             <Route path="history" element={<WarehouseHistory />} />
 
             {/* <Route path="disposedgoods" element={<DisposalGoodsPage />} /> */}
+            <Route path="/create-disposal" element={<CreateDisposalForm />} />
+            {/* <Route path="/warehouse-items" element={<WarehouseItemManagement />} /> */}
 
+            <Route path="/create-disposal/:warehouseItemId" element={<CreateDisposalForm />} />
             <Route path="test" element={<TestComponent />} />
             <Route path="test2" element={<TestComponent2 />} />
           </Routes>

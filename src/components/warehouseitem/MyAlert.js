@@ -24,9 +24,9 @@ const MyAlert = ({ message, variant, show, setShow, link }) => {
         <Alert variant={variant} onClose={() => setShow(false)} dismissible>
           {message}
           <div className="mt-3">
-            <Button variant="primary" href={link}>
+            {/* <Button variant="primary" href={create-disposal}>
               Create DisposalGoods
-            </Button>
+            </Button> */}
           </div>
         </Alert>
       </div>

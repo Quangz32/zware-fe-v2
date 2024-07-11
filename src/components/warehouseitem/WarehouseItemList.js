@@ -142,7 +142,7 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
 
   const handleCreateExpiredForm = () => {
     // Navigate to the create expired form page (provide the URL)
-    window.location.href = "/create-expired-form";
+    window.location.href = "/create-disposal";
   };
 
   const handleCloseModal = () => {
