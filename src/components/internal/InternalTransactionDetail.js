@@ -118,8 +118,9 @@ export default function InternalTransactionDetail(props) {
               <th>Image</th>
               <th>Expire Date</th>
               <th>Quantity</th>
-              <th>Destination Zone</th>
               <th>Source Zone</th>
+              <th>Destination Zone</th>
+
               {/* {transactionInfo.type === "inbound" && <th>Destination Zone</th>}
               {transactionInfo.type === "outbound" && <th>Source Zone</th>} */}
             </tr>

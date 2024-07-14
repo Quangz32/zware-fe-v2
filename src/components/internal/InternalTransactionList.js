@@ -3,9 +3,9 @@ import { Button, Form, Modal, Table, Alert } from "react-bootstrap";
 import InternalTransactionDetail from "./InternalTransactionDetail";
 import MyAxios from "../../util/MyAxios";
 import CreateInternalTransaction from "./CreateInternalTransaction";
-import CreateInboundTransaction from "./CreateInboundTransaction";
 import CreateOutboundTransaction from "./CreateOutboundTransaction";
-import UpdateOutboundTransaction from "./CreateInboundTransaction";
+import UpdateOutboundTransaction from "./UpdateOutboundTransaction";
+import CreateInboundTransaction from "./CreateInboundTransaction";
 
 // CSS filter
 const filterStyles = {
@@ -42,6 +42,7 @@ export default function InternalTransactionList(props) {
    const [selectedTransaction, setSelectedTransaction] = useState(null)
    const [showInboundModal, setShowInboundModal] = useState(false);
    const [showOutboundModal, setShowOutboundModal] = useState(false);
+   const [showInbound, setShowInbound] = useState(false);
 
   const [renderTrigger, setRenderTrigger] = useState(false);
   const triggerRender = () => {
@@ -202,11 +203,21 @@ export default function InternalTransactionList(props) {
         <i className="bi bi-file-earmark-plus-fill me-2"></i>New Outbound
         Transaction
       </Button>
+      <Button className="mb-4 me-2" onClick={() => setShowInbound(true)}>
+        <i className="bi bi-file-earmark-plus-fill me-2"></i>New Inbound
+        Transaction
+      </Button>
       <Button className="mb-4" onClick={fetchIncomingOrders}>
         <i className="bi bi-file-earmark-plus-fill me-2"></i>
         {loggingUser.role === "admin"
           ? "View All Incoming Orders"
           : "View Incoming Warehouse Orders"}
+      </Button>
+      <Button className="mb-4" onClick={fetchIncomingOrders}>
+        <i className="bi bi-file-earmark-plus-fill me-2"></i>
+        {loggingUser.role === "admin"
+          ? "View All Requests from Other Warehouses"
+          : "View Requests from Other Warehouses"}
       </Button>
 
       <div style={filterStyles.filterContainer}>
@@ -273,7 +284,17 @@ export default function InternalTransactionList(props) {
         zoneList={props.zoneList}
         triggerRender={triggerRender}
       />
+
       <CreateInboundTransaction
+        show={showInbound}
+        setShow={setShowInbound}
+        warehouseList={props.warehouseList}
+        productList={props.productList}
+        zoneList={props.zoneList}
+        triggerRender={triggerRender}
+      />
+
+      <UpdateOutboundTransaction
         show={showInboundModal}
         setShow={setShowInboundModal}
         warehouseList={props.warehouseList}
