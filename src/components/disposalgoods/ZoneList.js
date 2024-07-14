@@ -27,7 +27,7 @@ const ZoneList = ({ warehouse, zoneSearchTerm, productSearchTerm }) => {
 
   return (
     <div className="container">
-      <div className="row row-cols-1 row-cols-md-2 g-4">
+      <div className="row row-cols-1 row-cols-md-12 g-4">
         {filteredZones.map((zone) => (
           <div key={zone.id} className="col">
             <Card>

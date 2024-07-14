@@ -70,6 +70,7 @@ function AppContent() {
             {/* <Route path="disposedgoods" element={<DisposalGoodsPage />} /> */}
             <Route path="/create-disposal" element={<CreateDisposalForm />} />
             {/* <Route path="/warehouse-items" element={<WarehouseItemManagement />} /> */}
+            <Route path="/create-disposal/:warehouseItemId" element={<CreateDisposalForm />} />
 
             <Route path="/create-disposal/:warehouseItemId" element={<CreateDisposalForm />} />
             <Route path="test" element={<TestComponent />} />
