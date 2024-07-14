@@ -11,9 +11,9 @@ import {
 } from "react-bootstrap";
 import MyAxios from "../../util/MyAxios";
 
-export default function CreateInboundTransaction(props) {
+export default function UpdateOutboundTransaction(props) {
   const [formData, setFormData] = useState({
-    type: "inbound",
+    type: "outbound",
     source_warehouse: "",
     destination_warehouse: "",
     details: [],
@@ -22,19 +22,21 @@ export default function CreateInboundTransaction(props) {
   const [showNotification, setShowNotification] = useState(false);
 
   useEffect(() => {
-    if (props.selectedOrder && props.selectedOrder.details) {
-      const { source_warehouse, destination_warehouse } = props.selectedOrder;
+    if (props.selectedTransaction?.data && props.selectedOrder?.data) {
       setFormData({
-        type: "inbound",
-        source_warehouse: getWarehouseName(source_warehouse),
-        destination_warehouse: getWarehouseName(destination_warehouse),
-        details: props.selectedOrder.details.map((detail) => ({
-          ...detail,
-          destination_zone: "",
+        type: "outbound",
+        source_warehouse: props.selectedTransaction.data.source_warehouse,
+        destination_warehouse:
+          props.selectedTransaction.data.destination_warehouse,
+        details: props.selectedOrder.data.map((detail) => ({
+          detail_id: detail.id,
+          item_id: detail.item_id,
+          quantity: detail.quantity,
+          destination_zone: detail.destination_zone || "",
         })),
       });
     }
-  }, [props.selectedOrder]);
+  }, [props.selectedTransaction, props.selectedOrder]);
 
   const validateForm = () => {
     const errors = {};
@@ -47,23 +49,37 @@ export default function CreateInboundTransaction(props) {
     return Object.keys(errors).length === 0;
   };
 
-  const handleSubmit = async () => {
-    if (!validateForm()) return;
+ const handleSubmit = async () => {
+   if (!validateForm()) return;
 
-    try {
-      const response = await MyAxios.post(
-        "internal_transactions/create",
-        formData
-      );
-      if (response.status === 200) {
-        props.setShow(false);
-        setShowNotification(true);
-        props.triggerRender();
-      }
-    } catch (error) {
-      console.error("Error creating inbound transaction:", error);
-    }
-  };
+   try {
+     const destinationZones = [
+       {
+         detailId: props.selectedTransaction.data.id,
+         destinationZones: formData.details
+           .map((detail) => parseInt(detail.destination_zone))
+           .filter((zone) => !isNaN(zone)),
+       },
+     ];
+
+     console.log(destinationZones);
+
+     const response = await MyAxios.put(
+       `internal_transaction_details/${props.selectedTransaction.data.id}/destination_zones`,
+       destinationZones
+     );
+
+     if (response.status === 200) {
+       props.setShow(false);
+       setShowNotification(true);
+       props.triggerRender();
+     }
+   } catch (error) {
+     console.error("Error updating outbound transaction:", error);
+   }
+ };
+
+  // console.log("destination", props.selectedTransaction.data.id);
 
   const handleDetailChange = (index, field, value) => {
     const newDetails = formData.details.map((detail, i) =>
@@ -73,13 +89,15 @@ export default function CreateInboundTransaction(props) {
   };
 
   const getWarehouseName = (warehouseId) => {
-    const warehouse = props.warehouseList.find((w) => w.id === warehouseId);
+    const warehouse = props.warehouseList?.find((w) => w.id == warehouseId);
     return warehouse ? warehouse.name : "Unknown";
   };
 
   const getProductName = (itemId) => {
-    const item = props.itemList.find((item) => item.id === itemId);
-    const product = props.productList.find((prd) => prd.id === item?.product_id);
+    if (!props.itemList || !props.productList) return "Unknown";
+    const item = props.itemList.find((item) => item.id == itemId);
+    if (!item) return "Unknown";
+    const product = props.productList.find((prd) => prd.id == item.product_id);
     return product ? product.name : "Unknown";
   };
 
@@ -87,23 +105,23 @@ export default function CreateInboundTransaction(props) {
     <>
       <Modal show={props.show} onHide={() => props.setShow(false)} size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>Create Inbound Transaction</Modal.Title>
+          <Modal.Title>Update Outbound Transaction</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
             <FormGroup>
               <FormLabel>
-                Source Warehouse: {formData.source_warehouse}
+                Source Warehouse: {getWarehouseName(formData.source_warehouse)}
               </FormLabel>
             </FormGroup>
             <FormGroup>
               <FormLabel>
-                Destination Warehouse: {formData.destination_warehouse}
+                Destination Warehouse:{" "}
+                {getWarehouseName(formData.destination_warehouse)}
               </FormLabel>
             </FormGroup>
 
             <FormGroup className="mt-3">
-              <FormLabel>Products</FormLabel>
               <Table striped bordered hover>
                 <thead>
                   <tr>
@@ -113,55 +131,54 @@ export default function CreateInboundTransaction(props) {
                   </tr>
                 </thead>
                 <tbody>
-                  {formData.details &&
-                    formData.details.map((detail, index) => (
-                      <tr key={index}>
-                        <td>{getProductName(detail.item_id)}</td>
-                        <td>{detail.quantity}</td>
-                        <td>
-                          <FormSelect
-                            value={detail.destination_zone}
-                            onChange={(e) =>
-                              handleDetailChange(
-                                index,
-                                "destination_zone",
-                                e.target.value
-                              )
-                            }
-                            isInvalid={!!formErrors[`zone_${index}`]}
-                          >
-                            <option value="">Select Zone</option>
-                            {props.zoneList
-                              ?.filter(
-                                (zone) =>
-                                  zone.warehouse_id ===
-                                  props.selectedOrder.destination_warehouse
-                              )
-                              .map((zone) => (
-                                <option key={zone.id} value={zone.id}>
-                                  {zone.name}
-                                </option>
-                              ))}
-                          </FormSelect>
-                          {formErrors[`zone_${index}`] && (
-                            <Form.Control.Feedback type="invalid">
-                              {formErrors[`zone_${index}`]}
-                            </Form.Control.Feedback>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
+                  {formData.details.map((detail, index) => (
+                    <tr key={index}>
+                      <td>{getProductName(detail.item_id)}</td>
+                      <td>{detail.quantity}</td>
+                      <td>
+                        <FormSelect
+                          value={detail.destination_zone}
+                          onChange={(e) =>
+                            handleDetailChange(
+                              index,
+                              "destination_zone",
+                              e.target.value
+                            )
+                          }
+                          isInvalid={!!formErrors[`zone_${index}`]}
+                        >
+                          <option value="">Select Zone</option>
+                          {props.zoneList
+                            ?.filter(
+                              (zone) =>
+                                zone.warehouse_id ==
+                                formData.destination_warehouse
+                            )
+                            .map((zone) => (
+                              <option key={zone.id} value={zone.id}>
+                                {zone.name}
+                              </option>
+                            ))}
+                        </FormSelect>
+                        {formErrors[`zone_${index}`] && (
+                          <Form.Control.Feedback type="invalid">
+                            {formErrors[`zone_${index}`]}
+                          </Form.Control.Feedback>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </Table>
             </FormGroup>
           </Form>
         </Modal.Body>
         <Modal.Footer>
+          <Button variant="success" onClick={handleSubmit}>
+            Confirm
+          </Button>
           <Button variant="secondary" onClick={() => props.setShow(false)}>
             Close
-          </Button>
-          <Button variant="primary" onClick={handleSubmit}>
-            Create Inbound Transaction
           </Button>
         </Modal.Footer>
       </Modal>
@@ -180,7 +197,7 @@ export default function CreateInboundTransaction(props) {
         <Toast.Header>
           <strong className="mr-auto">Success</strong>
         </Toast.Header>
-        <Toast.Body>Inbound transaction created successfully!</Toast.Body>
+        <Toast.Body>Outbound transaction updated successfully!</Toast.Body>
       </Toast>
     </>
   );

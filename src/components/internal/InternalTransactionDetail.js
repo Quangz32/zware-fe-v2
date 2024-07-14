@@ -118,8 +118,10 @@ export default function InternalTransactionDetail(props) {
               <th>Image</th>
               <th>Expire Date</th>
               <th>Quantity</th>
-              {transactionInfo.type === "inbound" && <th>Destination Zone</th>}
-              {transactionInfo.type === "outbound" && <th>Source Zone</th>}
+              <th>Destination Zone</th>
+              <th>Source Zone</th>
+              {/* {transactionInfo.type === "inbound" && <th>Destination Zone</th>}
+              {transactionInfo.type === "outbound" && <th>Source Zone</th>} */}
             </tr>
           </thead>
           <tbody>
@@ -141,13 +143,14 @@ export default function InternalTransactionDetail(props) {
                   </td>
                   <td>{detail.item?.expire_date}</td>
                   <td>{detail.quantity}</td>
-                  {transactionInfo.type === "outbound" && (
+                  {/* {transactionInfo.type === "outbound" && (
                     <td>{detail.source?.name}</td>
-                  )}
-
-                  {transactionInfo.type === "inbound" && (
+                  )} */}
+                  <td>{detail.source?.name}</td>
+                  {/* {transactionInfo.type === "inbound" && (
                     <td>{detail.zone?.name}</td>
-                  )}
+                  )} */}
+                  <td>{detail.zone?.name}</td>
                 </tr>
               ))}
           </tbody>

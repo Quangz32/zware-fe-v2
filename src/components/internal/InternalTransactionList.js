@@ -5,6 +5,7 @@ import MyAxios from "../../util/MyAxios";
 import CreateInternalTransaction from "./CreateInternalTransaction";
 import CreateInboundTransaction from "./CreateInboundTransaction";
 import CreateOutboundTransaction from "./CreateOutboundTransaction";
+import UpdateOutboundTransaction from "./CreateInboundTransaction";
 
 // CSS filter
 const filterStyles = {
@@ -38,6 +39,7 @@ export default function InternalTransactionList(props) {
   const [incomingOrders, setIncomingOrders] = useState([]);
   const [showIncomingModal, setShowIncomingModal] = useState(false);
    const [selectedOrder, setSelectedOrder] = useState(null);
+   const [selectedTransaction, setSelectedTransaction] = useState(null)
    const [showInboundModal, setShowInboundModal] = useState(false);
    const [showOutboundModal, setShowOutboundModal] = useState(false);
 
@@ -91,21 +93,32 @@ export default function InternalTransactionList(props) {
       console.error("Error fetching incoming orders:", error);
     }
   };
-
-  const handleCreateInbound = async (order) => {
-    console.log(order.id);
+  const handleConfirmInbound = async (order) => {
     try {
-      const response = await MyAxios.get(
+      const detailsResponse = await MyAxios.get(
         `internal_transaction_details?transaction_id=${order.id}`
       );
-      if (response.status === 200) {
-        setSelectedOrder({ ...response.data});
-        // setShowInboundModal(true);
+      const transactionResponse = await MyAxios.get(
+        `internal_transactions/${order.id}`
+      );
+
+      if (
+        detailsResponse.status === 200 &&
+        transactionResponse.status === 200
+      ) {
+        setSelectedOrder({ ...detailsResponse.data });
+        setSelectedTransaction({ ...transactionResponse.data });
         setShowIncomingModal(false);
+        setShowInboundModal(true);
       }
     } catch (error) {
       console.error("Error fetching transaction details:", error);
     }
+  };
+
+  const handleCancelInbound = async (order) => {
+    // Implement cancel logic here
+    console.log("Cancelled order:", order);
   };
 
   useEffect(() => {
@@ -120,17 +133,13 @@ export default function InternalTransactionList(props) {
     show,
     onHide,
     orders,
-    onCreateInbound,
+    onConfirm,
+    onCancel,
     isAdmin,
   }) => {
     const getWarehouseName = (warehouseId) => {
       const warehouse = props.warehouseList.find((w) => w.id == warehouseId);
       return warehouse ? warehouse.name : "Unknown";
-    };
-
-    const getProductName = (productId) => {
-      const product = props.productList.find((p) => p.id == productId);
-      return product ? product.name : "Unknown";
     };
 
     return (
@@ -152,7 +161,7 @@ export default function InternalTransactionList(props) {
                   {isAdmin && <th>Destination Warehouse</th>}
                   <th>Date</th>
                   <th>Status</th>
-                  <th>Action</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -166,8 +175,15 @@ export default function InternalTransactionList(props) {
                     <td>{order.date}</td>
                     <td>{order.status}</td>
                     <td>
-                      <Button onClick={() => onCreateInbound(order)}>
-                        Create Inbound
+                      <Button
+                        variant="primary"
+                        className="me-2"
+                        onClick={() => onConfirm(order)}
+                      >
+                        View
+                      </Button>
+                      <Button variant="danger" onClick={() => onCancel(order)}>
+                        Cancel
                       </Button>
                     </td>
                   </tr>
@@ -263,25 +279,18 @@ export default function InternalTransactionList(props) {
         warehouseList={props.warehouseList}
         productList={props.productList}
         zoneList={props.zoneList}
+        itemList={props.itemList}
         triggerRender={triggerRender}
         selectedOrder={selectedOrder}
+        selectedTransaction={selectedTransaction}
       />
-      {/* <CreateInboundTransaction
-        show={showInboundModal}
-        setShow={setShowInboundModal}
-        warehouseList={props.warehouseList}
-        productList={props.productList}
-        sourceWarehouse={incomingOrders.source_warehouse}
-        detinationWarehouse={incomingOrders.destination_warehouse}
-        zoneList={props.zoneList}
-        triggerRender={triggerRender}
-        selectedOrder={selectedOrder}
-      /> */}
+
       <IncomingOrdersModal
         show={showIncomingModal}
         onHide={() => setShowIncomingModal(false)}
         orders={incomingOrders}
-        onCreateInbound={handleCreateInbound}
+        onConfirm={handleConfirmInbound}
+        onCancel={handleCancelInbound}
         isAdmin={isAdmin}
       />
     </div>
