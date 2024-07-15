@@ -13,6 +13,7 @@ export default function InternalTransactionDetail(props) {
   const [shouldDisplay, setShouldDisplay] = useState(false);
 const [canOnlyCancel, setCanOnlyCancel] = useState(false);
 
+
   useEffect(() => {
     const fetchTransactionInfo = async () => {
       const tempInfo = { ...props.transaction };
@@ -51,18 +52,26 @@ const [canOnlyCancel, setCanOnlyCancel] = useState(false);
 
             setDetails(detailList);
 
-            const loggingUser = JSON.parse(localStorage.getItem("loggingUser"));
-            const isAdmin = loggingUser.role === "admin";
-            const hasDestinationZone = detailList.some((detail) => detail.zone);
-            const userWarehouseMatches =
-              loggingUser.warehouse_id == props.transaction.source_warehouse;
+           const loggingUser = JSON.parse(localStorage.getItem("loggingUser"));
+           const isAdmin = loggingUser.role === "admin";
+           const hasDestinationZone = detailList.some((detail) => detail.zone);
+           const userWarehouseMatches =
+             loggingUser.warehouse_id == props.transaction.source_warehouse;
+           const userIsDestinationWarehouse =
+             loggingUser.warehouse_id ==
+             props.transaction.destination_warehouse;
 
-            setShouldDisplay(
-              hasDestinationZone || isAdmin || userWarehouseMatches
-            );
-            setCanOnlyCancel(
-              !hasDestinationZone && !isAdmin && userWarehouseMatches
-            );
+           const shouldDisplayDetails =
+             isAdmin ||
+             hasDestinationZone ||
+             (props.transaction.type !== "inbound" &&
+               props.transaction.status !== "pending") ||
+             !userIsDestinationWarehouse;
+
+           setShouldDisplay(shouldDisplayDetails);
+           setCanOnlyCancel(
+             !hasDestinationZone && !isAdmin && userWarehouseMatches
+           );
           }
         })
         .catch((e) => {

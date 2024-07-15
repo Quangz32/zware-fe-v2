@@ -94,6 +94,14 @@ export default function CreateOutboundTransaction(props) {
       if (detail.quantity > availableQuantities[detail.product_id]) {
         errors[`quantity_${index}`] = "Quantity exceeds available stock";
       }
+      //check duplicate product
+      const duplicateProduct = formData?.details?.filter(
+        (p) => p !== detail && p.product_id === detail.product_id
+      );
+
+      if (duplicateProduct.length > 0) {
+        errors[`product_${index}`] = "Cannot same product";
+      }
     });
 
     setFormErrors(errors);
@@ -137,6 +145,13 @@ export default function CreateOutboundTransaction(props) {
   };
 
   const handleDetailChange = (index, field, value) => {
+    if (field === "quantity" && value < 0) {
+      return;
+    }
+
+    if (["product_id", "quantity"].includes(field)) {
+      value = parseInt(value);
+    }
     const newDetails = formData.details.map((detail, i) =>
       i === index ? { ...detail, [field]: value } : detail
     );

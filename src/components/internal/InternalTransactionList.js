@@ -212,8 +212,8 @@ export default function InternalTransactionList(props) {
                <thead>
                  <tr>
                    <th>ID</th>
-                   <th>Source Warehouse</th>
-                   {isAdmin && <th>Destination Warehouse</th>}
+                   {isAdmin && <th>Source Warehouse</th>}
+                   <th>Destination Warehouse</th>
                    <th>Date</th>
                    <th>Status</th>
                    <th>Actions</th>
@@ -223,12 +223,12 @@ export default function InternalTransactionList(props) {
                  {requests.map((request) => (
                    <tr key={request.id}>
                      <td>{request.id}</td>
-                     <td>{getWarehouseName(request.source_warehouse)}</td>
                      {isAdmin && (
+                       <td>{getWarehouseName(request.source_warehouse)}</td>
+                     )}
                        <td>
                          {getWarehouseName(request.destination_warehouse)}
                        </td>
-                     )}
                      <td>{request.date}</td>
                      <td>{request.status}</td>
                      <td>
@@ -302,9 +302,9 @@ export default function InternalTransactionList(props) {
                       >
                         View
                       </Button>
-                      <Button variant="danger" onClick={() => onCancel(order)}>
+                      {/* <Button variant="danger" onClick={() => onCancel(order)}>
                         Cancel
-                      </Button>
+                      </Button> */}
                     </td>
                   </tr>
                 ))}

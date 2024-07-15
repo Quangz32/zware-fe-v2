@@ -18,6 +18,8 @@ export default function UpdateInboundTransaction(props) {
     details: [],
   });
   const [showNotification, setShowNotification] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState("");
+
 
   useEffect(() => {
     if (props.selectedRequest) {
@@ -35,39 +37,28 @@ export default function UpdateInboundTransaction(props) {
     }
   }, [props.selectedRequest]);
 
-  const handleConfirm = async () => {
-    try {
-      const response = await MyAxios.put(
-        `internal_transactions/${props.selectedRequest.id}/confirm`,
-        { status: "completed" }
-      );
+    const handleStatusChange = async (newStatus) => {
+      try {
+        const response = await MyAxios.put(
+          `internal_transactions/${props.selectedRequest.id}/change_status`,
+          { status: newStatus }
+        );
 
-      if (response.status === 200) {
-        props.setShow(false);
-        setShowNotification(true);
-        props.triggerRender();
+        if (response.status === 200) {
+          props.setShow(false);
+          setNotificationMessage(
+            `Inbound transaction updated to ${newStatus} status!`
+          );
+          setShowNotification(true);
+          props.triggerRender();
+        }
+      } catch (error) {
+        console.error("Error updating inbound transaction status:", error);
       }
-    } catch (error) {
-      console.error("Error confirming inbound transaction:", error);
-    }
-  };
+    };
 
-  const handleCancel = async () => {
-    try {
-      const response = await MyAxios.put(
-        `internal_transactions/${props.selectedRequest.id}/cancel`,
-        { status: "cancelled" }
-      );
-
-      if (response.status === 200) {
-        props.setShow(false);
-        setShowNotification(true);
-        props.triggerRender();
-      }
-    } catch (error) {
-      console.error("Error cancelling inbound transaction:", error);
-    }
-  };
+    const handleConfirm = () => handleStatusChange("shipping");
+    const handleCancel = () => handleStatusChange("canceled");
 
   const getWarehouseName = (warehouseId) => {
     const warehouse = props.warehouseList?.find((w) => w.id == warehouseId);
@@ -157,7 +148,7 @@ export default function UpdateInboundTransaction(props) {
         <Toast.Header>
           <strong className="mr-auto">Success</strong>
         </Toast.Header>
-        <Toast.Body>Inbound transaction updated successfully!</Toast.Body>
+        <Toast.Body>{notificationMessage}</Toast.Body>
       </Toast>
     </>
   );

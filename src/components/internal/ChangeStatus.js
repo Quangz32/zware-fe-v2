@@ -14,18 +14,31 @@ import MyToast from "../share/MyToast";
 export default function ChangeStatus(props) {
   const [status, setStatus] = useState("");
   const [showNotification, setShowNotification] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState("");
+  const [toastVariant, setToastVariant] = useState("");
 
   const handleSubmit = () => {
     console.log("handle submit");
     MyAxios.put(`internal_transactions/${props.transaction.id}/change_status`, {
       status: status,
-    }).then((res) => {
-      if (res.status === 200) {
+    })
+      .then((res) => {
+        if (res.status === 200) {
+          props.setShow(false);
+          setShowNotification(true);
+          setToastVariant("success");
+          setNotificationMessage("Change transaction status success!");
+          props.triggerRender();
+        }
+      })
+      .catch((e) => {
+        console.log(e);
         props.setShow(false);
+        setNotificationMessage(e.response.data.message);
+        setToastVariant("warning");
         setShowNotification(true);
         props.triggerRender();
-      }
-    });
+      });
   };
 
  useEffect(() => {
@@ -104,9 +117,10 @@ export default function ChangeStatus(props) {
       </Modal>
 
       <MyToast
+        variant={toastVariant}
         show={showNotification}
         setShow={setShowNotification}
-        message={"Change transaction status success!"}
+        message={notificationMessage}
       ></MyToast>
     </>
   );
