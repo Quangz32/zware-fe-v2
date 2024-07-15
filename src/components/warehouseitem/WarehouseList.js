@@ -5,12 +5,13 @@ import { Button, Modal, Form, Table } from "react-bootstrap";
 
 export default function WarehouseList({ warehouseSearchTerm, zoneSearchTerm, productSearchTerm, render }) {
   const [warehouses, setWarehouses] = useState([]);
+  const [zones, setZones] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [modalData, setModalData] = useState({ sourceZone: "", destinationZone: "", details: [{ product: "", quantity: 0 }] });
   const [currentWarehouseId, setCurrentWarehouseId] = useState(null);
 
-  // Fetch warehouses and zones from DB
-  async function fetchData() {
+  // Fetch warehouses from DB
+  async function fetchWarehouses() {
     try {
       const response = await MyAxios.get("warehouses");
       const tempData = response.data.data;
@@ -20,13 +21,24 @@ export default function WarehouseList({ warehouseSearchTerm, zoneSearchTerm, pro
     }
   }
 
+  // Fetch zones for the selected warehouse
+  async function fetchZones(warehouseId) {
+    try {
+      const response = await MyAxios.get(`/zones?warehouse_id=${warehouseId}`);
+      const tempData = response.data.data;
+      setZones(tempData);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   useEffect(() => {
-    fetchData();
+    fetchWarehouses();
   }, [render]);
 
   useEffect(() => {
     if (!warehouseSearchTerm && !zoneSearchTerm && !productSearchTerm) {
-      fetchData();
+      fetchWarehouses();
     }
   }, [warehouseSearchTerm, zoneSearchTerm, productSearchTerm]);
 
@@ -34,8 +46,9 @@ export default function WarehouseList({ warehouseSearchTerm, zoneSearchTerm, pro
     warehouse.name.toLowerCase().includes(warehouseSearchTerm.toLowerCase())
   );
 
-  const handleOpenModal = (warehouseId) => {
+  const handleOpenModal = async (warehouseId) => {
     setCurrentWarehouseId(warehouseId);
+    await fetchZones(warehouseId);
     setShowModal(true);
   };
 
@@ -69,7 +82,7 @@ export default function WarehouseList({ warehouseSearchTerm, zoneSearchTerm, pro
         quantity: detail.quantity
       }));
       const response = await MyAxios.post("warehouse_items/inwarehouse_transaction", {
-        warehouse_id: currentWarehouseId,  // Include the warehouse ID here
+        warehouse_id: currentWarehouseId,
         source_zone: modalData.sourceZone,
         destination_zone: modalData.destinationZone,
         details
@@ -119,22 +132,30 @@ export default function WarehouseList({ warehouseSearchTerm, zoneSearchTerm, pro
             <Form.Group controlId="sourceZone">
               <Form.Label>Source Zone</Form.Label>
               <Form.Control
-                type="text"
-                placeholder="Enter source zone ID"
+                as="select"
                 name="sourceZone"
                 value={modalData.sourceZone}
                 onChange={handleZoneInputChange}
-              />
+              >
+                <option value="">Select source zone</option>
+                {zones.map(zone => (
+                  <option key={zone.id} value={zone.id}>{zone.name}</option>
+                ))}
+              </Form.Control>
             </Form.Group>
-            <Form.Group controlId="destinationZone">
+            <Form.Group controlId="destinationZone" className="mb-3">
               <Form.Label>Destination Zone</Form.Label>
               <Form.Control
-                type="text"
-                placeholder="Enter destination zone ID"
+                as="select"
                 name="destinationZone"
                 value={modalData.destinationZone}
                 onChange={handleZoneInputChange}
-              />
+              >
+                <option value="">Select destination zone</option>
+                {zones.map(zone => (
+                  <option key={zone.id} value={zone.id}>{zone.name}</option>
+                ))}
+              </Form.Control>
             </Form.Group>
             <Table bordered>
               <thead>
