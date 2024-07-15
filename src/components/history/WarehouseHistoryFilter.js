@@ -115,7 +115,7 @@ export default function WarehouseHistoryFilter(props) {
     props.setFilter({ ...props.filter, warehouse_id: selectedWarehouse });
   }, [warehouseList]);
 
-  console.log(props);
+  // console.log(props);
 
   return (
     <Alert>

@@ -2,45 +2,11 @@ import React, { useEffect, useState } from "react";
 import ApexChart from "react-apexcharts";
 import MyAxios from "../../util/MyAxios";
 
-//props: filter
+//props: filter, startQuantity, endQuantity
 export default function TestComponent2(props) {
-  const [series, setSeries] = useState([
-    // {
-    //   name: "Quantity",
-    //   data: [],
-    //   // data: [10, 41, 35, 51, 49, 62, 69, 91, 148, 100],
-    // },
-  ]);
+  const [series, setSeries] = useState([]);
 
-  const [options, setOptions] = useState({
-    // chart: {
-    //   // height: 350,
-    //   type: "line",
-    //   zoom: {
-    //     enabled: true,
-    //   },
-    // },
-    // dataLabels: {
-    //   enabled: true,
-    // },
-    // stroke: {
-    //   curve: "straight",
-    // },
-    // title: {
-    //   text: "Product Quantity Change",
-    //   align: "left",
-    // },
-    // grid: {
-    //   row: {
-    //     colors: ["#f3f3f3", "transparent"], // takes an array which will be repeated on columns
-    //     opacity: 0.5,
-    //   },
-    // },
-    // xaxis: {
-    //   categories: [],
-    //   // categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep"],
-    // },
-  });
+  const [options, setOptions] = useState({});
 
   useEffect(() => {
     const fetchDataToChart = async () => {
@@ -66,13 +32,11 @@ export default function TestComponent2(props) {
         dates.push(item.date);
       }
 
-      // console.log(quantities);
-      // console.log(dates);
       setChartData(quantities, dates);
     };
 
     const setChartData = (quantities, dates) => {
-      setSeries([{ name: "Quantity", data: quantities }]);
+      setSeries([{ name: "Quantity", data: [props.startQuantity, ...quantities] }]);
       setOptions({
         chart: {
           // height: 350,
@@ -98,8 +62,7 @@ export default function TestComponent2(props) {
           },
         },
         xaxis: {
-          categories: dates,
-          // categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep"],
+          categories: ["Before", ...dates],
         },
       });
     };
