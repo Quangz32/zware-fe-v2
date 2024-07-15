@@ -182,7 +182,6 @@ export default function CreateInboundTransaction(props) {
             </Row>
 
             <FormGroup className="mt-3">
-              <FormLabel>Products</FormLabel>
               <Table striped bordered hover>
                 <thead>
                   <tr>

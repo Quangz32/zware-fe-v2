@@ -10,6 +10,8 @@ export default function InternalTransactionDetail(props) {
   const [transactionInfo, setTransactionInfo] = useState({});
   const [details, setDetails] = useState([]);
   const [showStatusModal, setShowStatusModal] = useState(false);
+  const [shouldDisplay, setShouldDisplay] = useState(false);
+const [canOnlyCancel, setCanOnlyCancel] = useState(false);
 
   useEffect(() => {
     const fetchTransactionInfo = async () => {
@@ -48,6 +50,19 @@ export default function InternalTransactionDetail(props) {
             });
 
             setDetails(detailList);
+
+            const loggingUser = JSON.parse(localStorage.getItem("loggingUser"));
+            const isAdmin = loggingUser.role === "admin";
+            const hasDestinationZone = detailList.some((detail) => detail.zone);
+            const userWarehouseMatches =
+              loggingUser.warehouse_id == props.transaction.source_warehouse;
+
+            setShouldDisplay(
+              hasDestinationZone || isAdmin || userWarehouseMatches
+            );
+            setCanOnlyCancel(
+              !hasDestinationZone && !isAdmin && userWarehouseMatches
+            );
           }
         })
         .catch((e) => {
@@ -69,6 +84,10 @@ export default function InternalTransactionDetail(props) {
     });
     return passFilter;
   };
+
+   if (!shouldDisplay) {
+     return null;
+   }
 
   return (
     checkFilterProduct() && (
@@ -161,6 +180,7 @@ export default function InternalTransactionDetail(props) {
           setShow={setShowStatusModal}
           transaction={transactionInfo}
           triggerRender={props.triggerRender}
+          canOnlyCancel={canOnlyCancel}
         ></ChangeStatus>
       </Alert>
     )

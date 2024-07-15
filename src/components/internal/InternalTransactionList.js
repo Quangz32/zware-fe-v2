@@ -79,9 +79,9 @@ export default function InternalTransactionList(props) {
     let endpoint;
 
     if (loggingUser.role === "admin") {
-      endpoint = "internal_transactions/all_inbound";
+      endpoint = "internal_transactions/all_outbound";
     } else {
-      endpoint = `internal_transactions/inbound?warehouse_id=${loggingUser?.warehouse_id}`;
+      endpoint = `internal_transactions/outbound?warehouse_id=${loggingUser?.warehouse_id}`;
     }
 
     try {
