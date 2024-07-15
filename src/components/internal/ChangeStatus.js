@@ -10,7 +10,6 @@ import {
 import MyAxios from "../../util/MyAxios";
 import MyToast from "../share/MyToast";
 
-//props: show, setShow, transaction, triggerRender
 export default function ChangeStatus(props) {
   const [status, setStatus] = useState("");
   const [showNotification, setShowNotification] = useState(false);
@@ -41,18 +40,31 @@ export default function ChangeStatus(props) {
       });
   };
 
- useEffect(() => {
-   const currentStatus = props?.transaction?.status;
-   if (props.canOnlyCancel) {
-     setStatus("canceled");
-   } else if (currentStatus == "pending") {
-     setStatus("shipping");
-   } else if (currentStatus == "shipping") {
-     setStatus("completed");
-   }
- }, [props]);
+  useEffect(() => {
+    const currentStatus = props?.transaction?.status;
+    const isAdmin = props.isAdmin;
+    const isInbound = props.transaction?.type === "inbound";
+    const isDestinationWarehouse = props.isDestinationWarehouse;
+    const isPending = currentStatus === "pending";
 
-  // console.log(status);
+    if (props.canOnlyCancel) {
+      setStatus("canceled");
+    } else if (isInbound && !isAdmin && isDestinationWarehouse && isPending) {
+      setStatus("canceled");
+    } else if (currentStatus === "pending") {
+      setStatus("shipping");
+    } else if (currentStatus === "shipping") {
+      setStatus("completed");
+    }
+  }, [props]);
+
+  const canOnlyCancel =
+    props.canOnlyCancel ||
+    (props.transaction?.type === "inbound" &&
+      !props.isAdmin &&
+      props.isDestinationWarehouse &&
+      props.transaction?.status === "pending");
+
   return (
     <>
       <Modal
@@ -74,9 +86,9 @@ export default function ChangeStatus(props) {
               onChange={(e) => {
                 setStatus(e.target.value);
               }}
-              disabled={props.canOnlyCancel}
+              disabled={canOnlyCancel}
             >
-              {props.canOnlyCancel ? (
+              {canOnlyCancel ? (
                 <option value="canceled">Canceled</option>
               ) : (
                 <>
@@ -124,5 +136,4 @@ export default function ChangeStatus(props) {
       ></MyToast>
     </>
   );
-  //haha
 }

@@ -1,23 +1,26 @@
-
 import React, { useState, useEffect } from "react";
 import MyAxios from "../../util/MyAxios";
 import { Table, Stack, Badge, Button, Alert } from "react-bootstrap";
 import defaultProductImage from "./defaultProductImage.jpg";
 import ChangeStatus from "./ChangeStatus";
 
-// props: itemList, productList, userList, zoneList, transaction, filter, triggerRender, warehouseList
 export default function InternalTransactionDetail(props) {
   const [transactionInfo, setTransactionInfo] = useState({});
   const [details, setDetails] = useState([]);
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [shouldDisplay, setShouldDisplay] = useState(false);
-const [canOnlyCancel, setCanOnlyCancel] = useState(false);
-
+  const [shouldDisplayOutbound, setShouldDisplayOutbound] = useState(false);
+  const [canOnlyCancel, setCanOnlyCancel] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isSourceWarehouse, setIsSourceWarehouse] = useState(false);
+  const [isDestinationWarehouse, setIsDestinationWarehouse] = useState(false);
 
   useEffect(() => {
     const fetchTransactionInfo = async () => {
       const tempInfo = { ...props.transaction };
-      tempInfo.maker = props?.userList.find((user) => user.id == tempInfo.maker_id);
+      tempInfo.maker = props?.userList.find(
+        (user) => user.id == tempInfo.maker_id
+      );
       tempInfo.sourceWarehouse = props.warehouseList.find(
         (warehouse) => warehouse.id == tempInfo.source_warehouse
       );
@@ -28,13 +31,17 @@ const [canOnlyCancel, setCanOnlyCancel] = useState(false);
     };
 
     const fetchDetails = async () => {
-      await MyAxios.get(`internal_transaction_details?transaction_id=${props.transaction.id}`)
+      await MyAxios.get(
+        `internal_transaction_details?transaction_id=${props.transaction.id}`
+      )
         .then((res) => {
           if (res.status === 200) {
             const detailListResponse = res.data.data;
-            const detailList = []; //save full data
+            const detailList = [];
             detailListResponse.forEach((detail) => {
-              const itemInfo = props.itemList.find((itemx) => itemx.id == detail.item_id);
+              const itemInfo = props.itemList.find(
+                (itemx) => itemx.id == detail.item_id
+              );
               detailList.push({
                 ...detail,
                 item: itemInfo,
@@ -52,26 +59,32 @@ const [canOnlyCancel, setCanOnlyCancel] = useState(false);
 
             setDetails(detailList);
 
-           const loggingUser = JSON.parse(localStorage.getItem("loggingUser"));
-           const isAdmin = loggingUser.role === "admin";
-           const hasDestinationZone = detailList.some((detail) => detail.zone);
-           const userWarehouseMatches =
-             loggingUser.warehouse_id == props.transaction.source_warehouse;
-           const userIsDestinationWarehouse =
-             loggingUser.warehouse_id ==
-             props.transaction.destination_warehouse;
+            const loggingUser = JSON.parse(localStorage.getItem("loggingUser"));
+            const isAdminUser = loggingUser.role === "admin";
+            setIsAdmin(isAdminUser);
+            const hasDestinationZone = detailList.some((detail) => detail.zone);
+            const userIsSourceWarehouse =
+              loggingUser.warehouse_id == props.transaction.source_warehouse;
+            setIsSourceWarehouse(userIsSourceWarehouse);
+            const userIsDestinationWarehouse =
+              loggingUser.warehouse_id ==
+              props.transaction.destination_warehouse;
+            setIsDestinationWarehouse(userIsDestinationWarehouse);
 
-           const shouldDisplayDetails =
-             isAdmin ||
-             hasDestinationZone ||
-             (props.transaction.type !== "inbound" &&
-               props.transaction.status !== "pending") ||
-             !userIsDestinationWarehouse;
+            const isInbound = props.transaction.type === "inbound";
+            const isPending = props.transaction.status === "pending";
 
-           setShouldDisplay(shouldDisplayDetails);
-           setCanOnlyCancel(
-             !hasDestinationZone && !isAdmin && userWarehouseMatches
-           );
+            const shouldDisplayDetails =
+              isAdminUser || !isInbound || !userIsSourceWarehouse || !isPending;
+
+            const shouldDisplayDetailsOutbound =
+              isAdminUser || hasDestinationZone || userIsSourceWarehouse;
+
+            setShouldDisplay(shouldDisplayDetails);
+            setShouldDisplayOutbound(shouldDisplayDetailsOutbound);
+            setCanOnlyCancel(
+              !hasDestinationZone && !isAdminUser && userIsSourceWarehouse
+            );
           }
         })
         .catch((e) => {
@@ -94,9 +107,13 @@ const [canOnlyCancel, setCanOnlyCancel] = useState(false);
     return passFilter;
   };
 
-   if (!shouldDisplay) {
-     return null;
-   }
+  if (!shouldDisplay) {
+    return null;
+  }
+
+  if(!shouldDisplayOutbound) {
+    return null;
+  }
 
   return (
     checkFilterProduct() && (
@@ -148,9 +165,6 @@ const [canOnlyCancel, setCanOnlyCancel] = useState(false);
               <th>Quantity</th>
               <th>Source Zone</th>
               <th>Destination Zone</th>
-
-              {/* {transactionInfo.type === "inbound" && <th>Destination Zone</th>}
-              {transactionInfo.type === "outbound" && <th>Source Zone</th>} */}
             </tr>
           </thead>
           <tbody>
@@ -172,13 +186,7 @@ const [canOnlyCancel, setCanOnlyCancel] = useState(false);
                   </td>
                   <td>{detail.item?.expire_date}</td>
                   <td>{detail.quantity}</td>
-                  {/* {transactionInfo.type === "outbound" && (
-                    <td>{detail.source?.name}</td>
-                  )} */}
                   <td>{detail.source?.name}</td>
-                  {/* {transactionInfo.type === "inbound" && (
-                    <td>{detail.zone?.name}</td>
-                  )} */}
                   <td>{detail.zone?.name}</td>
                 </tr>
               ))}
@@ -190,6 +198,8 @@ const [canOnlyCancel, setCanOnlyCancel] = useState(false);
           transaction={transactionInfo}
           triggerRender={props.triggerRender}
           canOnlyCancel={canOnlyCancel}
+          isAdmin={isAdmin}
+          isDestinationWarehouse={isDestinationWarehouse}
         ></ChangeStatus>
       </Alert>
     )
