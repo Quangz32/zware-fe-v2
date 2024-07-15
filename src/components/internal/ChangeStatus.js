@@ -28,14 +28,16 @@ export default function ChangeStatus(props) {
     });
   };
 
-  useEffect(() => {
-    const currentStatus = props?.transaction?.status;
-    if (currentStatus == "pending") {
-      setStatus("shipping");
-    } else if (currentStatus == "shipping") {
-      setStatus("completed");
-    }
-  }, [props]);
+ useEffect(() => {
+   const currentStatus = props?.transaction?.status;
+   if (props.canOnlyCancel) {
+     setStatus("canceled");
+   } else if (currentStatus == "pending") {
+     setStatus("shipping");
+   } else if (currentStatus == "shipping") {
+     setStatus("completed");
+   }
+ }, [props]);
 
   // console.log(status);
   return (
@@ -59,24 +61,30 @@ export default function ChangeStatus(props) {
               onChange={(e) => {
                 setStatus(e.target.value);
               }}
+              disabled={props.canOnlyCancel}
             >
-              <option value={"pending"} disabled>
-                Pending
-              </option>
-              {/* <option>{props.transaction?.status}</option> */}
-              <option
-                value={"shipping"}
-                disabled={props.transaction?.status !== "pending"}
-              >
-                Shipping
-              </option>
-              <option
-                value={"completed"}
-                disabled={props.transaction?.status !== "shipping"}
-              >
-                Completed
-              </option>
-              <option value={"canceled"}>Canceled</option>
+              {props.canOnlyCancel ? (
+                <option value="canceled">Canceled</option>
+              ) : (
+                <>
+                  <option value="pending" disabled>
+                    Pending
+                  </option>
+                  <option
+                    value="shipping"
+                    disabled={props.transaction?.status !== "pending"}
+                  >
+                    Shipping
+                  </option>
+                  <option
+                    value="completed"
+                    disabled={props.transaction?.status !== "shipping"}
+                  >
+                    Completed
+                  </option>
+                  <option value="canceled">Canceled</option>
+                </>
+              )}
             </FormSelect>
           </Form.Group>
         </Modal.Body>
@@ -102,4 +110,5 @@ export default function ChangeStatus(props) {
       ></MyToast>
     </>
   );
+  //haha
 }
