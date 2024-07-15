@@ -2,13 +2,21 @@ import React, { useState, useEffect } from "react";
 import MyAxios from "../../util/MyAxios";
 import ZoneList from "./ZoneList";
 import { Button, Modal, Form, Table } from "react-bootstrap";
+import MyAlert from "../share/MyAlert"; // Import MyAlert component
 
 export default function WarehouseList({ warehouseSearchTerm, zoneSearchTerm, productSearchTerm, render }) {
   const [warehouses, setWarehouses] = useState([]);
   const [zones, setZones] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [expirationDates, setExpirationDates] = useState({});
   const [showModal, setShowModal] = useState(false);
-  const [modalData, setModalData] = useState({ sourceZone: "", destinationZone: "", details: [{ product: "", quantity: 0 }] });
+  const [modalData, setModalData] = useState({ sourceZone: "", destinationZone: "", details: [{ productID: "", expirationDate: "", quantity: 0 }] });
   const [currentWarehouseId, setCurrentWarehouseId] = useState(null);
+  
+  // Alert states
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertVariant, setAlertVariant] = useState("");
+  const [showAlert, setShowAlert] = useState(false);
 
   // Fetch warehouses from DB
   async function fetchWarehouses() {
@@ -32,8 +40,31 @@ export default function WarehouseList({ warehouseSearchTerm, zoneSearchTerm, pro
     }
   }
 
+  // Fetch products with expiration dates
+  async function fetchProducts() {
+    try {
+      const response = await MyAxios.get("/products");
+      const tempData = response.data.data;
+      setProducts(tempData);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  // Fetch expiration dates for a specific product
+  async function fetchExpirationDatesByProduct(productId) {
+    try {
+      const response = await MyAxios.get(`/items?product_id=${productId}`);
+      const tempData = response.data.data;
+      setExpirationDates(prevState => ({ ...prevState, [productId]: tempData }));
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   useEffect(() => {
     fetchWarehouses();
+    fetchProducts();
   }, [render]);
 
   useEffect(() => {
@@ -59,10 +90,18 @@ export default function WarehouseList({ warehouseSearchTerm, zoneSearchTerm, pro
     const updatedDetails = [...modalData.details];
     updatedDetails[index][name] = value;
     setModalData(prevState => ({ ...prevState, details: updatedDetails }));
+
+    // Fetch expiration dates if a product is selected
+    if (name === "productID" && value) {
+      fetchExpirationDatesByProduct(value);
+    } else if (name === "productID" && !value) {
+      // Reset expiration dates when product is deselected
+      setExpirationDates(prevState => ({ ...prevState, [modalData.details[index].productID]: [] }));
+    }
   };
 
   const handleAddRow = () => {
-    setModalData(prevState => ({ ...prevState, details: [...prevState.details, { product: "", quantity: 0 }] }));
+    setModalData(prevState => ({ ...prevState, details: [...prevState.details, { productID: "", expirationDate: "", quantity: 0 }] }));
   };
 
   const handleRemoveRow = (index) => {
@@ -77,23 +116,46 @@ export default function WarehouseList({ warehouseSearchTerm, zoneSearchTerm, pro
 
   const handleSubmit = async () => {
     try {
-      const details = modalData.details.map(detail => ({
-        item_id: detail.product,
-        quantity: detail.quantity
-      }));
+      const details = modalData.details.map(detail => {
+        let itemId = `${detail.productID}-${detail.expirationDate}`;
+        const matchingExpirationDate = expirationDates[detail.productID]?.find(date => date.expire_date === detail.expirationDate);
+        if (matchingExpirationDate) {
+          itemId = matchingExpirationDate.id; // Use the ID from expirationDates if there's a match
+        }
+        return {
+          item_id: itemId,
+          quantity: detail.quantity
+        };
+      });
+  
       const response = await MyAxios.post("warehouse_items/inwarehouse_transaction", {
         warehouse_id: currentWarehouseId,
         source_zone: modalData.sourceZone,
         destination_zone: modalData.destinationZone,
         details
       });
+  
       console.log(response.data);
       handleCloseModal();
+  
+      // Set alert message and variant
+      setAlertMessage("Transaction submitted successfully");
+      setAlertVariant("success");
+      setShowAlert(true); // Show the alert
+  
+      // Wait 1.5 seconds then reload the page
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
     } catch (error) {
       console.error(error);
+      // Set alert message and variant for error handling
+      setAlertMessage("Failed to submit transaction");
+      setAlertVariant("danger");
+      setShowAlert(true); // Show the alert
     }
   };
-
+  
   return (
     <>
       <div id="warehouseList">
@@ -123,7 +185,7 @@ export default function WarehouseList({ warehouseSearchTerm, zoneSearchTerm, pro
         ))}
       </div>
 
-      <Modal show={showModal} onHide={handleCloseModal}>
+      <Modal show={showModal} onHide={handleCloseModal} dialogClassName="modal-lg">
         <Modal.Header closeButton>
           <Modal.Title>Zone Transactions</Modal.Title>
         </Modal.Header>
@@ -161,6 +223,7 @@ export default function WarehouseList({ warehouseSearchTerm, zoneSearchTerm, pro
               <thead>
                 <tr>
                   <th>Product</th>
+                  <th>Expiration Date</th>
                   <th>Quantity</th>
                   <th>Action</th>
                 </tr>
@@ -170,12 +233,30 @@ export default function WarehouseList({ warehouseSearchTerm, zoneSearchTerm, pro
                   <tr key={index}>
                     <td>
                       <Form.Control
-                        type="text"
-                        placeholder="Enter product ID"
-                        name="product"
-                        value={detail.product}
+                        as="select"
+                        name="productID"
+                        value={detail.productID}
                         onChange={(e) => handleInputChange(e, index)}
-                      />
+                      >
+                        <option value="">Select product</option>
+                        {products.map(product => (
+                          <option key={product.id} value={product.id}>{product.name}</option>
+                        ))}
+                      </Form.Control>
+                    </td>
+                    <td>
+                      <Form.Control
+                        as="select"
+                        name="expirationDate"
+                        value={detail.expirationDate}
+                        onChange={(e) => handleInputChange(e, index)}
+                        disabled={!detail.productID} // Disable if productID is not selected
+                      >
+                        <option value="">Select expiration date</option>
+                        {(expirationDates[detail.productID] || []).map((date, idx) => (
+                          <option key={idx} value={date.expire_date}>{date.expire_date}</option>
+                        ))}
+                      </Form.Control>
                     </td>
                     <td>
                       <Form.Control
@@ -193,18 +274,22 @@ export default function WarehouseList({ warehouseSearchTerm, zoneSearchTerm, pro
                 ))}
               </tbody>
             </Table>
-            <Button variant="secondary" onClick={handleAddRow}>Add Product</Button>
+            <Button variant="secondary" onClick={handleAddRow}>Add Row</Button>
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseModal}>
-            Close
-          </Button>
-          <Button variant="primary" onClick={handleSubmit}>
-            Submit
-          </Button>
+          <Button variant="secondary" onClick={handleCloseModal}>Close</Button>
+          <Button variant="primary" onClick={handleSubmit}>Submit Transaction</Button>
         </Modal.Footer>
       </Modal>
+
+      {/* Render MyAlert component */}
+      <MyAlert
+        message={alertMessage}
+        variant={alertVariant}
+        show={showAlert}
+        setShow={setShowAlert}
+      />
     </>
   );
 }
