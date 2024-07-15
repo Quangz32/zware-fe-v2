@@ -54,8 +54,16 @@ export default function CreateOutboundTransaction(props) {
       if (quantityNumber > getAvailableQuantity(inboundDetail.product_id)) {
         errors.products = "Quantity of some product is not not enough";
       }
+
+      //check duplicate product
+      const duplicateProduct = formData?.details?.filter(
+        (p) => p !== inboundDetail && p.product_id === inboundDetail.product_id
+      );
+
+      if (duplicateProduct.length > 0) {
+        errors.products = "Cannot same product";
+      }
     });
-    // if (formData.expire_date === "") errors.expire_date = "Expire date is required";
 
     console.log(errors);
     setFormErrors(errors);
@@ -85,6 +93,15 @@ export default function CreateOutboundTransaction(props) {
   };
 
   const handleUpdateFormDetail = (indexToUpdate, field, updateValue) => {
+    // console.log(typeof field);
+    if (field === "quantity" && updateValue < 0) {
+      return;
+    }
+
+    if (["product_id", "quantity"].includes(field)) {
+      updateValue = parseInt(updateValue);
+    }
+
     const newDetails = formData.details.map((inboundDetail, index) =>
       index === indexToUpdate ? { ...inboundDetail, [field]: updateValue } : inboundDetail
     );
@@ -157,7 +174,9 @@ export default function CreateOutboundTransaction(props) {
                   <Form.Select
                     value={formData?.warehouse_id}
                     disabled={!isAdmin}
-                    onChange={(e) => setFormData({ ...formData, warehouse_id: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, warehouse_id: parseInt(e.target.value) })
+                    }
                   >
                     {props.warehouseList?.length > 0 &&
                       props.warehouseList.map((warehouse) => (

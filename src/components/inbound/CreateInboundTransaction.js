@@ -18,11 +18,25 @@ import MyAxios from "../../util/MyAxios";
 //props: show, setShow, warehouseList, productList, triggerRender
 export default function CreateInboundTransaction(props) {
   const handleSubmit = async () => {
-    console.log("submit");
-    console.log(formData);
     if (!validateForm()) return;
 
-    await MyAxios.post("inbound_transactions/create", formData).then((res) => {
+    const formDataToSend = { ...formData };
+
+    //Xử lí trước khi gửi: cộng dồn các product có expire date giống nhau
+    var combinedDetails = {};
+    formDataToSend.details.forEach(function (detail) {
+      var key = detail.product_id + "-" + detail.expire_date + "-" + detail.zone_id;
+
+      if (combinedDetails.hasOwnProperty(key)) {
+        combinedDetails[key].quantity += detail.quantity;
+      } else {
+        combinedDetails[key] = Object.assign({}, detail);
+      }
+    });
+
+    formDataToSend.details = Object.values(combinedDetails);
+
+    await MyAxios.post("inbound_transactions/create", formDataToSend).then((res) => {
       if (res.status === 200) {
         props.setShow(false);
         setShowNotification(true);
@@ -61,7 +75,7 @@ export default function CreateInboundTransaction(props) {
         return false;
       }
 
-      if (inboundDetail.zone_id == -1) {
+      if (inboundDetail.zone_id === -1) {
         errors.products = "Zone is required in all product";
         return false;
       }
@@ -95,15 +109,25 @@ export default function CreateInboundTransaction(props) {
     console.log("Remove " + indexToRemove);
     setFormData({
       ...formData,
-      details: formData.details.filter((_, index) => index != indexToRemove),
+      details: formData.details.filter((_, index) => index !== indexToRemove),
     });
     console.log(formData);
   };
 
   const handleUpdateFormDetail = (indexToUpdate, field, updateValue) => {
+    // console.log(typeof field);
+    if (field === "quantity" && updateValue < 0) {
+      return;
+    }
+
+    if (["product_id", "quantity", "zone_id"].includes(field)) {
+      updateValue = parseInt(updateValue);
+    }
+
     const newDetails = formData.details.map((inboundDetail, index) =>
       index === indexToUpdate ? { ...inboundDetail, [field]: updateValue } : inboundDetail
     );
+
     setFormData({ ...formData, details: newDetails });
   };
 
@@ -156,7 +180,9 @@ export default function CreateInboundTransaction(props) {
                   <Form.Select
                     value={formData?.warehouse_id}
                     disabled={!isAdmin}
-                    onChange={(e) => setFormData({ ...formData, warehouse_id: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, warehouse_id: parseInt(e.target.value) })
+                    }
                   >
                     {props.warehouseList?.length > 0 &&
                       props.warehouseList.map((warehouse) => (
@@ -245,7 +271,7 @@ export default function CreateInboundTransaction(props) {
                             <option value="-1">--Choose zone--</option>
                             {props?.zoneList?.map(
                               (zone) =>
-                                zone.warehouse_id == formData.warehouse_id && (
+                                zone.warehouse_id === formData.warehouse_id && (
                                   <option key={zone.id} value={zone.id}>
                                     {zone.name}
                                   </option>
