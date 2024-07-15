@@ -142,7 +142,7 @@ const WarehouseItemList = ({ warehouseId, zoneId, productSearchTerm }) => {
             title="Confirm Disposal"
             body={`Are you sure you want to dispose ${selectedProduct?.product_name || ''}?`}
           />
-          <Table striped bordered hover>
+          <Table className="text-center" striped bordered hover>
             <thead>
               <tr>
                 <th>Product</th>
