@@ -21,6 +21,7 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [zones, setZones] = useState([]);
   const [selectedZone, setSelectedZone] = useState("");
+  const [moveQuantity, setMoveQuantity] = useState("");
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -165,6 +166,7 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
 
   const handleMoveClick = (item) => {
     setSelectedItem(item);
+    setMoveQuantity("");
     setShowMoveModal(true);
   };
 
@@ -172,8 +174,12 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
     setSelectedZone(event.target.value);
   };
 
+  const handleMoveQuantityChange = (event) => {
+    setMoveQuantity(event.target.value);
+  };
+
   const handleMoveSubmit = async () => {
-    if (!selectedZone || !selectedItem) return;
+    if (!selectedZone || !selectedItem || !moveQuantity) return;
 
     const moveData = {
       warehouse_id: zone.warehouse_id,
@@ -182,7 +188,7 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
       details: [
         {
           item_id: selectedItem.item_id,
-          quantity: selectedItem.quantity,
+          quantity: moveQuantity,
         },
       ],
     };
@@ -192,6 +198,7 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
       setShowMoveModal(false);
       setSelectedItem(null);
       setSelectedZone("");
+      setMoveQuantity("");
     } catch (error) {
       console.error("Error moving item:", error);
     }
@@ -215,6 +222,8 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
   const totalPages = Math.ceil(filteredWarehouseItems.length / itemsPerPage);
 
   const expiredProductStyle = { color: 'red' };
+
+  const warehouseZones = zones.filter((zoneItem) => zoneItem.warehouse_id === zone.warehouse_id);
 
   return (
     <>
@@ -266,8 +275,8 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
           })}
         </tbody>
       </Table>
-      <div className="pagination-wrapper text-center">
-        <Pagination className="justify-content-center">
+      <div className="pagination-container">
+        <Pagination>
           <Pagination.First onClick={() => handlePageChange(1)} disabled={currentPage === 1} />
           <Pagination.Prev onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} />
           {[...Array(totalPages)].map((_, i) => (
@@ -316,12 +325,22 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
               <Form.Label>Select Zone</Form.Label>
               <Form.Control as="select" value={selectedZone} onChange={handleZoneChange}>
                 <option value="">Select a zone...</option>
-                {zones.map((zone) => (
+                {warehouseZones.map((zone) => (
                   <option key={zone.id} value={zone.id}>
                     {zone.name}
                   </option>
                 ))}
               </Form.Control>
+            </Form.Group>
+            <Form.Group controlId="formQuantity">
+              <Form.Label>Quantity</Form.Label>
+              <Form.Control
+                type="number"
+                value={moveQuantity}
+                onChange={handleMoveQuantityChange}
+                min="1"
+                max={selectedItem ? selectedItem.quantity : 1}
+              />
             </Form.Group>
           </Form>
         </Modal.Body>
