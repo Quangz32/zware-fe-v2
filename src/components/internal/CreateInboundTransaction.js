@@ -25,6 +25,9 @@ export default function CreateInboundTransaction(props) {
   const [showNotification, setShowNotification] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [destinationZones, setDestinationZones] = useState([]);
+  const [notificationMessage, setNotificationMessage] = useState("");
+  const [toastVariant, setToastVariant] = useState("success");
+  const [availableQuantities, setAvailableQuantities] = useState({});
 
   useEffect(() => {
     const loggingUser = JSON.parse(localStorage.getItem("loggingUser"));
@@ -40,7 +43,27 @@ export default function CreateInboundTransaction(props) {
     if (destinationWarehouse) {
       fetchDestinationZones(destinationWarehouse);
     }
-  }, []);
+    if (formData.source_warehouse) {
+      fetchAvailableQuantities(formData.source_warehouse);
+    }
+  }, [formData.source_warehouse]);
+
+  const fetchAvailableQuantities = async (warehouseId) => {
+    try {
+      const response = await MyAxios.get(
+        `products/non_expire_quantity?warehouse_id=${warehouseId}`
+      );
+      if (response.status === 200) {
+        const quantities = {};
+        response.data.data.forEach((item) => {
+          quantities[item.productId] = item.quantity;
+        });
+        setAvailableQuantities(quantities);
+      }
+    } catch (error) {
+      console.error("Error fetching available quantities:", error);
+    }
+  };
 
   const fetchDestinationZones = async (warehouseId) => {
     try {
@@ -94,11 +117,45 @@ export default function CreateInboundTransaction(props) {
       );
       if (response.status === 200) {
         props.setShow(false);
+        setNotificationMessage("Inbound transaction created successfully!");
+        setToastVariant("success");
         setShowNotification(true);
         props.triggerRender();
       }
     } catch (error) {
       console.error("Error creating inbound transaction:", error);
+      props.setShow(false);
+      let errorMessage =
+        "An error occurred while creating the inbound transaction.";
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        const match = error.response.data.message.match(
+          /Quantity of non-expired product \[(\d+)\] is not enough in warehouse \[(\d+)\] \(Available: (\d+)\)/
+        );
+        if (match) {
+          const [, productId, warehouseId, availableQuantity] = match;
+          const product = props.productList.find(
+            (p) => p.id.toString() === productId
+          );
+          const warehouse = props.warehouseList.find(
+            (w) => w.id.toString() === warehouseId
+          );
+          errorMessage = `Not enough quantity for product "${
+            product ? product.name : productId
+          }" in warehouse "${
+            warehouse ? warehouse.name : warehouseId
+          }". Available: ${availableQuantity}`;
+        } else {
+          errorMessage = error.response.data.message;
+        }
+      }
+      setNotificationMessage(errorMessage);
+      setToastVariant("warning");
+      setShowNotification(true);
+      props.triggerRender();
     }
   };
 
@@ -286,14 +343,17 @@ export default function CreateInboundTransaction(props) {
       <Toast
         show={showNotification}
         onClose={() => setShowNotification(false)}
-        delay={3000}
+        delay={5000}
         autohide
         style={{ position: "fixed", top: 20, right: 20 }}
+        bg={toastVariant}
       >
         <Toast.Header>
-          <strong className="mr-auto">Success</strong>
+          <strong className="mr-auto">
+            {toastVariant === "success" ? "Success" : "Error"}
+          </strong>
         </Toast.Header>
-        <Toast.Body>Inbound transaction created successfully!</Toast.Body>
+        <Toast.Body>{notificationMessage}</Toast.Body>
       </Toast>
     </>
   );

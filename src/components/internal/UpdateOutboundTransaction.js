@@ -20,6 +20,7 @@ export default function UpdateOutboundTransaction(props) {
   });
   const [formErrors, setFormErrors] = useState({});
   const [showNotification, setShowNotification] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState("");
 
   useEffect(() => {
     if (props.selectedTransaction?.data && props.selectedOrder?.data) {
@@ -78,6 +79,25 @@ export default function UpdateOutboundTransaction(props) {
      console.error("Error updating outbound transaction:", error);
    }
  };
+
+ const handleCancel = async () => {
+   try {
+     const response = await MyAxios.put(
+       `internal_transactions/${props.selectedTransaction.data.id}/change_status`,
+       { status: "canceled" }
+     );
+
+     if (response.status === 200) {
+       props.setShow(false);
+       setNotificationMessage("Outbound transaction canceled successfully!");
+       setShowNotification(true);
+       props.triggerRender();
+     }
+   } catch (error) {
+     console.error("Error canceling outbound transaction:", error);
+   }
+ };
+
 
   // console.log("destination", props.selectedTransaction.data.id);
 
@@ -176,6 +196,9 @@ export default function UpdateOutboundTransaction(props) {
         <Modal.Footer>
           <Button variant="success" onClick={handleSubmit}>
             Confirm
+          </Button>
+          <Button variant="danger" onClick={handleCancel}>
+            Cancel
           </Button>
           <Button variant="secondary" onClick={() => props.setShow(false)}>
             Close

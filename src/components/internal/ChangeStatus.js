@@ -10,36 +10,61 @@ import {
 import MyAxios from "../../util/MyAxios";
 import MyToast from "../share/MyToast";
 
-//props: show, setShow, transaction, triggerRender
 export default function ChangeStatus(props) {
   const [status, setStatus] = useState("");
   const [showNotification, setShowNotification] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState("");
+  const [toastVariant, setToastVariant] = useState("");
 
   const handleSubmit = () => {
     console.log("handle submit");
     MyAxios.put(`internal_transactions/${props.transaction.id}/change_status`, {
       status: status,
-    }).then((res) => {
-      if (res.status === 200) {
+    })
+      .then((res) => {
+        if (res.status === 200) {
+          props.setShow(false);
+          setShowNotification(true);
+          setToastVariant("success");
+          setNotificationMessage("Change transaction status success!");
+          props.triggerRender();
+        }
+      })
+      .catch((e) => {
+        console.log(e);
         props.setShow(false);
+        setNotificationMessage(e.response.data.message);
+        setToastVariant("warning");
         setShowNotification(true);
         props.triggerRender();
-      }
-    });
+      });
   };
 
- useEffect(() => {
-   const currentStatus = props?.transaction?.status;
-   if (props.canOnlyCancel) {
-     setStatus("canceled");
-   } else if (currentStatus == "pending") {
-     setStatus("shipping");
-   } else if (currentStatus == "shipping") {
-     setStatus("completed");
-   }
- }, [props]);
+  useEffect(() => {
+    const currentStatus = props?.transaction?.status;
+    const isAdmin = props.isAdmin;
+    const isInbound = props.transaction?.type === "inbound";
+    const isDestinationWarehouse = props.isDestinationWarehouse;
+    const isPending = currentStatus === "pending";
 
-  // console.log(status);
+    if (props.canOnlyCancel) {
+      setStatus("canceled");
+    } else if (isInbound && !isAdmin && isDestinationWarehouse && isPending) {
+      setStatus("canceled");
+    } else if (currentStatus === "pending") {
+      setStatus("shipping");
+    } else if (currentStatus === "shipping") {
+      setStatus("completed");
+    }
+  }, [props]);
+
+  const canOnlyCancel =
+    props.canOnlyCancel ||
+    (props.transaction?.type === "inbound" &&
+      !props.isAdmin &&
+      props.isDestinationWarehouse &&
+      props.transaction?.status === "pending");
+
   return (
     <>
       <Modal
@@ -61,9 +86,9 @@ export default function ChangeStatus(props) {
               onChange={(e) => {
                 setStatus(e.target.value);
               }}
-              disabled={props.canOnlyCancel}
+              disabled={canOnlyCancel}
             >
-              {props.canOnlyCancel ? (
+              {canOnlyCancel ? (
                 <option value="canceled">Canceled</option>
               ) : (
                 <>
@@ -104,11 +129,11 @@ export default function ChangeStatus(props) {
       </Modal>
 
       <MyToast
+        variant={toastVariant}
         show={showNotification}
         setShow={setShowNotification}
-        message={"Change transaction status success!"}
+        message={notificationMessage}
       ></MyToast>
     </>
   );
-  //haha
 }
