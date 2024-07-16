@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Alert, Button } from "react-bootstrap";
-
+import TransactionManagement from "../transaction/TransactionManagement";
 const alertStyle = {
   position: "fixed",
   top: "50px",
@@ -24,9 +24,9 @@ const MyAlert = ({ message, variant, show, setShow, link }) => {
         <Alert variant={variant} onClose={() => setShow(false)} dismissible>
           {message}
           <div className="mt-3">
-            <Button variant="primary" href={link}>
+            {/* <Button variant="primary" href={link}>
               Create DisposalGoods
-            </Button>
+            </Button> */}
           </div>
         </Alert>
       </div>

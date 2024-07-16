@@ -140,10 +140,10 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
     setShowModal(true);
   };
 
-  const handleCreateExpiredForm = () => {
-    // Navigate to the create expired form page (provide the URL)
-    window.location.href = "/create-expired-form";
-  };
+  // const handleCreateExpiredForm = () => {
+  //   // Navigate to the create expired form page (provide the URL)
+  //   window.location.href = "/create-expired-form";
+  // };
 
   const handleCloseModal = () => {
     setShowModal(false);
@@ -234,15 +234,15 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
       <Button variant="primary" onClick={handleViewExpired} style={{ marginTop: "20px", marginRight: "10px" }}>
         View Expired Products
       </Button>
-      <Button variant="danger" onClick={handleCreateExpiredForm} style={{ marginTop: "20px" }}>
+      {/* <Button variant="danger" style={{ marginTop: "20px" }}>
         Create DisposalGoods
-      </Button>
+      </Button> */}
 
       <ConfirmModal
         show={showModal}
         handleClose={handleCloseModal}
-        handleConfirm={handleCreateExpiredForm}
-        title="Expired Products"
+        // handleConfirm={handleCreateExpiredForm}
+        // title="Expired Products"
         body={
           expiredProducts.length === 0 ? (
             "No products expired today."
