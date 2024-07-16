@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Table, Pagination, Button, Modal, Form } from "react-bootstrap";
+import { Table, Pagination, Button, Modal, Form, Alert } from "react-bootstrap";
 import MyAxios from "../../util/MyAxios";
 import MyAlert from "./MyAlert";
 import ConfirmModal from "../../components/share/ConfirmModal";
@@ -22,6 +22,7 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
   const [zones, setZones] = useState([]);
   const [selectedZone, setSelectedZone] = useState("");
   const [moveQuantity, setMoveQuantity] = useState("");
+  const [errorMessages, setErrorMessages] = useState([]);
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -167,6 +168,7 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
   const handleMoveClick = (item) => {
     setSelectedItem(item);
     setMoveQuantity("");
+    setErrorMessages([]);
     setShowMoveModal(true);
   };
 
@@ -179,7 +181,14 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
   };
 
   const handleMoveSubmit = async () => {
-    if (!selectedZone || !selectedItem || !moveQuantity) return;
+    if (!selectedZone || !selectedItem || !moveQuantity) {
+      setErrorMessages(["All fields are required."]);
+      return;
+    }
+    if (moveQuantity <= 0) {
+      setErrorMessages(["Quantity must be greater than 0."]);
+      return;
+    }
 
     const moveData = {
       warehouse_id: zone.warehouse_id,
@@ -199,8 +208,10 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
       setSelectedItem(null);
       setSelectedZone("");
       setMoveQuantity("");
+      setErrorMessages([]);
     } catch (error) {
-      console.error("Error moving item:", error);
+      console.error("Error moving item:");
+      setErrorMessages(["Error moving item"]);
     }
   };
 
@@ -268,7 +279,9 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
                 <td style={{ textAlign: "center", ...cellStyle }}>{warehouseItem.quantity}</td>
                 <td style={cellStyle}>{item.expire_date}</td>
                 <td style={{ textAlign: "center" }}>
-                  <Button onClick={() => handleMoveClick(warehouseItem)}>Move</Button>
+                  <Button variant="primary" onClick={() => handleMoveClick(warehouseItem)}>
+                    Move
+                  </Button>
                 </td>
               </tr>
             );
@@ -320,6 +333,14 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
           <Modal.Title>Move Item</Modal.Title>
         </Modal.Header>
         <Modal.Body>
+        {errorMessages.length > 0 && (
+              <div color="red" className="text-center" >
+                  {errorMessages.map((message, index) => (
+                    <li key={index} style={{ color: "red" }}>{message}</li>
+                  ))}
+                
+              </div>
+            )}
           <Form>
             <Form.Group controlId="formZoneSelect">
               <Form.Label>Select Zone</Form.Label>
