@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import MyAxios from "../../util/MyAxios";
-import { Table, Stack, Badge, Button, Alert } from "react-bootstrap";
+import { Table, Stack, Badge, Button, Alert, Form } from "react-bootstrap";
 import defaultProductImage from "./defaultProductImage.jpg";
 import ChangeStatus from "./ChangeStatus";
 
@@ -9,6 +9,7 @@ export default function OutboundTransactionDetail(props) {
   const [transactionInfo, setTransactionInfo] = useState({});
   const [details, setDetails] = useState([]);
   const [showStatusModal, setShowStatusModal] = useState(false);
+  const [showMore, setShowMore] = useState(false);
 
   useEffect(() => {
     const fetchTransactionInfo = async () => {
@@ -85,23 +86,37 @@ export default function OutboundTransactionDetail(props) {
               </Button>
             </div>
           )}
+          <Form.Check className="my-auto ms-auto me-3" // prettier-ignore
+          type="switch"
+          id="custom-switch"
+          label="Show more"
+          onClick={(e) => {
+            setShowMore(e.target.checked);
+          }
+        }
+        />
         </div>
 
         <Table size="sm" striped responsive>
           <thead>
             <tr>
+              {showMore && (
+              <>
               <th>#</th>
               <th>Product</th>
               <th>Image</th>
               <th>Expire date</th>
               <th>Quantity</th>
               <th>Zone</th>
+              </>)}
             </tr>
           </thead>
           <tbody>
             {details?.length > 0 &&
               details?.map((detail, index) => (
                 <tr key={detail.id}>
+                    {showMore && (
+              <>
                   <td>{index + 1}</td>
                   <td>{detail.product?.name}</td>
                   <td>
@@ -118,6 +133,7 @@ export default function OutboundTransactionDetail(props) {
                   <td>{detail.item?.expire_date}</td>
                   <td>{detail.quantity}</td>
                   <td>{detail.zone?.name}</td>
+                  </>)}
                 </tr>
               ))}
           </tbody>
