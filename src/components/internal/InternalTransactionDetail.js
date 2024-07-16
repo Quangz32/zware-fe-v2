@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import MyAxios from "../../util/MyAxios";
-import { Table, Stack, Badge, Button, Alert } from "react-bootstrap";
+import { Table, Stack, Badge, Button, Alert, Form } from "react-bootstrap";
 import defaultProductImage from "./defaultProductImage.jpg";
 import ChangeStatus from "./ChangeStatus";
 
@@ -14,6 +14,7 @@ export default function InternalTransactionDetail(props) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isSourceWarehouse, setIsSourceWarehouse] = useState(false);
   const [isDestinationWarehouse, setIsDestinationWarehouse] = useState(false);
+  const [showMore, setShowMore] = useState(false);
 
   useEffect(() => {
     const fetchTransactionInfo = async () => {
@@ -153,11 +154,22 @@ export default function InternalTransactionDetail(props) {
                 </Button>
               </div>
             )}
+              <Form.Check className="my-auto ms-auto me-3" // prettier-ignore
+          type="switch"
+          id="custom-switch"
+          label="Show more"
+          onClick={(e) => {
+            setShowMore(e.target.checked);
+          }
+        }
+        />
         </div>
 
         <Table size="sm" striped responsive>
           <thead>
             <tr>
+            {showMore && (
+              <>
               <th>#</th>
               <th>Product</th>
               <th>Image</th>
@@ -165,12 +177,15 @@ export default function InternalTransactionDetail(props) {
               <th>Quantity</th>
               <th>Source Zone</th>
               <th>Destination Zone</th>
+              </>)}
             </tr>
           </thead>
           <tbody>
             {details?.length > 0 &&
               details?.map((detail, index) => (
                 <tr key={detail.id}>
+                   {showMore && (
+              <>
                   <td>{index + 1}</td>
                   <td>{detail.product?.name}</td>
                   <td>
@@ -188,6 +203,7 @@ export default function InternalTransactionDetail(props) {
                   <td>{detail.quantity}</td>
                   <td>{detail.source?.name}</td>
                   <td>{detail.zone?.name}</td>
+                  </>)}
                 </tr>
               ))}
           </tbody>
