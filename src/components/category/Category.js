@@ -1,6 +1,4 @@
-
 import React, { useState, useEffect, useCallback } from "react";
-
 import {
   Container,
   Button,
@@ -32,6 +30,8 @@ const Category = () => {
   const [showAlert, setShowAlert] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [initialLoad, setInitialLoad] = useState(true);
+
+  const loggingUser = JSON.parse(localStorage.getItem("loggingUser"));
 
   const triggerAlert = () => {
     setShowAlert(true);
@@ -76,7 +76,6 @@ const Category = () => {
           triggerAlert();
         }
         setInitialLoad(false); // Set initial load to false after first fetch
-
       })
       .catch((error) => {
         console.error("There was an error fetching the categories!", error);
@@ -164,16 +163,18 @@ const Category = () => {
         setShow={setShowAlert}
       />
       <div className="d-flex mb-3">
-        <Button
-          onClick={() => {
-            setEditingCategory(null);
-            setModalShow(true);
-            setName("");
-          }}
-        >
-          Add Category
-        </Button>
-        <InputGroup className="w-25 ms-4">
+        {loggingUser?.role === "admin" && (
+          <Button
+            onClick={() => {
+              setEditingCategory(null);
+              setModalShow(true);
+              setName("");
+            }}
+          >
+            Add Category
+          </Button>
+        )}
+        <InputGroup className="w-25 ms-1">
           <InputGroup.Text id="basic-addon1">
             <i className="bi bi-search"></i>
           </InputGroup.Text>
@@ -191,7 +192,7 @@ const Category = () => {
           <tr>
             <th>ID</th>
             <th>Name</th>
-            <th style={actionColumnStyle}>Actions</th>
+            {loggingUser?.role === "admin" && <th style={actionColumnStyle}>Actions</th>}
           </tr>
         </thead>
         <tbody>
@@ -199,21 +200,23 @@ const Category = () => {
             <tr key={category.id}>
               <td>{category.id}</td>
               <td>{category.name}</td>
-              <td style={actionColumnStyle}>
-                <Button
-                  variant="warning"
-                  size="sm"
-                  onClick={() => {
-                    setEditingCategory(category);
-                    setModalShow(true);
-                  }}
-                >
-                  Edit
-                </Button>{" "}
-                <Button variant="danger" size="sm" onClick={() => deleteCategory(category.id)}>
-                  Delete
-                </Button>
-              </td>
+              {loggingUser?.role === "admin" && (
+                <td style={actionColumnStyle}>
+                  <Button
+                    variant="warning"
+                    size="sm"
+                    onClick={() => {
+                      setEditingCategory(category);
+                      setModalShow(true);
+                    }}
+                  >
+                    Edit
+                  </Button>{" "}
+                  <Button variant="danger" size="sm" onClick={() => deleteCategory(category.id)}>
+                    Delete
+                  </Button>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>
