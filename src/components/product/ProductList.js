@@ -10,6 +10,8 @@ export default function ProductList() {
   const [filter, setFilter] = useState({ name: "", category: "all" });
   const [filtedProductList, setFiltedProductList] = useState([]);
 
+  const loggingUser = JSON.parse(localStorage.getItem("loggingUser"));
+
   const handleFilter = useCallback(() => {
     const tempFiltedProducts = productList.filter((p) => {
       return (
@@ -141,18 +143,19 @@ export default function ProductList() {
         <Alert style={{ maxWidth: "500px" }}>There are no product here</Alert>
       )}
 
-      <Button
-        variant="success"
-        className="d-flex align-items-center mb-3"
-        onClick={() => {
-          setProductFormMode("add");
-          setShowProductForm(true);
-        }}
-      >
-        <i className="bi bi-plus-square fs-6 me-3"></i>
-        Add product
-      </Button>
-
+      {loggingUser?.role === "admin" && (
+        <Button
+          variant="success"
+          className="d-flex align-items-center mb-3"
+          onClick={() => {
+            setProductFormMode("add");
+            setShowProductForm(true);
+          }}
+        >
+          <i className="bi bi-plus-square fs-6 me-3"></i>
+          Add product
+        </Button>
+      )}
       <Row>
         {filtedProductList.length > 0 &&
           filtedProductList.map((product) => (

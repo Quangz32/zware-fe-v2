@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Table, Pagination, Button } from "react-bootstrap";
+import { Table, Pagination, Button, Modal, Form, Alert } from "react-bootstrap";
 import MyAxios from "../../util/MyAxios";
 import MyAlert from "./MyAlert";
 import ConfirmModal from "../../components/share/ConfirmModal";
-import defaultProductImage from "./defaultProductImage.jpg"; // Import the default product image
+import defaultProductImage from "./defaultProductImage.jpg";
 import "./WarehouseItemList.css";
 
 const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
@@ -17,6 +17,12 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
   const [expiredProducts, setExpiredProducts] = useState([]);
   const [showAlert, setShowAlert] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [showMoveModal, setShowMoveModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [zones, setZones] = useState([]);
+  const [selectedZone, setSelectedZone] = useState("");
+  const [moveQuantity, setMoveQuantity] = useState("");
+  const [errorMessages, setErrorMessages] = useState([]);
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -59,7 +65,6 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
           const products = response.data.data;
           setProducts(products);
 
-          // Fetch images for each product
           products.forEach(async (product) => {
             try {
               const imageResponse = await MyAxios.get(`/products/${product.id}/image`, {
@@ -102,12 +107,28 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
       }
     }
 
+    async function fetchZones() {
+      try {
+        const response = await MyAxios.get('/zones');
+        if (Array.isArray(response.data.data)) {
+          setZones(response.data.data);
+        } else {
+          console.error("Data from API is not an array:", response.data);
+          setZones([]);
+        }
+      } catch (error) {
+        console.error("Error fetching zones:", error);
+        setZones([]);
+      }
+    }
+
     async function fetchData() {
       setLoading(true);
       await fetchWarehouseItems();
       await fetchItems();
       await fetchProducts();
       await fetchZone();
+      await fetchZones();
       setLoading(false);
     }
 
@@ -140,19 +161,63 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
     setShowModal(true);
   };
 
-  // const handleCreateExpiredForm = () => {
-  //   // Navigate to the create expired form page (provide the URL)
-  //   window.location.href = "/create-expired-form";
-  // };
-
   const handleCloseModal = () => {
     setShowModal(false);
+  };
+
+  const handleMoveClick = (item) => {
+    setSelectedItem(item);
+    setMoveQuantity("");
+    setErrorMessages([]);
+    setShowMoveModal(true);
+  };
+
+  const handleZoneChange = (event) => {
+    setSelectedZone(event.target.value);
+  };
+
+  const handleMoveQuantityChange = (event) => {
+    setMoveQuantity(event.target.value);
+  };
+
+  const handleMoveSubmit = async () => {
+    if (!selectedZone || !selectedItem || !moveQuantity) {
+      setErrorMessages(["All fields are required."]);
+      return;
+    }
+    if (moveQuantity <= 0) {
+      setErrorMessages(["Quantity must be greater than 0."]);
+      return;
+    }
+
+    const moveData = {
+      warehouse_id: zone.warehouse_id,
+      source_zone: zone.id,
+      destination_zone: selectedZone,
+      details: [
+        {
+          item_id: selectedItem.item_id,
+          quantity: moveQuantity,
+        },
+      ],
+    };
+
+    try {
+      await MyAxios.post('/warehouse_items/inwarehouse_transaction', moveData);
+      setShowMoveModal(false);
+      setSelectedItem(null);
+      setSelectedZone("");
+      setMoveQuantity("");
+      setErrorMessages([]);
+    } catch (error) {
+      console.error("Error moving item:");
+      setErrorMessages(["Error moving item"]);
+    }
   };
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
 
-  // Filter warehouseItems based on productSearchTerm
   const filteredWarehouseItems = warehouseItems.filter((warehouseItem) => {
     const item = getItemById(warehouseItem.item_id);
     const product = getProductById(item.product_id);
@@ -168,6 +233,8 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
   const totalPages = Math.ceil(filteredWarehouseItems.length / itemsPerPage);
 
   const expiredProductStyle = { color: 'red' };
+
+  const warehouseZones = zones.filter((zoneItem) => zoneItem.warehouse_id === zone.warehouse_id);
 
   return (
     <>
@@ -186,6 +253,7 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
             <th style={{ textAlign: "center" }}>Image</th>
             <th style={{ textAlign: "center" }}>Quantity</th>
             <th>Expire Date</th>
+            <th style={{ textAlign: "center" }}>Move</th>
           </tr>
         </thead>
         <tbody>
@@ -193,10 +261,10 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
             const item = getItemById(warehouseItem.item_id);
             const product = getProductById(item.product_id);
             if (!product.name) {
-              return null; // Skip if product details are not available
+              return null;
             }
             const isExpired = new Date(item.expire_date) < new Date();
-            const productImageUrl = productImages[product.id] || defaultProductImage; // Use default image if not available
+            const productImageUrl = productImages[product.id] || defaultProductImage;
             const cellStyle = isExpired ? expiredProductStyle : {};
             return (
               <tr key={warehouseItem.id}>
@@ -210,80 +278,102 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
                 </td>
                 <td style={{ textAlign: "center", ...cellStyle }}>{warehouseItem.quantity}</td>
                 <td style={cellStyle}>{item.expire_date}</td>
+                <td style={{ textAlign: "center" }}>
+                  <Button variant="primary" onClick={() => handleMoveClick(warehouseItem)}>
+                    Move
+                  </Button>
+                </td>
               </tr>
             );
           })}
         </tbody>
       </Table>
-      <div className="pagination-wrapper text-center">
-        <Pagination className="justify-content-center">
+      <div className="pagination-container">
+        <Pagination>
           <Pagination.First onClick={() => handlePageChange(1)} disabled={currentPage === 1} />
           <Pagination.Prev onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} />
-          {[...Array(totalPages).keys()].map((page) => (
-            <Pagination.Item key={page + 1} active={page + 1 === currentPage} onClick={() => handlePageChange(page + 1)}>
-              {page + 1}
+          {[...Array(totalPages)].map((_, i) => (
+            <Pagination.Item
+              key={i + 1}
+              active={i + 1 === currentPage}
+              onClick={() => handlePageChange(i + 1)}
+            >
+              {i + 1}
             </Pagination.Item>
           ))}
           <Pagination.Next onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} />
           <Pagination.Last onClick={() => handlePageChange(totalPages)} disabled={currentPage === totalPages} />
         </Pagination>
-        <div className="total-pages">
-           {currentPage} / {totalPages}
-        </div>
       </div>
-      <Button variant="primary" onClick={handleViewExpired} style={{ marginTop: "20px", marginRight: "10px" }}>
-        View Expired Products
-      </Button>
-      {/* <Button variant="danger" style={{ marginTop: "20px" }}>
-        Create DisposalGoods
-      </Button> */}
-
       <ConfirmModal
         show={showModal}
-        handleClose={handleCloseModal}
-        // handleConfirm={handleCreateExpiredForm}
-        // title="Expired Products"
+        title="Expired Products"
         body={
-          expiredProducts.length === 0 ? (
-            "No products expired today."
-          ) : (
-            <Table striped bordered hover>
-              <thead>
-                <tr>
-                  <th>Product</th>
-                  <th>Image</th>
-                  <th>Quantity</th>
-                  <th>Expire Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {expiredProducts.map((warehouseItem) => {
-                  const item = getItemById(warehouseItem.item_id);
-                  const product = getProductById(item.product_id);
-                  if (!product.name) {
-                    return null; // Skip if product details are not available
-                  }
-                  const productImageUrl = productImages[product.id] || defaultProductImage; // Use default image if not available
-                  return (
-                    <tr key={warehouseItem.id}>
-                      <td>{product.name}</td>
-                      <td style={{ textAlign: "center" }}>
-                        <img
-                          src={productImageUrl}
-                          alt="Product"
-                          style={{ width: "50px", height: "50px" }}
-                        />
-                      </td>
-                      <td style={{ textAlign: "center" }}>{warehouseItem.quantity}</td>
-                      <td>{item.expire_date}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </Table>
-          )
+          <div>
+            <ul>
+              {expiredProducts.map((warehouseItem) => {
+                const item = getItemById(warehouseItem.item_id);
+                const product = getProductById(item.product_id);
+                return (
+                  <li key={warehouseItem.id}>
+                    {product.name} - Expire Date: {item.expire_date}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
         }
+        onCancel={handleCloseModal}
+        onConfirm={handleCloseModal}
+        cancelLabel="Close"
+        confirmLabel="OK"
       />
+      <Modal show={showMoveModal} onHide={() => setShowMoveModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Move Item</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+        {errorMessages.length > 0 && (
+              <div color="red" className="text-center" >
+                  {errorMessages.map((message, index) => (
+                    <li key={index} style={{ color: "red" }}>{message}</li>
+                  ))}
+                
+              </div>
+            )}
+          <Form>
+            <Form.Group controlId="formZoneSelect">
+              <Form.Label>Select Zone</Form.Label>
+              <Form.Control as="select" value={selectedZone} onChange={handleZoneChange}>
+                <option value="">Select a zone...</option>
+                {warehouseZones.map((zone) => (
+                  <option key={zone.id} value={zone.id}>
+                    {zone.name}
+                  </option>
+                ))}
+              </Form.Control>
+            </Form.Group>
+            <Form.Group controlId="formQuantity">
+              <Form.Label>Quantity</Form.Label>
+              <Form.Control
+                type="number"
+                value={moveQuantity}
+                onChange={handleMoveQuantityChange}
+                min="1"
+                max={selectedItem ? selectedItem.quantity : 1}
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowMoveModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={handleMoveSubmit}>
+            Move
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 };
