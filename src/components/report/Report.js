@@ -2,11 +2,10 @@ import React, { useState, useEffect } from "react";
 
 import MyAxios from "../../util/MyAxios";
 import InboundTransactionList from "../inbound/InboundTransactionList";
-import TransactionFilter from "./TransactionFilter";
+// import TransactionFilter from "./TransactionFilter";
 import OutboundTransactionList from "../outbound/OutboundTransactionList";
-import InternalTransactionList from "../internal/InternalTransactionList";
-import DisposalGoodsList from "../disposalgoods/WarehouseItemManagement";
-import MaDisposalGoodsList from "../manadisposal/WarehouseItemManagement"
+import WarehouseHistory from "../history/WarehouseHistory";
+import Statistics from "../statistics/Statistics";
 export default function Report() {
 
   const [username, setUsername] = useState("");
@@ -65,7 +64,7 @@ export default function Report() {
     status: "all", //all, pending, shipping, completed, canceled
   });
 
-  const [page, setPage] = useState("inbound"); //only inbound, outbound, internal
+  const [page, setPage] = useState("history"); //only inbound, outbound, internal
 
   //   fetch ItemList
   useEffect(() => {
@@ -155,24 +154,20 @@ export default function Report() {
   return (
     <>
       <div className="d-flex flex-row">
-        <div className="me-3 " style={{ width: "20%" }}>
-          <TransactionFilter
-            productList={productList}
-            filter={filter}
-            setFilter={setFilter}
-          ></TransactionFilter>
+        <div className="me-3 " style={{ width: "10%" }}>
+       
         </div>
 
         <div style={{ width: "80%" }}>
           {/*  Navbar */}
           <div className="">
             <label
-              style={page === "inbound" ? myActiveNavStyle : myNavStyle}
+              style={page === "history" ? myActiveNavStyle : myNavStyle}
               onClick={() => {
-                setPage("inbound");
+                setPage("history");
               }}
             >
-              Inbound Transaction
+              Report
             </label>
             <label
               style={page === "outbound" ? myActiveNavStyle : myNavStyle}
@@ -180,27 +175,14 @@ export default function Report() {
                 setPage("outbound");
               }}
             >
-              Outbound Transaction
+              Statistics
             </label>
-            <label
-              style={page === "internal" ? myActiveNavStyle : myNavStyle}
-              onClick={() => {
-                setPage("internal");
-              }}
-            >
-              Internal Transaction
-            </label>
-            <label
-            style={page === "disposalgoods" ? myActiveNavStyle : myNavStyle}
-            onClick={() => setPage("disposalgoods")}
-          >
-            Disposal Goods
-          </label>
+           
           </div>
           <hr />
           <div className="">
-            {page === "inbound" && (
-              <InboundTransactionList
+            {page === "history" && (
+              <WarehouseHistory
                 itemList={itemList}
                 productList={productList}
                 userList={userList}
@@ -210,7 +192,7 @@ export default function Report() {
               />
             )}
             {page === "outbound" && (
-              <OutboundTransactionList
+              <Statistics
                 itemList={itemList}
                 productList={productList}
                 userList={userList}
@@ -219,37 +201,7 @@ export default function Report() {
                 filter={filter}
               />
             )}
-            {page === "internal" && (
-              <InternalTransactionList
-                itemList={itemList}
-                productList={productList}
-                userList={userList}
-                zoneList={zoneList}
-                warehouseList={warehouseList}
-                filter={filter}
-              />
-            )}
-            {page === "disposalgoods" && loggingUser?.role === "admin" && (
-            <DisposalGoodsList
-              itemList={itemList}
-              productList={productList}
-              userList={userList}
-              zoneList={zoneList}
-              warehouseList={warehouseList}
-              filter={filter}
-            />
-          )}
-
-          {loggingUser?.role === "manager" && page === "disposalgoods" && (
-           <MaDisposalGoodsList
-           itemList={itemList}
-           productList={productList}
-           userList={userList}
-           zoneList={zoneList}
-           warehouseList={warehouseList}
-           filter={filter}
-         />
-          )}
+           
           
           </div>
         </div>
