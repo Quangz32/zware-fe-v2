@@ -1,29 +1,27 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import MyAxios from "../../util/MyAxios";
 import { Table, Stack, Badge, Button, Alert, Form } from "react-bootstrap";
 import defaultProductImage from "./defaultProductImage.jpg";
 import ChangeStatus from "./ChangeStatus";
 
+// props: itemList, productList, userList, zoneList, transaction, filter, triggerRender, warehouseList
 export default function InternalTransactionDetail(props) {
   const [transactionInfo, setTransactionInfo] = useState({});
   const [details, setDetails] = useState([]);
   const [showStatusModal, setShowStatusModal] = useState(false);
-  const [shouldDisplay, setShouldDisplay] = useState(false);
-  const [shouldDisplayOutbound, setShouldDisplayOutbound] = useState(false);
-  const [canOnlyCancel, setCanOnlyCancel] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [isSourceWarehouse, setIsSourceWarehouse] = useState(false);
-  const [isDestinationWarehouse, setIsDestinationWarehouse] = useState(false);
-  const [showMore, setShowMore] = useState(false);
+    const [shouldDisplayOutbound, setShouldDisplayOutbound] = useState(false);
 
-  const printRef = useRef();
+  const [shouldDisplay, setShouldDisplay] = useState(false);
+const [canOnlyCancel, setCanOnlyCancel] = useState(false);
+const [showMore, setShowMore] = useState(false);
+
+const printRef = useRef();
 
   useEffect(() => {
     const fetchTransactionInfo = async () => {
       const tempInfo = { ...props.transaction };
-      tempInfo.maker = props?.userList.find(
-        (user) => user.id == tempInfo.maker_id
-      );
+      tempInfo.maker = props?.userList.find((user) => user.id == tempInfo.maker_id);
       tempInfo.sourceWarehouse = props.warehouseList.find(
         (warehouse) => warehouse.id == tempInfo.source_warehouse
       );
@@ -34,17 +32,13 @@ export default function InternalTransactionDetail(props) {
     };
 
     const fetchDetails = async () => {
-      await MyAxios.get(
-        `internal_transaction_details?transaction_id=${props.transaction.id}`
-      )
+      await MyAxios.get(`internal_transaction_details?transaction_id=${props.transaction.id}`)
         .then((res) => {
           if (res.status === 200) {
             const detailListResponse = res.data.data;
-            const detailList = [];
+            const detailList = []; //save full data
             detailListResponse.forEach((detail) => {
-              const itemInfo = props.itemList.find(
-                (itemx) => itemx.id == detail.item_id
-              );
+              const itemInfo = props.itemList.find((itemx) => itemx.id == detail.item_id);
               detailList.push({
                 ...detail,
                 item: itemInfo,
@@ -63,30 +57,16 @@ export default function InternalTransactionDetail(props) {
             setDetails(detailList);
 
             const loggingUser = JSON.parse(localStorage.getItem("loggingUser"));
-            const isAdminUser = loggingUser.role === "admin";
-            setIsAdmin(isAdminUser);
+            const isAdmin = loggingUser.role === "admin";
             const hasDestinationZone = detailList.some((detail) => detail.zone);
-            const userIsSourceWarehouse =
+            const userWarehouseMatches =
               loggingUser.warehouse_id == props.transaction.source_warehouse;
-            setIsSourceWarehouse(userIsSourceWarehouse);
-            const userIsDestinationWarehouse =
-              loggingUser.warehouse_id ==
-              props.transaction.destination_warehouse;
-            setIsDestinationWarehouse(userIsDestinationWarehouse);
 
-            const isInbound = props.transaction.type === "inbound";
-            const isPending = props.transaction.status === "pending";
-
-            const shouldDisplayDetails =
-              isAdminUser || !isInbound || !userIsSourceWarehouse || !isPending;
-
-            const shouldDisplayDetailsOutbound =
-              isAdminUser || hasDestinationZone || userIsSourceWarehouse;
-
-            setShouldDisplay(shouldDisplayDetails);
-            setShouldDisplayOutbound(shouldDisplayDetailsOutbound);
+            setShouldDisplay(
+              hasDestinationZone || isAdmin || userWarehouseMatches
+            );
             setCanOnlyCancel(
-              !hasDestinationZone && !isAdminUser && userIsSourceWarehouse
+              !hasDestinationZone && !isAdmin && userWarehouseMatches
             );
           }
         })
@@ -110,7 +90,11 @@ export default function InternalTransactionDetail(props) {
     return passFilter;
   };
 
-  const handlePrint = () => {
+   if (!shouldDisplay) {
+     return null;
+   }
+
+   const handlePrint = () => {
     const printContent = printRef.current.innerHTML;
     const originalContent = document.body.innerHTML;
 
@@ -120,14 +104,11 @@ export default function InternalTransactionDetail(props) {
     window.location.reload();
   };
 
-  if (!shouldDisplay || !shouldDisplayOutbound || !checkFilterProduct()) {
-    return null;
-  }
-
   return (
-    <Alert>
-      <div ref={printRef}>
-      {showMore && (
+    checkFilterProduct() && (
+      <Alert>
+<div ref={printRef}>
+{showMore && (
                 <>
         <div className="print-header mb-3 text-center font-weight-bold">INTERNAL TRANSACTION</div>
       </> )}
@@ -166,7 +147,7 @@ export default function InternalTransactionDetail(props) {
                 </Button>
               </div>
             )}
-          <Form.Check className="my-auto ms-auto me-3"
+            <Form.Check className="my-auto ms-auto me-3"
             type="switch"
             id="custom-switch"
             label="Show more"
@@ -174,68 +155,72 @@ export default function InternalTransactionDetail(props) {
               setShowMore(e.target.checked);
             }}
           />
-                  {/* <Button onClick={handlePrint}>  <i className="bi bi-printer"></i></Button> */}
-                  <Button variant="outline-secondary" className="my-auto ms-3" onClick={handlePrint}> <i className="bi bi-printer"></i></Button>
-
+               <Button variant="outline-secondary" className="my-auto ms-3" onClick={handlePrint}> <i className="bi bi-printer"></i>
+               </Button>
         </div>
-<div className="pt-3">
-        <Table size="sm" striped responsive >
+
+        <Table size="sm" striped responsive>
           <thead>
             <tr>
-              {showMore && (
+            {showMore && (
                 <>
-                  <th>#</th>
-                  <th>Product</th>
-                  <th>Image</th>
-                  <th>Expire Date</th>
-                  <th>Quantity</th>
-                  <th>Source Zone</th>
-                  <th>Destination Zone</th>
-                </>
-              )}
+     
+              <th>#</th>
+              <th>Product</th>
+              <th>Image</th>
+              <th>Expire Date</th>
+              <th>Quantity</th>
+              <th>Source Zone</th>
+              <th>Destination Zone</th>
+              </> )}
+              {/* {transactionInfo.type === "inbound" && <th>Destination Zone</th>}
+              {transactionInfo.type === "outbound" && <th>Source Zone</th>} */}
             </tr>
           </thead>
           <tbody>
             {details?.length > 0 &&
               details?.map((detail, index) => (
                 <tr key={detail.id}>
-                  {showMore && (
-                    <>
-                      <td>{index + 1}</td>
-                      <td>{detail.product?.name}</td>
-                      <td>
-                        <img
-                          height={50}
-                          width={50}
-                          src={
-                            detail.product?.image
-                              ? `http://localhost:2000/imageproducts/${detail.product?.image}`
-                              : defaultProductImage
-                          }
-                        ></img>
-                      </td>
-                      <td>{detail.item?.expire_date}</td>
-                      <td>{detail.quantity}</td>
-                      <td>{detail.source?.name}</td>
-                      <td>{detail.zone?.name}</td>
-                    </>
-                  )}
+                     {showMore && (
+                <>
+                  <td>{index + 1}</td>
+                  <td>{detail.product?.name}</td>
+                  <td>
+                    <img
+                      height={50}
+                      width={50}
+                      src={
+                        detail.product?.image
+                          ? `http://localhost:2000/imageproducts/${detail.product?.image}`
+                          : defaultProductImage
+                      }
+                    ></img>
+                  </td>
+                  <td>{detail.item?.expire_date}</td>
+                  <td>{detail.quantity}</td>
+                  {/* {transactionInfo.type === "outbound" && (
+                    <td>{detail.source?.name}</td>
+                  )} */}
+                  <td>{detail.source?.name}</td>
+                  {/* {transactionInfo.type === "inbound" && (
+                    <td>{detail.zone?.name}</td>
+                  )} */}
+                  <td>{detail.zone?.name}</td>
+                  </> )}
                 </tr>
               ))}
           </tbody>
         </Table>
         </div>
-      </div>
-     
-      <ChangeStatus
-        show={showStatusModal}
-        setShow={setShowStatusModal}
-        transaction={transactionInfo}
-        triggerRender={props.triggerRender}
-        canOnlyCancel={canOnlyCancel}
-        isAdmin={isAdmin}
-        isDestinationWarehouse={isDestinationWarehouse}
-      ></ChangeStatus>
-    </Alert>
+        <ChangeStatus
+          show={showStatusModal}
+          setShow={setShowStatusModal}
+          transaction={transactionInfo}
+          triggerRender={props.triggerRender}
+          canOnlyCancel={canOnlyCancel}
+        ></ChangeStatus>
+      </Alert>
+      
+    )
   );
 }
