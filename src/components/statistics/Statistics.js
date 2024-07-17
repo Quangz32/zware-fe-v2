@@ -33,8 +33,9 @@ export default function Statistics() {
 
   return (
     <div ref={printRef}>
-      <h1>Report Page</h1>
-      <Button onClick={handlePrint}>Print</Button>
+      <h1 className="container text-center">Report</h1>
+      {/* <Button onClick={handlePrint}>Print</Button> */}
+      <div className="container p-3">
       <Table striped bordered hover>
         <thead>
           <tr>
@@ -55,6 +56,7 @@ export default function Statistics() {
           ))}
         </tbody>
       </Table>
+      </div>
     </div>
   );
 }

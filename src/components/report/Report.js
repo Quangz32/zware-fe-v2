@@ -150,12 +150,12 @@ export default function Report() {
 
     fetchWarehouse();
   }, []);
-  
+
   return (
     <>
       <div className="d-flex flex-row">
         <div className="me-3 " style={{ width: "10%" }}>
-       
+
         </div>
 
         <div style={{ width: "80%" }}>
@@ -167,7 +167,7 @@ export default function Report() {
                 setPage("history");
               }}
             >
-              Report
+              History
             </label>
             <label
               style={page === "outbound" ? myActiveNavStyle : myNavStyle}
@@ -175,9 +175,9 @@ export default function Report() {
                 setPage("outbound");
               }}
             >
-              Statistics
+              Report
             </label>
-           
+
           </div>
           <hr />
           <div className="">
@@ -201,8 +201,8 @@ export default function Report() {
                 filter={filter}
               />
             )}
-           
-          
+
+
           </div>
         </div>
       </div>
