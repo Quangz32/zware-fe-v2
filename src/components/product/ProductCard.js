@@ -10,6 +10,7 @@ export default function ProductCard(props) {
     padding: "0px 0px",
     // fontSize: "12px"
   };
+  const loggingUser = JSON.parse(localStorage.getItem("loggingUser"));
 
   const product = props.product;
 
@@ -68,7 +69,8 @@ export default function ProductCard(props) {
               </small>
             </div>
             {/* Options */}
-            <div className="text-center">
+            <div className="text-center">  
+            {loggingUser?.role === "admin" && (        
               <button
                 className="btn btn-warning btn-sm mx-1"
                 onClick={() => {
@@ -79,6 +81,8 @@ export default function ProductCard(props) {
               >
                 Edit
               </button>
+              )}
+              {loggingUser?.role === "admin" && (
               <button
                 className="btn btn-danger btn-sm mx-1"
                 onClick={() => {
@@ -87,7 +91,8 @@ export default function ProductCard(props) {
                 }}
               >
                 Delete
-              </button>
+              </button>  
+              )}    
             </div>
           </div>
         </div>
