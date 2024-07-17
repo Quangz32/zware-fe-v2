@@ -19,7 +19,7 @@ import Profile from "./components/profile/Profile";
 
 import TransactionManagement from "./components/transaction/TransactionManagement";
 import CreateDisposalForm from "./components/disposalgoods/CreateDisposal";
-
+import Report from "./components/report/Report";
 import WarehouseItemManagement from "./components/warehouseitem/WarehouseItemManagement";
 // import DisposalGoods from "./components/disposalgoods/DisposalGoodsPage";
 // import DisposalGoodsPage from "./components/disposalgoods/DisposalGoodsPage";
@@ -75,6 +75,8 @@ function AppContent() {
             <Route path="/create-disposal" element={<CreateDisposalForm />} />
             {/* <Route path="/warehouse-items" element={<WarehouseItemManagement />} /> */}
             <Route path="/create-disposal/:warehouseItemId" element={<CreateDisposalForm />} />
+            <Route path="/report" element={<Report />} />
+
             <Route path="test" element={<TestComponent />} />
             <Route path="test2" element={<TestComponent2 />} />
           </Routes>

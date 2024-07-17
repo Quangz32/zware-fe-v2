@@ -1,0 +1,10 @@
+@media print {
+    .print-header {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      font-size: 12px;
+      color: #000;
+    }
+  }
+  
