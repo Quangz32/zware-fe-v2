@@ -174,7 +174,8 @@ export default function InternalTransactionDetail(props) {
               setShowMore(e.target.checked);
             }}
           />
-                  <Button onClick={handlePrint}>  <i className="bi bi-printer"></i></Button>
+                  {/* <Button onClick={handlePrint}>  <i className="bi bi-printer"></i></Button> */}
+                  <Button variant="outline-secondary" className="my-auto ms-3" onClick={handlePrint}> <i className="bi bi-printer"></i></Button>
 
         </div>
 <div className="pt-3">
