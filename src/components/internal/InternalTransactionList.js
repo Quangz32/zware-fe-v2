@@ -51,6 +51,18 @@ export default function InternalTransactionList(props) {
       useState(false);
     const [selectedInboundRequest, setSelectedInboundRequest] = useState(null);
    
+    const [currentPage, setCurrentPage] = useState(1);
+    const [transactionsPerPage] = useState(10);
+
+    const indexOfLastTransaction = currentPage * transactionsPerPage;
+    const indexOfFirstTransaction =
+      indexOfLastTransaction - transactionsPerPage;
+    const currentTransactions = transactionList.slice(
+      indexOfFirstTransaction,
+      indexOfLastTransaction
+    );
+
+    const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   const [renderTrigger, setRenderTrigger] = useState(false);
   const triggerRender = () => {
@@ -60,7 +72,30 @@ export default function InternalTransactionList(props) {
    const isAdmin = loggingUser.role === "admin";
 
    
+  const Pagination = ({ itemsPerPage, totalItems, paginate, currentPage }) => {
+    const pageNumbers = [];
 
+    for (let i = 1; i <= Math.ceil(totalItems / itemsPerPage); i++) {
+      pageNumbers.push(i);
+    }
+
+    return (
+      <nav>
+        <ul className="pagination">
+          {pageNumbers.map((number) => (
+            <li
+              key={number}
+              className={`page-item ${currentPage === number ? "active" : ""}`}
+            >
+              <a onClick={() => paginate(number)} className="page-link">
+                {number}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    );
+  };
 
   useEffect(() => {
     const fetchTransactionListByRole = async () => {
@@ -383,7 +418,7 @@ export default function InternalTransactionList(props) {
         </Form.Group>
       </div>
 
-      {transactionList.map((transaction) => {
+      {currentTransactions.map((transaction) => {
         const startDate = new Date(props.filter?.start_date);
         const endDate = new Date(props.filter?.end_date);
         const transactionDate = new Date(transaction.date);
@@ -421,6 +456,13 @@ export default function InternalTransactionList(props) {
           />
         );
       })}
+
+      <Pagination
+        itemsPerPage={transactionsPerPage}
+        totalItems={transactionList.length}
+        paginate={paginate}
+        currentPage={currentPage}
+      />
 
       <CreateOutboundTransaction
         show={showOutboundModal}
