@@ -99,8 +99,8 @@ const styles = StyleSheet.create({
 
 const TransactionPDF = ({ transaction, details }) => {
   const isOutbound = transaction.type === "outbound";
-  const sourceWarehouse = transaction.sourceWarehouse || {};
-  const destinationWarehouse = transaction.destinationWarehouse || {};
+  const sourceWarehouse = transaction.warehouse || {};
+  const destinationWarehouse = transaction.destination || {};
 
   // const billingWarehouse = isOutbound ? destinationWarehouse : sourceWarehouse;
   const headerWarehouse = isOutbound ? sourceWarehouse : destinationWarehouse;
@@ -110,28 +110,42 @@ const TransactionPDF = ({ transaction, details }) => {
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
           <View>
-            <Text style={[{ color: "#000077" }, { fontWeight: "bold" }, { textAlign: "center" }]}>
+            <Text
+              style={[
+                { color: "#000077" },
+                { fontWeight: "bold" },
+                { textAlign: "center" },
+              ]}
+            >
               WAREHOUSE MANAGEMENT SYSTEM
             </Text>
           </View>
-          
         </View>
         <View>
-        <Text style={styles.invoiceTitle}>Invoice Outbound Transaction #{transaction.id}</Text>
+          <Text style={styles.invoiceTitle}>
+            Invoice Outbound Transaction #{transaction.id}
+          </Text>
         </View>
-        
+
         <View>
-        <View style={styles.companyInfo}>
-            <Text style={styles.invoiceDate}>Date:
+          <View style={styles.companyInfo}>
+            <Text style={styles.invoiceDate}>
+              Date:
               {new Date(transaction.date).toLocaleDateString()}
             </Text>
-          {/* </View>
-        <View style={styles.companyInfo}> */}
-          <Text style={styles.companyName}>Warehouse:</Text>
-          <Text style={styles.companyName}>{headerWarehouse.name}</Text>
-          <Text style={styles.companyAddress}>{headerWarehouse.address}</Text>
+          </View>
+          <View style={styles.companyInfo}>
+            <Text style={styles.companyName}>Warehouse:</Text>
+            <Text style={styles.companyName}>{sourceWarehouse.name}</Text>
+            <Text style={styles.companyAddress}>{sourceWarehouse.address}</Text>
+          </View>
         </View>
+        <View style={styles.billTo}>
+          <Text style={styles.billToTitle}>Bill to:</Text>
+          <Text style={styles.billToInfo}>{transaction.destination}</Text>
         </View>
+        <br />
+        <br />
         <View style={styles.invoiceInfo}>
           <Text>
             All product below correspond to work completed in the month of{" "}
@@ -139,7 +153,6 @@ const TransactionPDF = ({ transaction, details }) => {
               month: "long",
               year: "numeric",
             })}
-            
           </Text>
         </View>
         <View style={styles.table}>
@@ -193,7 +206,8 @@ const TransactionPDF = ({ transaction, details }) => {
         </View>
 
         <Text style={styles.footer}>
-          Generated on {new Date().toLocaleString()} - Warehouse Management System
+          Generated on {new Date().toLocaleString()} - Warehouse Management
+          System
         </Text>
       </Page>
     </Document>

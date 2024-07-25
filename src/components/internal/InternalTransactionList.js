@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Button, Form, Modal, Table, Alert } from "react-bootstrap";
+import { FaFileExport, FaFileImport, FaEye } from "react-icons/fa";
 import InternalTransactionDetail from "./InternalTransactionDetail";
 import MyAxios from "../../util/MyAxios";
 import CreateInternalTransaction from "./CreateInternalTransaction";
@@ -318,26 +319,52 @@ export default function InternalTransactionList(props) {
 
   return (
     <div>
-      <Button className="mb-4 me-2" onClick={() => setShowOutboundModal(true)}>
-        <i className="bi bi-file-earmark-plus-fill me-2"></i>New Outbound
-        Transaction
-      </Button>
-      <Button className="mb-4 me-2" onClick={() => setShowInbound(true)}>
-        <i className="bi bi-file-earmark-plus-fill me-2"></i>New Inbound
-        Transaction
-      </Button>
-      <Button className="mb-4" onClick={fetchIncomingOrders}>
-        <i className="bi bi-file-earmark-plus-fill me-2"></i>
-        {loggingUser.role === "admin"
-          ? "View All Incoming Orders"
-          : "View Incoming Warehouse Orders"}
-      </Button>
-      <Button className="mb-4" onClick={fetchInboundRequests}>
-        <i className="bi bi-file-earmark-plus-fill me-2"></i>
-        {loggingUser.role === "admin"
-          ? "View All Requests from Other Warehouses"
-          : "View Requests from Other Warehouses"}
-      </Button>
+      <div className="d-flex justify-content-between mb-4">
+        <div className="text-center">
+          <Button
+            variant="primary"
+            className="me-2 mb-2"
+            onClick={() => setShowOutboundModal(true)}
+          >
+            <FaFileExport className="me-2" />
+            New Outbound Transaction
+          </Button>
+          <Button variant="info" className="mb-2" onClick={fetchIncomingOrders}>
+            <FaEye className="me-2" />
+            {loggingUser.role === "admin"
+              ? "View All Incoming Orders"
+              : "View Incoming Warehouse Orders"}
+          </Button>
+          <div className="text-muted mt-2 small">
+            View incoming transfer requests from other warehouses to your
+            warehouse
+          </div>
+        </div>
+        <div className="text-center">
+          <Button
+            variant="success"
+            className="me-2 mb-2"
+            onClick={() => setShowInbound(true)}
+          >
+            <FaFileImport className="me-2" />
+            New Inbound Transaction
+          </Button>
+          <Button
+            variant="warning"
+            className="mb-2"
+            onClick={fetchInboundRequests}
+          >
+            <FaEye className="me-2" />
+            {loggingUser.role === "admin"
+              ? "View All Requests from Other Warehouses"
+              : "View Requests from Other Warehouses"}
+          </Button>
+          <div className="text-muted mt-2 small">
+            View outgoing transfer requests from your warehouse to other
+            warehouses
+          </div>
+        </div>
+      </div>
 
       <div style={filterStyles.filterContainer}>
         <Form.Group>

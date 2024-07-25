@@ -99,8 +99,8 @@ const styles = StyleSheet.create({
 
 const TransactionPDF = ({ transaction, details }) => {
   const isOutbound = transaction.type === "outbound";
-  const sourceWarehouse = transaction.sourceWarehouse || {};
-  const destinationWarehouse = transaction.destinationWarehouse || {};
+  const sourceWarehouse = transaction.source || {};
+  const destinationWarehouse = transaction.warehouse || {};
 
   // const billingWarehouse = isOutbound ? destinationWarehouse : sourceWarehouse;
   const headerWarehouse = isOutbound ? sourceWarehouse : destinationWarehouse;
@@ -110,27 +110,39 @@ const TransactionPDF = ({ transaction, details }) => {
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
           <View>
-            <Text style={[{ color: "#000077" }, { fontWeight: "bold" }, { textAlign: "center" }]}>
+            <Text
+              style={[
+                { color: "#000077" },
+                { fontWeight: "bold" },
+                { textAlign: "center" },
+              ]}
+            >
               WAREHOUSE MANAGEMENT SYSTEM
             </Text>
           </View>
-          
         </View>
         <View>
-        <Text style={styles.invoiceTitle}>Invoice {isOutbound ? "Outbound" : "Inbound"} Transaction #{transaction.id}</Text>
-
+          <Text style={styles.invoiceTitle}>
+            Invoice {isOutbound ? "Outbound" : "Inbound"} Transaction #
+            {transaction.id}
+          </Text>
         </View>
         <View style={styles.companyInfo}>
-            <Text style={styles.invoiceDate}>Date:
-              {new Date(transaction.date).toLocaleDateString()}
-            </Text>
-          
+          <Text style={styles.invoiceDate}>
+            Date:
+            {new Date(transaction.date).toLocaleDateString()}
+          </Text>
+        </View>
         <View style={styles.companyInfo}>
           <Text style={styles.companyName}>Source:</Text>
-          <Text style={styles.companyName}>{headerWarehouse.name}</Text>
-          <Text style={styles.companyAddress}>{headerWarehouse.address}</Text>
+          <Text style={styles.companyName}>{transaction.source}</Text>
         </View>
+        <View style={styles.billTo}>
+          <Text style={styles.billToTitle}>Bill to:</Text>
+          <Text style={styles.billToInfo}>{destinationWarehouse.name}</Text>
+          <Text style={styles.billToInfo}>{destinationWarehouse.address}</Text>
         </View>
+              
         <View style={styles.invoiceInfo}>
           <Text>
             All product below correspond to work completed in the month of{" "}
@@ -138,7 +150,6 @@ const TransactionPDF = ({ transaction, details }) => {
               month: "long",
               year: "numeric",
             })}
-            
           </Text>
         </View>
         <View style={styles.table}>
@@ -177,11 +188,11 @@ const TransactionPDF = ({ transaction, details }) => {
                   {detail.source?.name || "N/A"}
                 </Text>
               </View> */}
-                <View style={styles.tableCol}>
+              <View style={styles.tableCol}>
                 <Text style={styles.tableCell}>
                   {detail.item?.expire_date || "N/A"}
                 </Text>
-              </View>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
+              </View>
               <View style={styles.tableCol}>
                 <Text style={styles.tableCell}>
                   {detail.zone?.name || "N/A"}
@@ -192,7 +203,8 @@ const TransactionPDF = ({ transaction, details }) => {
         </View>
 
         <Text style={styles.footer}>
-          Generated on {new Date().toLocaleString()} - Warehouse Management System
+          Generated on {new Date().toLocaleString()} - Warehouse Management
+          System
         </Text>
       </Page>
     </Document>
