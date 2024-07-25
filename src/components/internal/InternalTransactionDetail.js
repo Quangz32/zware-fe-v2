@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import MyAxios from "../../util/MyAxios";
 import { Table, Stack, Badge, Button, Alert, Form } from "react-bootstrap";
 import defaultProductImage from "./defaultProductImage.jpg";
 import ChangeStatus from "./ChangeStatus";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import TransactionPDF from "./TransactionPDF";
 
 export default function InternalTransactionDetail(props) {
   const [transactionInfo, setTransactionInfo] = useState({});
@@ -15,9 +17,6 @@ export default function InternalTransactionDetail(props) {
   const [isSourceWarehouse, setIsSourceWarehouse] = useState(false);
   const [isDestinationWarehouse, setIsDestinationWarehouse] = useState(false);
   const [showMore, setShowMore] = useState(false);
-
-  const printRef = useRef();
-
   useEffect(() => {
     const fetchTransactionInfo = async () => {
       const tempInfo = { ...props.transaction };
@@ -110,27 +109,17 @@ export default function InternalTransactionDetail(props) {
     return passFilter;
   };
 
-  const handlePrint = () => {
-    const printContent = printRef.current.innerHTML;
-    const originalContent = document.body.innerHTML;
+  if (!shouldDisplay) {
+    return null;
+  }
 
-    document.body.innerHTML = printContent;
-    window.print();
-    document.body.innerHTML = originalContent;
-    window.location.reload();
-  };
-
-  if (!shouldDisplay || !shouldDisplayOutbound || !checkFilterProduct()) {
+  if(!shouldDisplayOutbound) {
     return null;
   }
 
   return (
-    <Alert>
-      <div ref={printRef}>
-      {showMore && (
-                <>
-        <div className="print-header mb-3 text-center font-weight-bold">INTERNAL TRANSACTION</div>
-      </> )}
+    checkFilterProduct() && (
+      <Alert>
         <div className="d-flex flex-row">
           <div>
             <Stack direction="horizontal" gap={2} className="mb-2 pe-5">
@@ -166,76 +155,84 @@ export default function InternalTransactionDetail(props) {
                 </Button>
               </div>
             )}
-          <Form.Check className="my-auto ms-auto me-3"
-            type="switch"
-            id="custom-switch"
-            label="Show more"
-            onClick={(e) => {
-              setShowMore(e.target.checked);
-            }}
-          />
-                  {/* <Button onClick={handlePrint}>  <i className="bi bi-printer"></i></Button> */}
-                  <Button variant="outline-secondary" className="my-auto ms-3" onClick={handlePrint}> <i className="bi bi-printer"></i></Button>
-
+          
+          <Form.Check className="my-auto ms-auto me-3" // prettier-ignore
+              type="switch"
+              id="custom-switch"
+              label="Show more"
+              onClick={(e) => {
+                setShowMore(e.target.checked);
+              }}
+            />
+            <PDFDownloadLink className="my-auto ms-3" 
+            document={
+              <TransactionPDF transaction={transactionInfo} details={details} />
+            }
+            fileName={`transaction_${transactionInfo.id}.pdf`}
+          >
+            <Button variant="outline-secondary" className="my-auto ms-3" >
+            {({ blob, url, loading, error }) =>
+              loading ? "Loading document..." : "PDF"
+            } <i className="bi bi-printer"></i>
+            </Button>
+          </PDFDownloadLink>
         </div>
-<div className="pt-3">
-        <Table size="sm" striped responsive >
+
+        <Table size="sm" striped responsive>
           <thead>
             <tr>
-              {showMore && (
-                <>
-                  <th>#</th>
-                  <th>Product</th>
-                  <th>Image</th>
-                  <th>Expire Date</th>
-                  <th>Quantity</th>
-                  <th>Source Zone</th>
-                  <th>Destination Zone</th>
-                </>
-              )}
+            {showMore && (
+                  <>
+              <th>#</th>
+              <th>Product</th>
+              <th>Image</th>
+              <th>Expire Date</th>
+              <th>Quantity</th>
+              <th>Source Zone</th>
+              <th>Destination Zone</th>
+              </>
+                )}
             </tr>
           </thead>
           <tbody>
             {details?.length > 0 &&
               details?.map((detail, index) => (
                 <tr key={detail.id}>
-                  {showMore && (
-                    <>
-                      <td>{index + 1}</td>
-                      <td>{detail.product?.name}</td>
-                      <td>
-                        <img
-                          height={50}
-                          width={50}
-                          src={
-                            detail.product?.image
-                              ? `http://localhost:2000/imageproducts/${detail.product?.image}`
-                              : defaultProductImage
-                          }
-                        ></img>
-                      </td>
-                      <td>{detail.item?.expire_date}</td>
-                      <td>{detail.quantity}</td>
-                      <td>{detail.source?.name}</td>
-                      <td>{detail.zone?.name}</td>
-                    </>
-                  )}
+                     {showMore && (
+                  <>
+                  <td>{index + 1}</td>
+                  <td>{detail.product?.name}</td>
+                  <td>
+                    <img
+                      height={50}
+                      width={50}
+                      src={
+                        detail.product?.image
+                          ? `http://localhost:2000/imageproducts/${detail.product?.image}`
+                          : defaultProductImage
+                      }
+                    ></img>
+                  </td>
+                  <td>{detail.item?.expire_date}</td>
+                  <td>{detail.quantity}</td>
+                  <td>{detail.source?.name}</td>
+                  <td>{detail.zone?.name}</td>
+                  </>
+                )}
                 </tr>
               ))}
           </tbody>
         </Table>
-        </div>
-      </div>
-     
-      <ChangeStatus
-        show={showStatusModal}
-        setShow={setShowStatusModal}
-        transaction={transactionInfo}
-        triggerRender={props.triggerRender}
-        canOnlyCancel={canOnlyCancel}
-        isAdmin={isAdmin}
-        isDestinationWarehouse={isDestinationWarehouse}
-      ></ChangeStatus>
-    </Alert>
+        <ChangeStatus
+          show={showStatusModal}
+          setShow={setShowStatusModal}
+          transaction={transactionInfo}
+          triggerRender={props.triggerRender}
+          canOnlyCancel={canOnlyCancel}
+          isAdmin={isAdmin}
+          isDestinationWarehouse={isDestinationWarehouse}
+        ></ChangeStatus>
+      </Alert>
+    )
   );
 }

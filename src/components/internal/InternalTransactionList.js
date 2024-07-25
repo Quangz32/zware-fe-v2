@@ -50,10 +50,10 @@ export default function InternalTransactionList(props) {
     const [showInboundRequestModal, setShowInboundRequestModal] =
       useState(false);
     const [selectedInboundRequest, setSelectedInboundRequest] = useState(null);
-   
+
     const [currentPage, setCurrentPage] = useState(1);
     const [transactionsPerPage] = useState(10);
-
+   
     const indexOfLastTransaction = currentPage * transactionsPerPage;
     const indexOfFirstTransaction =
       indexOfLastTransaction - transactionsPerPage;
@@ -64,6 +64,38 @@ export default function InternalTransactionList(props) {
 
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+    const Pagination = ({
+      itemsPerPage,
+      totalItems,
+      paginate,
+      currentPage,
+    }) => {
+      const pageNumbers = [];
+
+      for (let i = 1; i <= Math.ceil(totalItems / itemsPerPage); i++) {
+        pageNumbers.push(i);
+      }
+
+      return (
+        <nav>
+          <ul className="pagination">
+            {pageNumbers.map((number) => (
+              <li
+                key={number}
+                className={`page-item ${
+                  currentPage === number ? "active" : ""
+                }`}
+              >
+                <a onClick={() => paginate(number)} className="page-link">
+                  {number}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      );
+    };
+
   const [renderTrigger, setRenderTrigger] = useState(false);
   const triggerRender = () => {
     setRenderTrigger(!renderTrigger);
@@ -72,30 +104,7 @@ export default function InternalTransactionList(props) {
    const isAdmin = loggingUser.role === "admin";
 
    
-  const Pagination = ({ itemsPerPage, totalItems, paginate, currentPage }) => {
-    const pageNumbers = [];
 
-    for (let i = 1; i <= Math.ceil(totalItems / itemsPerPage); i++) {
-      pageNumbers.push(i);
-    }
-
-    return (
-      <nav>
-        <ul className="pagination">
-          {pageNumbers.map((number) => (
-            <li
-              key={number}
-              className={`page-item ${currentPage === number ? "active" : ""}`}
-            >
-              <a onClick={() => paginate(number)} className="page-link">
-                {number}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </nav>
-    );
-  };
 
   useEffect(() => {
     const fetchTransactionListByRole = async () => {
