@@ -3,12 +3,16 @@ import MyAxios from "../../util/MyAxios";
 import { Table, Stack, Badge, Button, Alert, Form } from "react-bootstrap";
 import defaultProductImage from "./defaultProductImage.jpg";
 import ChangeStatus from "./ChangeStatus";
+import TransactionPDF from "./TransactionPDF";
+import { PDFDownloadLink } from '@react-pdf/renderer';
 
 //props: itemList, productList, userList, zoneList, transaction, filter, triggerRender
 export default function InboundTransactionDetail(props) {
   const [transactionInfo, setTransactionInfo] = useState({});
   const [details, setDetails] = useState([]);
   const [showStatusModal, setShowStatusModal] = useState(false);
+  const [isSourceWarehouse, setIsSourceWarehouse] = useState(false);
+  const [isDestinationWarehouse, setIsDestinationWarehouse] = useState(false);
   const [showMore, setShowMore] = useState(false);
   useEffect(() => {  
   const fetchTransactionInfo = async () => {
@@ -93,6 +97,18 @@ export default function InboundTransactionDetail(props) {
                 setShowMore(e.target.checked);
               }}
             />
+             <PDFDownloadLink className="my-auto ms-3" 
+            document={
+              <TransactionPDF transaction={transactionInfo} details={details} />
+            }
+            fileName={`transaction_${transactionInfo.id}.pdf`}
+          >
+            <Button variant="outline-secondary" className="my-auto ms-3" >
+            {({ blob, url, loading, error }) =>
+              loading ? "Loading document..." : "PDF"
+            } <i className="bi bi-printer"></i>
+            </Button>
+          </PDFDownloadLink>
         </div>
 
         <Table size="sm" striped responsive>

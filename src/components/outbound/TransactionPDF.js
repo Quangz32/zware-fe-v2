@@ -5,10 +5,10 @@ import {
   Text,
   View,
   StyleSheet,
-  Image,
+  // Image,
 } from "@react-pdf/renderer";
 
-import logoFPT from "./logoFPT.jpg";
+// import logoFPT from "./logoFPT.jpg";
 
 const styles = StyleSheet.create({
   page: {
@@ -37,7 +37,6 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   companyInfo: {
-    // alignItems: "flex",
     marginBottom: 20,
   },
   companyName: {
@@ -45,21 +44,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   companyAddress: {
-    fontSize: 10,
-  },
-  billTo: {
-    marginBottom: 20,
-  },
-  billToTitle: {
-    fontSize: 12,
-    fontWeight: "bold",
-    marginBottom: 5,
-  },
-  billToInfo: {
-    fontSize: 10,
-  },
-  invoiceInfo: {
-    marginBottom: 10,
     fontSize: 10,
   },
   table: {
@@ -72,7 +56,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   tableRow: {
-    margin: "auto",
     flexDirection: "row",
   },
   tableHeader: {
@@ -83,8 +66,15 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: "bold",
   },
+  tableColHeader: {
+    flex: 1,
+    borderStyle: "solid",
+    borderWidth: 1,
+    borderLeftWidth: 0,
+    borderTopWidth: 0,
+  },
   tableCol: {
-    width: "16.66%",
+    flex: 1,
     borderStyle: "solid",
     borderWidth: 1,
     borderLeftWidth: 0,
@@ -105,61 +95,41 @@ const styles = StyleSheet.create({
     borderTop: "1px solid #ccc",
     paddingTop: 5,
   },
-  note: {
-    marginTop: 20,
-    padding: 10,
-    backgroundColor: "#f0f0f0",
-    fontSize: 9,
-  },
 });
 
 const TransactionPDF = ({ transaction, details }) => {
   const isOutbound = transaction.type === "outbound";
-  const sourceWarehouse = transaction.sourceWarehouse;
-  const destinationWarehouse = transaction.destinationWarehouse;
+  const sourceWarehouse = transaction.sourceWarehouse || {};
+  const destinationWarehouse = transaction.destinationWarehouse || {};
 
-  const billingWarehouse = isOutbound ? destinationWarehouse : sourceWarehouse;
+  // const billingWarehouse = isOutbound ? destinationWarehouse : sourceWarehouse;
   const headerWarehouse = isOutbound ? sourceWarehouse : destinationWarehouse;
 
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        
         <View style={styles.header}>
           <View>
-          {/* <Text style={styles.invoiceTitle } style={{color: '#000077'}  }>WAREHOUSE MANAGEMENT SYSTEM</Text> */}
-          <Text style={[ {color: '#000077'}, {fontWeight: 'bold'}, {textAlign: 'center'}]}>WAREHOUSE MANAGEMENT SYSTEM</Text>
-
-            {/* <Text style={styles.invoiceTitle}>Invoice Internal Transaction #{transaction.id}</Text> */}
-         
+            <Text style={[{ color: "#000077" }, { fontWeight: "bold" }, { textAlign: "center" }]}>
+              WAREHOUSE MANAGEMENT SYSTEM
+            </Text>
           </View>
-          </View>
-        <View>
-
-        <Text style={styles.invoiceTitle}>Invoice Internal Transaction #{transaction.id}</Text>
-
-        </View>
-        <View style={styles.companyInfo}>
           
-          <Text style={styles.invoiceDate}>Date:
-                {new Date(transaction.date).toLocaleDateString()}
-              </Text>
-              </View>
+        </View>
+        <View>
+        <Text style={styles.invoiceTitle}>Invoice Outbound Transaction #{transaction.id}</Text>
+        </View>
+        
+        <View>
         <View style={styles.companyInfo}>
-          <Text style={styles.companyNameTilte}>Source:</Text>
+            <Text style={styles.invoiceDate}>Date:
+              {new Date(transaction.date).toLocaleDateString()}
+            </Text>
+          {/* </View>
+        <View style={styles.companyInfo}> */}
+          <Text style={styles.companyName}>Warehouse:</Text>
           <Text style={styles.companyName}>{headerWarehouse.name}</Text>
           <Text style={styles.companyAddress}>{headerWarehouse.address}</Text>
-          {/* <Text style={styles.billToInfo}>
-            {billingWarehouse.city}, {billingWarehouse.country}
-          </Text> */}
-     
-        <View style={styles.billTo}>
-          <Text style={styles.billToTitle}>Bill to:</Text>
-          <Text style={styles.billToInfo}>{billingWarehouse.name}</Text>
-          <Text style={styles.billToInfo}>{billingWarehouse.address}</Text>
-          {/* <Text style={styles.billToInfo}>
-            {billingWarehouse.city}, {billingWarehouse.country}
-          </Text> */}
         </View>
         </View>
         <View style={styles.invoiceInfo}>
@@ -169,29 +139,25 @@ const TransactionPDF = ({ transaction, details }) => {
               month: "long",
               year: "numeric",
             })}
-            .
+            
           </Text>
         </View>
-
         <View style={styles.table}>
           <View style={[styles.tableRow, styles.tableHeader]}>
-            <View style={styles.tableCol}>
+            <View style={styles.tableColHeader}>
               <Text style={styles.tableHeaderCell}>Item</Text>
             </View>
-            <View style={styles.tableCol}>
+            <View style={styles.tableColHeader}>
               <Text style={styles.tableHeaderCell}>Product</Text>
             </View>
-            <View style={styles.tableCol}>
+            <View style={styles.tableColHeader}>
               <Text style={styles.tableHeaderCell}>Quantity</Text>
             </View>
-            <View style={styles.tableCol}>
+            <View style={styles.tableColHeader}>
               <Text style={styles.tableHeaderCell}>Expire Date</Text>
             </View>
-            <View style={styles.tableCol}>
-              <Text style={styles.tableHeaderCell}>Source Zone</Text>
-            </View>
-            <View style={styles.tableCol}>
-              <Text style={styles.tableHeaderCell}>Destination Zone</Text>
+            <View style={styles.tableColHeader}>
+              <Text style={styles.tableHeaderCell}>Zone</Text>
             </View>
           </View>
           {details.map((detail, index) => (
@@ -212,11 +178,11 @@ const TransactionPDF = ({ transaction, details }) => {
                   {detail.item?.expire_date || "N/A"}
                 </Text>
               </View>
-              <View style={styles.tableCol}>
+              {/* <View style={styles.tableCol}>
                 <Text style={styles.tableCell}>
                   {detail.source?.name || "N/A"}
                 </Text>
-              </View>
+              </View> */}
               <View style={styles.tableCol}>
                 <Text style={styles.tableCell}>
                   {detail.zone?.name || "N/A"}
@@ -226,16 +192,9 @@ const TransactionPDF = ({ transaction, details }) => {
           ))}
         </View>
 
-        {/* <View style={styles.note}>
-          <Text>
-            On {new Date(transaction.date).toLocaleDateString()}, users will be
-            upgraded free of charge to our new cloud offering.
-          </Text>
-        </View> */}
         <Text style={styles.footer}>
           Generated on {new Date().toLocaleString()} - Warehouse Management System
         </Text>
-        {/* <Text style={styles.footer}>This includes non-business days.</Text> */}
       </Page>
     </Document>
   );
