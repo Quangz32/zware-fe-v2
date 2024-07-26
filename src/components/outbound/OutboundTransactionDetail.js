@@ -4,13 +4,17 @@ import { Table, Stack, Badge, Button, Alert, Form } from "react-bootstrap";
 // import { Printer } from "react-bootstrap-icons";
 import defaultProductImage from "./defaultProductImage.jpg";
 import ChangeStatus from "./ChangeStatus";
+import TransactionPDF from "./TransactionPDF";
+import { PDFDownloadLink } from '@react-pdf/renderer';
 
 export default function OutboundTransactionDetail(props) {
   const [transactionInfo, setTransactionInfo] = useState({});
   const [details, setDetails] = useState([]);
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [showMore, setShowMore] = useState(false);
-  const printRef = useRef();
+  // const printRef = useRef();
+  const [isSourceWarehouse, setIsSourceWarehouse] = useState(false);
+  const [isDestinationWarehouse, setIsDestinationWarehouse] = useState(false);
 
   useEffect(() => {
     const fetchTransactionInfo = async () => {
@@ -61,27 +65,25 @@ export default function OutboundTransactionDetail(props) {
     return passFilter;
   };
 
-  const handlePrint = () => {
-    const printContent = printRef.current.innerHTML;
-    const originalContent = document.body.innerHTML;
+  // const handlePrint = () => {
+  //   const printContent = printRef.current.innerHTML;
+  //   const originalContent = document.body.innerHTML;
 
-    document.body.innerHTML = printContent;
-    window.print();
-    document.body.innerHTML = originalContent;
-    window.location.reload();
-  };
+  //   document.body.innerHTML = printContent;
+  //   window.print();
+  //   document.body.innerHTML = originalContent;
+  //   window.location.reload();
+  // };
 
   return (
     checkFilterProduct() && (
       <Alert>
-        <div ref={printRef}>
-          {showMore && (
-            <>
-              <div className="print-header mb-3 text-center font-weight-bold">OUTBOUND TRANSACTION</div>
-            </>)}
+        {/* <div ref={printRef}> */}
+          <div>
           <div className="d-flex flex-row">
 
             <div>
+            {" "}
               <Stack direction="horizontal" gap={2} className="mb-2 pe-5">
                 <Badge bg="primary">{`Date: ${transactionInfo.date}`}</Badge>
                 <Badge bg="success">{`Maker: ${transactionInfo.maker?.name}`}</Badge>
@@ -109,9 +111,20 @@ export default function OutboundTransactionDetail(props) {
                 setShowMore(e.target.checked);
               }}
             />
-            <Button variant="outline-secondary" className="my-auto ms-3" onClick={handlePrint}> <i className="bi bi-printer"></i>
-
+            {/* <Button variant="outline-secondary" className="my-auto ms-3" onClick={handlePrint}> <i className="bi bi-printer"></i>
+            </Button> */}
+              <PDFDownloadLink className="my-auto ms-3" 
+            document={
+              <TransactionPDF transaction={transactionInfo} details={details} />
+            }
+            fileName={`transaction_${transactionInfo.id}.pdf`}
+          >
+            <Button variant="outline-secondary" className="my-auto ms-3" >
+            {({ blob, url, loading, error }) =>
+              loading ? "Loading document..." : "PDF"
+            } <i className="bi bi-printer"></i>
             </Button>
+          </PDFDownloadLink>
           </div>
 
           <Table size="sm" striped responsive>
@@ -163,6 +176,8 @@ export default function OutboundTransactionDetail(props) {
           setShow={setShowStatusModal}
           transaction={transactionInfo}
           triggerRender={props.triggerRender}
+          isDestinationWarehouse={isDestinationWarehouse}
+
         ></ChangeStatus>
       </Alert>
     )
