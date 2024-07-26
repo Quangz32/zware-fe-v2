@@ -6,11 +6,9 @@ import TransactionFilter from "./TransactionFilter";
 import OutboundTransactionList from "../outbound/OutboundTransactionList";
 import InternalTransactionList from "../internal/InternalTransactionList";
 import DisposalGoodsList from "../disposalgoods/WarehouseItemManagement";
-import MaDisposalGoodsList from "../manadisposal/WarehouseItemManagement"
+import MaDisposalGoodsList from "../manadisposal/WarehouseItemManagement";
 export default function TransactionManagement() {
-
   const [username, setUsername] = useState("");
-
 
   const fetchUsername = () => {
     MyAxios.get("/users/me")
@@ -30,7 +28,6 @@ export default function TransactionManagement() {
       fetchUsername();
     }
   }, [loggingUser?.id]);
-
 
   useEffect(() => {
     fetchUsername();
@@ -151,16 +148,18 @@ export default function TransactionManagement() {
 
     fetchWarehouse();
   }, []);
-  
+
   return (
     <>
       <div className="d-flex flex-row">
         <div className="me-3 " style={{ width: "20%" }}>
-          <TransactionFilter
-            productList={productList}
-            filter={filter}
-            setFilter={setFilter}
-          ></TransactionFilter>
+          {page !== "disposalgoods" && (
+            <TransactionFilter
+              productList={productList}
+              filter={filter}
+              setFilter={setFilter}
+            ></TransactionFilter>
+          )}
         </div>
 
         <div style={{ width: "80%" }}>
@@ -191,11 +190,11 @@ export default function TransactionManagement() {
               Internal Transaction
             </label>
             <label
-            style={page === "disposalgoods" ? myActiveNavStyle : myNavStyle}
-            onClick={() => setPage("disposalgoods")}
-          >
-            Disposal Goods
-          </label>
+              style={page === "disposalgoods" ? myActiveNavStyle : myNavStyle}
+              onClick={() => setPage("disposalgoods")}
+            >
+              Disposal Goods
+            </label>
           </div>
           <hr />
           <div className="">
@@ -230,27 +229,26 @@ export default function TransactionManagement() {
               />
             )}
             {page === "disposalgoods" && loggingUser?.role === "admin" && (
-            <DisposalGoodsList
-              itemList={itemList}
-              productList={productList}
-              userList={userList}
-              zoneList={zoneList}
-              warehouseList={warehouseList}
-              filter={filter}
-            />
-          )}
+              <DisposalGoodsList
+                itemList={itemList}
+                productList={productList}
+                userList={userList}
+                zoneList={zoneList}
+                warehouseList={warehouseList}
+                filter={filter}
+              />
+            )}
 
-          {loggingUser?.role === "manager" && page === "disposalgoods" && (
-           <MaDisposalGoodsList
-           itemList={itemList}
-           productList={productList}
-           userList={userList}
-           zoneList={zoneList}
-           warehouseList={warehouseList}
-           filter={filter}
-         />
-          )}
-          
+            {loggingUser?.role === "manager" && page === "disposalgoods" && (
+              <MaDisposalGoodsList
+                itemList={itemList}
+                productList={productList}
+                userList={userList}
+                zoneList={zoneList}
+                warehouseList={warehouseList}
+                filter={filter}
+              />
+            )}
           </div>
         </div>
       </div>
