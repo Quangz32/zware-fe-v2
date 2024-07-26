@@ -6,7 +6,7 @@ export default function MyToast(props) {
   return (
     <Toast
       className="position-fixed"
-      style={{ top: "50px", right: "50px" }}
+      style={{ top: "50px", right: "50px", zIndex: "9999" }}
       bg={props.variant ? props.variant : "primary"}
       show={props.show}
       onClose={() => {

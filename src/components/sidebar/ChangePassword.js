@@ -22,6 +22,7 @@ export default function ChangePassword(props) {
       .then((res) => {
         props.setShow(false);
         setToastMessage("Your password has been changed");
+        setToastVariant("success");
         setShowToast(true);
       })
       .catch((e) => {
