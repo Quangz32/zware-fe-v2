@@ -3,8 +3,9 @@ import { Table, Pagination, Button, Modal, Form, Alert } from "react-bootstrap";
 import MyAxios from "../../util/MyAxios";
 import MyAlert from "./MyAlert";
 import ConfirmModal from "../../components/share/ConfirmModal";
+import MyToast from "../share/MyToast";
 import defaultProductImage from "./defaultProductImage.jpg"; // Import the default product image
-// import "./WarehouseItemList.css"; // Assuming you have some custom styles
+
 
 const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
   const [warehouseItems, setWarehouseItems] = useState([]);
@@ -23,6 +24,9 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
   const [selectedZone, setSelectedZone] = useState("");
   const [moveQuantity, setMoveQuantity] = useState("");
   const [errorMessages, setErrorMessages] = useState([]);
+  const [showToast, setShowToast] = useState(false); // State for toast visibility
+  const [toastMessage, setToastMessage] = useState(""); // State for toast message
+  const [toastVariant, setToastVariant] = useState("success"); // State for toast variant
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -209,14 +213,26 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
       setSelectedZone("");
       setMoveQuantity("");
       setErrorMessages([]);
-      setTimeout(() => {
-        window.location.reload();
-      }, 100);
-    } catch (error) {
-      console.error("Error moving item:");
-      setErrorMessages(["Error moving item"]);
-    }
-  };
+       // Update warehouse items for all zones in the warehouse
+       const updatedWarehouseItems = await MyAxios.get(`/warehouse_items`, { params: { warehouse_id: zone.warehouse_id } });
+       setWarehouseItems(updatedWarehouseItems.data.data);
+       // Show success toast
+       setToastMessage("Item moved successfully!");
+       setToastVariant("success");
+       setShowToast(true);
+     } catch (error) {
+       console.error("Error moving item:", error);
+       setErrorMessages(["Error moving item"]);
+       // Show error toast
+       setToastMessage("Error moving item");
+       setToastVariant("danger");
+       setShowToast(true);
+     }
+ 
+     setTimeout(() => {
+       window.location.reload();
+     }, 1500);
+   };
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -237,7 +253,7 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
 
   const expiredProductStyle = { color: 'red' };
 
-  const warehouseZones = zones.filter((zoneItem) => zoneItem.warehouse_id === zone.warehouse_id);
+  const warehouseZones = zones.filter((zoneItem) => zoneItem.warehouse_id === zone.warehouse_id && zoneItem.id !== zone.id);
 
   return (
     <>
@@ -386,6 +402,12 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
           </Button>
         </Modal.Footer>
       </Modal>
+      <MyToast
+        show={showToast}
+        setShow={setShowToast}
+        message={toastMessage}
+        variant={toastVariant}
+      />
     </>
   );
 };

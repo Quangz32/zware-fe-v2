@@ -3,6 +3,7 @@ import { Table, Pagination, Button, Modal, Form, Alert } from "react-bootstrap";
 import MyAxios from "../../util/MyAxios";
 import MyAlert from "./MyAlert";
 import ConfirmModal from "../../components/share/ConfirmModal";
+import MyToast from "../share/MyToast";
 import defaultProductImage from "./defaultProductImage.jpg";
 import "./WarehouseItemList.css";
 
@@ -23,6 +24,9 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
   const [selectedZone, setSelectedZone] = useState("");
   const [moveQuantity, setMoveQuantity] = useState("");
   const [errorMessages, setErrorMessages] = useState([]);
+  const [showToast, setShowToast] = useState(false); // State for toast visibility
+  const [toastMessage, setToastMessage] = useState(""); // State for toast message
+  const [toastVariant, setToastVariant] = useState("success"); // State for toast variant
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -209,13 +213,25 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
       setSelectedZone("");
       setMoveQuantity("");
       setErrorMessages([]);
-      setTimeout(() => {
-        window.location.reload();
-      }, 100);
+      // Update warehouse items for all zones in the warehouse
+      const updatedWarehouseItems = await MyAxios.get(`/warehouse_items`, { params: { warehouse_id: zone.warehouse_id } });
+      setWarehouseItems(updatedWarehouseItems.data.data);
+      // Show success toast
+      setToastMessage("Item moved successfully!");
+      setToastVariant("success");
+      setShowToast(true);
     } catch (error) {
-      console.error("Error moving item:");
+      console.error("Error moving item:", error);
       setErrorMessages(["Error moving item"]);
+      // Show error toast
+      setToastMessage("Error moving item");
+      setToastVariant("danger");
+      setShowToast(true);
     }
+
+    setTimeout(() => {
+      window.location.reload();
+    }, 1500);
   };
 
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -237,7 +253,8 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
 
   const expiredProductStyle = { color: 'red' };
 
-  const warehouseZones = zones.filter((zoneItem) => zoneItem.warehouse_id === zone.warehouse_id);
+  // Exclude the current zone from the dropdown
+  const warehouseZones = zones.filter((zoneItem) => zoneItem.warehouse_id === zone.warehouse_id && zoneItem.id !== zone.id);
 
   return (
     <>
@@ -253,34 +270,30 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
         <thead>
           <tr>
             <th>Product</th>
-            <th style={{ textAlign: "center" }}>Image</th>
-            <th style={{ textAlign: "center" }}>Quantity</th>
+            <th>Image</th>
+            <th>Quantity</th>
             <th>Expire Date</th>
-            <th style={{ textAlign: "center" }}>Move</th>
+            <th>Move</th>
           </tr>
         </thead>
         <tbody>
           {currentItems.map((warehouseItem) => {
             const item = getItemById(warehouseItem.item_id);
             const product = getProductById(item.product_id);
-            if (!product.name) {
-              return null;
-            }
-            const isExpired = new Date(item.expire_date) < new Date();
             const productImageUrl = productImages[product.id] || defaultProductImage;
-            const cellStyle = isExpired ? expiredProductStyle : {};
+
             return (
-              <tr key={warehouseItem.id}>
-                <td style={cellStyle}>{product.name}</td>
-                <td style={{ textAlign: "center", ...cellStyle }}>
+              <tr key={warehouseItem.id} style={item.expire_date < new Date().toISOString().split("T")[0] ? expiredProductStyle : {}}>
+                <td>{product.name}</td>
+                <td style={{ textAlign: "center" }}>
                   <img
                     src={productImageUrl}
                     alt="Product"
                     style={{ width: "50px", height: "50px" }}
                   />
                 </td>
-                <td style={{ textAlign: "center", ...cellStyle }}>{warehouseItem.quantity}</td>
-                <td style={cellStyle}>{item.expire_date}</td>
+                <td style={{ textAlign: "center" }}>{warehouseItem.quantity}</td>
+                <td>{item.expire_date}</td>
                 <td style={{ textAlign: "center" }}>
                   <Button variant="primary" onClick={() => handleMoveClick(warehouseItem)}>
                     Move
@@ -336,14 +349,13 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
           <Modal.Title>Move Item</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-        {errorMessages.length > 0 && (
-              <div color="red" className="text-center" >
-                  {errorMessages.map((message, index) => (
-                    <li key={index} style={{ color: "red" }}>{message}</li>
-                  ))}
-                
-              </div>
-            )}
+          {errorMessages.length > 0 && (
+            <Alert variant="danger">
+              {errorMessages.map((message, index) => (
+                <li key={index}>{message}</li>
+              ))}
+            </Alert>
+          )}
           <Form>
             <Form.Group controlId="formZoneSelect">
               <Form.Label>Select Zone</Form.Label>
@@ -377,6 +389,12 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
           </Button>
         </Modal.Footer>
       </Modal>
+      <MyToast
+        show={showToast}
+        setShow={setShowToast}
+        message={toastMessage}
+        variant={toastVariant}
+      />
     </>
   );
 };
