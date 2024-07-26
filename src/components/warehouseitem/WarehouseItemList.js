@@ -209,6 +209,9 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
       setSelectedZone("");
       setMoveQuantity("");
       setErrorMessages([]);
+      setTimeout(() => {
+        window.location.reload();
+      }, 100);
     } catch (error) {
       console.error("Error moving item:");
       setErrorMessages(["Error moving item"]);

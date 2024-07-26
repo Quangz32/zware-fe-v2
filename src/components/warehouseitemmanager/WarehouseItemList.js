@@ -209,6 +209,9 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
       setSelectedZone("");
       setMoveQuantity("");
       setErrorMessages([]);
+      setTimeout(() => {
+        window.location.reload();
+      }, 100);
     } catch (error) {
       console.error("Error moving item:");
       setErrorMessages(["Error moving item"]);
@@ -347,8 +350,8 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
           {errorMessages.length > 0 && (
             <div variant="danger" className="text-center">
               {errorMessages.map((message, index) => (
-                <div key={index}>{message}</div>
-              ))}
+                    <li key={index} style={{ color: "red" }}>{message}</li>
+                  ))}
             </div>
           )}
           <Form>
