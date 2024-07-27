@@ -33,29 +33,38 @@ export default function Statistics() {
 
   return (
     <div ref={printRef}>
-      <h1 className="container text-center">Report</h1>
+      <h1 className="container text-center">Report Inventory </h1>
       {/* <Button onClick={handlePrint}>Print</Button> */}
       <div className="container p-3">
-      <Table striped bordered hover>
-        <thead>
-          <tr>
-            <th>Product Name</th>
-            <th>Supplier</th>
-            <th>Measure Unit</th>
-            <th>Total Quantity</th>
-          </tr>
-        </thead>
-        <tbody>
-          {reportData.map((item, index) => (
-            <tr key={index}>
-              <td>{item.productName}</td>
-              <td>{item.supplier}</td>
-              <td>{item.measureUnit}</td>
-              <td>{item.totalQuantity}</td>
+        <Table striped bordered hover>
+          <thead>
+            <tr>
+              <th>Product Name</th>
+              <th>Image</th>
+              <th>Supplier</th>
+              <th>Measure Unit</th>
+              <th>Total Quantity</th>
             </tr>
-          ))}
-        </tbody>
-      </Table>
+          </thead>
+          <tbody>
+            {reportData.map((item, index) => (
+              <tr key={index}>
+                <td>{item.productName}</td>
+                <td>
+                  <img
+                    height={50}
+                    width={50}
+                    src={`http://localhost:2000/imageproducts/${item.image}`}
+                    alt={item.productName}
+                  />
+                </td>
+                <td>{item.supplier}</td>
+                <td>{item.measureUnit}</td>
+                <td>{item.totalQuantity}</td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
       </div>
     </div>
   );
