@@ -280,22 +280,32 @@ const WarehouseItemList = ({ zoneId, productSearchTerm }) => {
           {currentItems.map((warehouseItem) => {
             const item = getItemById(warehouseItem.item_id);
             const product = getProductById(item.product_id);
+             if (!product.name) {
+               return null;
+             }
+            const isExpired = new Date(item.expire_date) < new Date();
             const productImageUrl = productImages[product.id] || defaultProductImage;
+            const cellStyle = isExpired ? expiredProductStyle : {};
 
             return (
-              <tr key={warehouseItem.id} style={item.expire_date < new Date().toISOString().split("T")[0] ? expiredProductStyle : {}}>
-                <td>{product.name}</td>
-                <td style={{ textAlign: "center" }}>
+              <tr key={warehouseItem.id}>
+                <td style={cellStyle}>{product.name}</td>
+                <td style={{ textAlign: "center", ...cellStyle }}>
                   <img
                     src={productImageUrl}
                     alt="Product"
                     style={{ width: "50px", height: "50px" }}
                   />
                 </td>
-                <td style={{ textAlign: "center" }}>{warehouseItem.quantity}</td>
-                <td>{item.expire_date}</td>
+                <td style={{ textAlign: "center", ...cellStyle }}>
+                  {warehouseItem.quantity}
+                </td>
+                <td style={cellStyle}>{item.expire_date}</td>
                 <td style={{ textAlign: "center" }}>
-                  <Button variant="primary" onClick={() => handleMoveClick(warehouseItem)}>
+                  <Button
+                    variant="primary"
+                    onClick={() => handleMoveClick(warehouseItem)}
+                  >
                     Move
                   </Button>
                 </td>
