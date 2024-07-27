@@ -71,9 +71,11 @@ export default function ProductForm(props) {
         errors.confirm_password = "Passwords do not match";
       }
     }
-
-    if (formData.phone && !/^\d+$/.test(formData.phone)) {
-      errors.phone = "Phone is not valid";
+    // if (!/^\d{8,12}$/.test(value)) {
+    //   error = "Phone must be a string containing only numbers, with 8-12 characters";
+    // }
+    if (formData.phone && !/^\d{8,12}$/.test(formData.phone)) {
+      errors.phone = "Phone must contains 8-12 digits";
     }
 
     if (!formData.role) errors.role = "Role is required";

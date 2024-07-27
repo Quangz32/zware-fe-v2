@@ -18,9 +18,10 @@ const Profile = () => {
     warehouse_id: "",
   });
   const [initialProfile, setInitialProfile] = useState(null);
-  const [warehouseName, setWarehouseName] = useState('');
+  const [warehouseName, setWarehouseName] = useState("");
   const [avatarFile, setAvatarFile] = useState(null);
   const [imageData, setImageData] = useState("");
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (profile.id) {
@@ -42,7 +43,7 @@ const Profile = () => {
         }
       })
       .catch((error) => {
-        console.error('Error fetching profile:', error);
+        console.error("Error fetching profile:", error);
         setAlertMessage(error.response?.data?.message || "Error fetching profile");
         setAlertVariant("danger");
         triggerAlert();
@@ -60,24 +61,21 @@ const Profile = () => {
         setWarehouseName(warehouseData.name);
       })
       .catch((error) => {
-        console.error('Error fetching warehouse name:', error);
-        setWarehouseName('Unknown');
+        console.error("Error fetching warehouse name:", error);
+        setWarehouseName("Unknown");
       });
   };
 
   const fetchImageData = () => {
     MyAxios.get(`/users/${profile.id}/avatars`, {
-      responseType: 'arraybuffer',
+      responseType: "arraybuffer",
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     })
       .then((response) => {
         const base64Image = btoa(
-          new Uint8Array(response.data).reduce(
-            (data, byte) => data + String.fromCharCode(byte),
-            ""
-          )
+          new Uint8Array(response.data).reduce((data, byte) => data + String.fromCharCode(byte), "")
         );
         setImageData(`data:image/jpeg;base64,${base64Image}`);
       })
@@ -92,6 +90,7 @@ const Profile = () => {
       ...profile,
       [name]: value,
     });
+    validateField(name, value);
   };
 
   const handleAvatarChange = (e) => {
@@ -102,8 +101,46 @@ const Profile = () => {
     }
   };
 
+  const validateField = (name, value) => {
+    let error = "";
+
+    if (name === "name" && !value.trim()) {
+      error = "Name cannot be empty";
+    } else if (name === "phone") {
+      if (!/^\d{8,12}$/.test(value)) {
+        error = "Phone must be a string containing only numbers, with 8-12 characters";
+      }
+    }
+
+    setErrors({
+      ...errors,
+      [name]: error,
+    });
+
+    return error === "";
+  };
+
+  const validateForm = () => {
+    const fieldErrors = {
+      name: validateField("name", profile.name),
+      phone: validateField("phone", profile.phone),
+    };
+
+    setErrors(fieldErrors);
+
+    return Object.values(fieldErrors).every((isValid) => isValid);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!validateForm()) {
+      setAlertMessage("Please fix the validation errors and try again.");
+      setAlertVariant("danger");
+      triggerAlert();
+      return;
+    }
+
     try {
       let modifiedData = {};
       for (const key in profile) {
@@ -115,19 +152,19 @@ const Profile = () => {
       if (Object.keys(modifiedData).length > 0 || avatarFile) {
         if (avatarFile) {
           const formData = new FormData();
-          formData.append('file', avatarFile);
+          formData.append("file", avatarFile);
           await MyAxios.post(`/users/${profile.id}/avatars`, formData, {
             headers: {
-              'Content-Type': 'multipart/form-data'
-            }
+              "Content-Type": "multipart/form-data",
+            },
           })
-            .then(response => {
+            .then((response) => {
               setAlertMessage(response.data.message);
               setAlertVariant("success");
               triggerAlert();
             })
-            .catch(error => {
-              console.error('Error uploading avatar:', error);
+            .catch((error) => {
+              console.error("Error uploading avatar:", error);
               setAlertMessage(error.response?.data?.message || "Error uploading avatar");
               setAlertVariant("danger");
               triggerAlert();
@@ -135,13 +172,12 @@ const Profile = () => {
         }
 
         if (Object.keys(modifiedData).length > 0) {
-          await MyAxios.put(`/users/${profile.id}`, modifiedData)
-            .then(response => {
-              setAlertMessage(response.data.message);
-              setAlertVariant("success");
-              setInitialProfile(profile); // Sync initialProfile with the latest profile
-              triggerAlert();
-            });
+          await MyAxios.put(`/users/${profile.id}`, modifiedData).then((response) => {
+            setAlertMessage(response.data.message);
+            setAlertVariant("success");
+            setInitialProfile(profile); // Sync initialProfile with the latest profile
+            triggerAlert();
+          });
         }
       } else {
         setAlertMessage("No changes to save.");
@@ -149,7 +185,7 @@ const Profile = () => {
         triggerAlert();
       }
     } catch (error) {
-      console.error('Error updating profile:', error);
+      console.error("Error updating profile:", error);
       setAlertMessage(error.response?.data?.message || "Error updating profile");
       setAlertVariant("danger");
       triggerAlert();
@@ -189,7 +225,9 @@ const Profile = () => {
                 <form onSubmit={handleSubmit}>
                   <div className="p-3 py-5">
                     <div className="d-flex justify-content-between align-items-center mb-3">
-                      <h1 className="text-right title-profile" style={{ fontSize: '35px' }} >Profile</h1>
+                      <h1 className="text-right title-profile" style={{ fontSize: "35px" }}>
+                        Profile
+                      </h1>
                     </div>
                     <div className="row mt-2">
                       <div className="col-md-6">
@@ -202,6 +240,7 @@ const Profile = () => {
                           value={profile.name}
                           onChange={handleChange}
                         />
+                        {errors.name && <span className="text-danger">{errors.name}</span>}
                       </div>
                       <div className="col-md-6">
                         <label className="labels">Email</label>
@@ -253,6 +292,7 @@ const Profile = () => {
                           value={profile.phone}
                           onChange={handleChange}
                         />
+                        {errors.phone && <span className="text-danger">{errors.phone}</span>}
                       </div>
                       <div className="col-md-6">
                         <label className="labels">Gender</label>
