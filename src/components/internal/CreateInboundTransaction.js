@@ -89,8 +89,8 @@ export default function CreateInboundTransaction(props) {
     if (!formData.destination_warehouse)
       errors.destination_warehouse = "Destination warehouse is required";
     if (
-      formData.source_warehouse.toString() ===
-      formData.destination_warehouse.toString()
+      formData.source_warehouse ===
+      formData.destination_warehouse
     )
       errors.source_warehouse =
         "Source and destination warehouses must be different";
